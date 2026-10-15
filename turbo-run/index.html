@@ -406,15 +406,15 @@ function renderScores(k){$('scTabs').innerHTML=Object.entries(THEMES).map(([id,t
 let state='menu',speed=0,dist=0,boost=1,boosting=false,lane=1,targetX=LANES[1],spawnZ=-60,shake=0,traffic=[],coins=[];
 let S={};const keys={};let touchBoost=false;
 const coinGeo=new THREE.CylinderGeometry(.5,.5,.12,24),coinMat=new THREE.MeshStandardMaterial({color:0xffcc33,metalness:1,roughness:.2,emissive:0x553300});
-function reset(){
+function reset(){laneQ.length=0;chT=-1;
   traffic.forEach(t=>scene.remove(t));coins.forEach(c=>scene.remove(c));traffic=[];coins=[];
-  speed=20;dist=0;boost=1;boosting=false;lane=1;targetX=LANES[1];spawnZ=player.position.z-60;shake=0;
+  speed=20;dist=0;boost=1;boosting=false;lane=1;targetX=LANES[1];spawnZ=player.position.z-120;shake=0;
   S={dist:0,boost:0,coin:0,near:0,coins:0,nears:0,combo:0,maxCombo:0,comboT:0,total:0};
   player.position.x=LANES[1];player.rotation.set(0,0,0);
 }
 const mult=()=>1+Math.min(S.combo,20)*.25;
 function bestFor(k){return LS.get('hs_'+k,[])[0]?.score||0}
-function start(){initAudio();if(AC&&AC.state==='suspended')AC.resume();reset();spawnZ=player.position.z-60;state='play';show(null);$('best').textContent=bestFor(selTheme)}
+function start(){initAudio();if(AC&&AC.state==='suspended')AC.resume();reset();spawnZ=player.position.z-120;state='play';show(null);$('best').textContent=bestFor(selTheme)}
 function pause(){if(state!=='play')return;state='pause';show('pause');engineUpdate(false,0)}
 function resume(){if(state!=='pause')return;state='play';show(null);clock.getDelta()}
 function gameOver(){
@@ -430,7 +430,8 @@ function gameOver(){
 }
 $('playBtn').onclick=start;$('againBtn').onclick=start;$('menuBtn').onclick=goMenu;$('resumeBtn').onclick=resume;$('quitBtn').onclick=goMenu;$('pauseBtn').onclick=pause;
 function nearLane(x){let b=0;for(let i=1;i<4;i++)if(Math.abs(LANES[i]-x)<Math.abs(LANES[b]-x))b=i;return b}
-function steer(d){if(state!=='play')return;indSide=d;indUntil=t+1;const n=nearLane(targetX),off=targetX-LANES[n];if(Math.abs(off)>.6&&Math.sign(off)===-d){lane=n}else{lane=Math.max(0,Math.min(3,n+d))}targetX=LANES[lane]}
+const laneQ=[];let chT=-1,chFrom=0;
+function steer(d){if(state!=='play')return;if(laneQ.length<2)laneQ.push(d)}
 addEventListener('keydown',e=>{
   if(e.code==='Space'||e.code.startsWith('Arrow'))e.preventDefault();
   if(keys[e.code])return;keys[e.code]=true;
@@ -447,9 +448,9 @@ let sx=null;addEventListener('touchstart',e=>{if(e.target.tagName!=='BUTTON')sx=
 addEventListener('touchend',e=>{if(sx!==null){const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)steer(Math.sign(dx));sx=null}});
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 function spawnRow(z){
-  const ramp=Math.min(1,dist/7000);
-  const free=[0,1,2,3].sort(()=>Math.random()-.5),n=Math.random()<.3+ramp*.4?(Math.random()<ramp*.35?3:2):1;
-  for(let i=0;i<n;i++){const c=makeTraffic();c.position.set(LANES[free[i]],0,z+rnd(-2,2));c.userData.v=rnd(8,14);scene.add(c);traffic.push(c)}
+  const ramp=Math.min(1,dist/12000);
+  const free=[0,1,2,3].sort(()=>Math.random()-.5),n=Math.random()<.2+ramp*.3?(Math.random()<ramp*.2?3:2):1,rv=rnd(10,12);
+  for(let i=0;i<n;i++){const c=makeTraffic();c.position.set(LANES[free[i]],0,z);c.userData.v=rv;scene.add(c);traffic.push(c)}
   const cl=free[n];if(cl!==undefined&&Math.random()<.75)for(let k=0;k<4;k++){const c=new THREE.Mesh(coinGeo,coinMat);c.rotation.x=Math.PI/2;c.position.set(LANES[cl],1,z+k*3-4);c.castShadow=true;scene.add(c);coins.push(c)}
 }
 function addCombo(){S.combo++;S.comboT=4;S.maxCombo=Math.max(S.maxCombo,S.combo)}
@@ -465,13 +466,12 @@ function loop(){
     speed+=(target-speed)*Math.min(1,dt*(target>speed?car.acc:2.5));v=speed;
     player.position.z-=v*dt;dist+=v*dt;
     const dp=v*dt*.1;S.dist+=dp;if(boosting)S.boost+=dp;
-    const sp=-player.position.z,cv=curvX(sp);
-    targetX-=cv*v*v*.12*dt;targetX=Math.max(-6,Math.min(6,targetX));lane=nearLane(targetX);
-    if(Math.abs(player.position.x)>5.6){speed-=speed*dt*.9;shake=Math.max(shake,.12)}
-    const dx=targetX-player.position.x;player.position.x+=dx*Math.min(1,dt*car.hand);
+    if(chT<0&&laneQ.length){const d=laneQ.shift(),nl=Math.max(0,Math.min(3,lane+d));if(nl!==lane){chFrom=player.position.x;lane=nl;targetX=LANES[lane];chT=0;indSide=d;indUntil=t+1.2}}
+    if(chT>=0){chT+=dt;const f=Math.min(1,chT/.22),e=f*f*(3-2*f);player.position.x=chFrom+(LANES[lane]-chFrom)*e;if(f>=1){player.position.x=LANES[lane];chT=-1}}else player.position.x=LANES[lane];
+    const dx=chT>=0?(LANES[lane]-chFrom)*(1-chT/.22)*.6:0;
     player.rotation.y=-dx*.07;player.rotation.z=dx*.025;
     if(S.combo>0){S.comboT-=dt;if(S.comboT<=0){S.combo=0}}
-    while(spawnZ>player.position.z-170){spawnRow(spawnZ);spawnZ-=Math.max(13,30-dist/350)+Math.random()*10}
+    while(spawnZ>player.position.z-230){spawnRow(spawnZ);const rel=Math.max(8,speed-10),gap=Math.max(22,rel*1.8+speed*.35);spawnZ-=gap+Math.random()*gap*.6*(1-Math.min(1,dist/12000)*.5)}
     for(let i=traffic.length-1;i>=0;i--){const c=traffic[i];c.position.z-=c.userData.v*dt;const dz=c.position.z-player.position.z,ax=Math.abs(c.position.x-player.position.x),hl=c.userData.len+2;
       if(ax<1.75&&Math.abs(dz)<hl-.1){gameOver();break}
       if(!c.userData.passed&&dz>hl){c.userData.passed=true;if(ax<3.4){addCombo();const p=50*mult();S.near+=p;S.nears++;popup(`NEAR MISS +${Math.round(p)}`,'#7df9ff');beep(520,.18,'sawtooth',.06,1200)}}
@@ -509,5 +509,5 @@ function loop(){
   requestAnimationFrame(loop);
 }
 setPlayerCar(selCar);applyQuality();applyTheme(selTheme);reset();refreshMenu();show('menu');loop();
-window.__game={warp(z){player.position.z=z},get px(){return player.position.x},get pz(){return player.position.z},curvX,RY,start,pause,resume,get state(){return state},get score(){return S},get theme(){return selTheme},get car(){return selCar}};
+window.__game={get px(){return player.position.x},get pz(){return player.position.z},curvX,RY,start,pause,resume,get state(){return state},get score(){return S},get theme(){return selTheme},get car(){return selCar}};
 </script></body></html>
