@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <link rel="icon" href="data:,"><title>PaddockScan</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -72,6 +72,22 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 .stg{background:#111;border:2px solid #e10600;color:#fff;border-radius:12px;padding:10px;font:800 15px system-ui;cursor:pointer;text-align:left}.stg small{display:block;color:#aaa;font-weight:600;font-size:12px;margin-top:3px}
 .stg .sr{color:#ffcc33;font-size:18px;letter-spacing:2px}.stg.lock{filter:grayscale(1);opacity:.45;cursor:default}
 .stars3{font-size:clamp(40px,9vw,64px);color:#ffcc33;letter-spacing:6px;text-shadow:0 0 18px #ff9800}.stars3 i{color:#444;font-style:normal}
+
+/* --- overlay scroll/fit fix (1.4.2): full-viewport scroll container, safe-centre, safe-area padding --- */
+.screen{inset:0;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;box-sizing:border-box;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;justify-content:flex-start;
+ padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.screen>*{flex-shrink:0;max-width:100%;box-sizing:border-box}.screen>:first-child{margin-top:auto}.screen>:last-child{margin-bottom:auto}
+.screen *{touch-action:pan-y}
+#stages .card{padding:0 12px 0;max-width:min(900px,98vw)}
+#stages .card>h2{position:sticky;top:calc(-1 * max(12px,env(safe-area-inset-top)));z-index:2;margin:0 -12px;padding:12px 12px 6px;background:#141a33;border-radius:20px 20px 0 0}
+#stages #stagesInfo{margin:4px 0 2px;font-size:13px}
+#stages .card>.back{position:sticky;bottom:calc(-1 * max(12px,env(safe-area-inset-bottom)));z-index:2;margin:6px 0 0;box-shadow:0 -8px 16px #0d1022}
+#stages .card{position:relative}
+.stgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:6px 0 10px}
+.stg{padding:8px 9px;font-size:14px}.stg small{font-size:11px}.stg .sr{font-size:15px}
+@media (min-width:560px){.stgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (orientation:landscape) and (min-width:700px){.stgrid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (max-height:500px){.screen h1{font-size:clamp(28px,7vh,54px)}.card{padding:10px 14px}.btn{padding:8px 22px!important}.mbtn{padding:7px 14px!important;margin:3px!important}}
 </style></head><body>
 <div id="hud" class="hidden"><div>Score <span id="score">0</span> <span id="mult"></span></div><div><span id="dist">0</span> m · 🪙 <span id="coinsH">0</span></div><div>Best <span id="best">0</span></div><button id="pauseBtn">⏸</button></div>
 <div id="hpbar" class="hidden" style="position:fixed;top:52px;left:10px;width:min(180px,40vw);height:14px;background:#0008;border-radius:7px;overflow:hidden;z-index:2;pointer-events:none;border:1px solid #fff4"><div id="hpfill" style="height:100%;width:100%;background:linear-gradient(90deg,#ff1744,#ffeb3b,#76ff03);transition:width .15s"></div><span id="hplbl" style="position:absolute;left:6px;top:-1px;font:800 11px system-ui;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap">🔧 DAMAGE 0%</span></div><div id="stagebar" class="hidden"><div id="stagefill"></div><span id="stagelbl"></span><span class="flag">🏁</span></div><div id="count"></div><div id="comboTimer" class="hidden"><div id="comboFill"></div></div>
@@ -592,7 +608,7 @@ addEventListener('keyup',e=>keys[e.code]=false);
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;bgPause()});
 function hold(id,on,off){const b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('on');on()});for(const ev of['pointerup','pointercancel','pointerleave'])b.addEventListener(ev,()=>{b.classList.remove('on');off&&off()})}
 hold('tl',()=>steer(-1));hold('tr',()=>steer(1));hold('tb',()=>touchBoost=true,()=>touchBoost=false);
-let sx=null;addEventListener('touchstart',e=>{if(e.target.tagName!=='BUTTON')sx=e.touches[0].clientX},{passive:true});
+let sx=null;addEventListener('touchstart',e=>{if(e.target.closest&&e.target.closest('.screen'))return;if(e.target.tagName!=='BUTTON')sx=e.touches[0].clientX},{passive:true});
 addEventListener('touchend',e=>{if(sx!==null){const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)steer(Math.sign(dx));sx=null}});
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 const spawnAhead=()=>Math.max(200,(theme?theme.fog[2]:260)+15);

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Sprinkles and Layers</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -41,6 +41,12 @@ input[type=range]{width:240px;accent-color:#ff6fa5}
 .stars{font-size:44px;letter-spacing:4px;color:#f5c542;text-shadow:2px 2px 0 #fff}
 #face{font-size:64px}
 .bd{text-align:left;font-size:14px;margin:8px auto;max-width:360px}.bd div{display:flex;justify-content:space-between}
+
+/* --- overlay scroll/fit fix (1.4.2): full-viewport scroll container, safe-centre, safe-area padding --- */
+.screen{inset:0;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;box-sizing:border-box;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;justify-content:flex-start;
+ padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.screen>*{flex-shrink:0;max-width:100%;box-sizing:border-box}.screen>:first-child{margin-top:auto}.screen>:last-child{margin-bottom:auto}
+.screen *{touch-action:pan-y}
 </style></head><body>
 <div id="top" class="hidden"><div class="pill" id="order"></div><div class="pill" id="coinsP">🪙 0</div><div class="pill" id="lvlP">Lv 1</div><div class="pill hidden" id="timerP">⏱ 0</div><div class="pill" id="pauseBtn">⏸</div></div>
 <div id="phase" class="hidden"><div id="phTitle"></div><div id="phHint"></div><div id="ctrl"></div></div>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>HEALTH AND HIT</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -50,6 +50,12 @@ a.mbtn{text-decoration:none;display:inline-block}
 .badge{font-weight:bold;padding:3px 8px;border-radius:4px;background:#fff;color:#000}
 .badge.no{background:#e10600;color:#fff;text-decoration:line-through}
 input.code{font-size:20px;padding:6px;width:160px;text-align:center;background:#000;color:#fff;border:2px solid #e10600;font-family:inherit}
+
+/* --- overlay scroll/fit fix (1.4.2): full-viewport scroll container, safe-centre, safe-area padding --- */
+.screen{inset:0;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;box-sizing:border-box;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;justify-content:flex-start;
+ padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.screen>*{flex-shrink:0;max-width:100%;box-sizing:border-box}.screen>:first-child{margin-top:auto}.screen>:last-child{margin-bottom:auto}
+.screen *{touch-action:pan-y}
 </style></head><body>
 <div id="hud" class="hidden"><div class="top">
 <span class="pill" id="hLvl">LV 1</span><span class="pill" id="hCoins">🪙 0</span>
