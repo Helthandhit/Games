@@ -102,9 +102,9 @@ input.code{font-size:20px;padding:6px;width:160px;text-align:center;background:#
 
 <div id="pause" class="screen hidden"><h1>PAUSED</h1><button class="btn" id="resumeBtn">▶ Resume</button><button class="mbtn" id="pSnd">Sound</button><button class="mbtn" id="quitBtn">Main Menu</button></div>
 
-<div id="result" class="screen hidden"><h2 id="rTitle">SET COMPLETE</h2><div class="sub" id="rBody"></div><button class="btn" id="rOk">CONTINUE</button></div>
+<div id="result" class="screen hidden"><h2 id="rTitle">SET COMPLETE</h2><div class="sub" id="rBody"></div><button class="btn" id="rOk">CONTINUE</button><button class="mbtn shareBtn" data-ctx="set">📤 SHARE</button></div>
 
-<div id="lvlup" class="screen hidden" style="background:rgba(0,0,0,.35);justify-content:flex-end;padding-bottom:40px"><h1 style="font-size:clamp(36px,8vw,80px)">LEVEL UP!</h1><h2 id="luTitle" style="color:#fff;text-shadow:2px 2px 0 #e10600"></h2><div class="sub" id="luBody"></div><button class="btn" id="luOk">KEEP GRINDING</button></div>
+<div id="lvlup" class="screen hidden" style="background:rgba(0,0,0,.35);justify-content:flex-end;padding-bottom:40px"><h1 style="font-size:clamp(36px,8vw,80px)">LEVEL UP!</h1><h2 id="luTitle" style="color:#fff;text-shadow:2px 2px 0 #e10600"></h2><div class="sub" id="luBody"></div><button class="btn" id="luOk">KEEP GRINDING</button><button class="mbtn shareBtn" data-ctx="lvl">📤 SHARE</button></div>
 <div id="toast" style="opacity:0"></div>
 <script id="three-src" type="text/plain">/**
  * @license
@@ -307,7 +307,7 @@ function finish(ok){if(!mg)return;const m=mg;const k=m.k;const q=k==='hiit'?Math
  const xp=Math.round((20+q*40+(k==='hiit'?0:m.w*.25))*mult*(ok?1:.5));const coins=Math.round(xp/3)+(ok?10:0);
  const gStr=k==='hiit'?0:q*(2.2)*mult,gSize=(k==='hiit'?.3:q*1.6)*mult,gSta=(k==='hiit'?q*4:q*.6)*mult;
  S.xp+=xp;S.coins+=coins;S.str=Math.min(100,S.str+gStr);S.size=Math.min(100,S.size+gSize);S.sta=Math.min(100,S.sta+gSta);S.sets++;buffs.shake=0;buffs.pre=0;
- if(k!=='hiit')S.best[k]=Math.max(S.best[k]||0,ok?m.w:0);
+ lastSet={ok,name:EX[k].name,desc:k==='hiit'?m.dist.toFixed(0)+' m sprint':m.reps+' reps @ '+m.w+' kg'};if(k!=='hiit')S.best[k]=Math.max(S.best[k]||0,ok?m.w:0);
  let notes=[];
  if(S.roid>0){S.roid--;const se=['Roid rage: argued with a dumbbell','Acne breakout +3','Voice went up an octave','Shirt exploded','Can\'t scratch own back anymore','Cried at a protein ad'];notes.push('💉 Side effect: '+se[Math.random()*se.length|0]);S.sideFx=Math.min(100,S.sideFx+10);if(S.roid===0){S.energy=5;notes.push('💥 CRASH! The cycle ended – energy crashed to 5.');}}
  else S.sideFx=Math.max(0,S.sideFx-10);
@@ -316,6 +316,35 @@ function finish(ok){if(!mg)return;const m=mg;const k=m.k;const q=k==='hiit'?Math
  $('rBody').innerHTML=`${EX[k].name}: ${k==='hiit'?m.dist.toFixed(0)+'m':m.reps+' reps @ '+m.w+'kg'}<br>+${xp} XP · +${coins} 🪙<br>STR +${gStr.toFixed(1)} · SIZE +${gSize.toFixed(1)} · STA +${gSta.toFixed(1)}<br>${notes.join('<br>')}${S.sideFx?'<br>Side-effects meter: '+S.sideFx+'%':''}`;
  show('mg',false);show('result');state='result';hud();}
 function afterResult(){show('result',false);if(S.xp>=xpNeed()){S.xp-=xpNeed();S.level++;S.str=Math.min(100,S.str+3);S.size=Math.min(100,S.size+4);S.coins+=25;save();morph();state='lvlup';pose='flex';show('hub',false);show('lvlup');camT.p.set(0,1.4,3.0);camT.l.set(0,1.15,0);$('luTitle').textContent=`LEVEL ${S.level} – ${title().toUpperCase()}`;const un=Object.entries(EX).filter(([k,e])=>e.lv===S.level).map(([k,e])=>e.name);$('luBody').innerHTML=`+25 🪙 · heavier weights unlocked${un.length?'<br>NEW EXERCISE: '+un.join(', '):''}`;sfx.lvl();hud();}else toHub();}
+// ---------- Share score card (Web Share L2 / Android bridge / download fallback) ----------
+// Android bridge: window.AndroidShare.shareImage(base64Png:string /*no data: prefix*/, text:string) -> void
+window.ShareCard=(()=>{const URLT='https://helthandhit.github.io/Games/';
+ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+ function loadImg(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
+ async function make(o){const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,o.bg1||'#0b0b1e');bg.addColorStop(1,o.bg2||'#000');g.fillStyle=bg;g.fillRect(0,0,W,H);
+  g.textAlign='center';g.fillStyle=o.accent||'#ffcc33';g.font='italic 900 96px system-ui,Arial';g.shadowColor=o.accent||'#f50';g.shadowBlur=30;g.fillText(o.title,W/2,130);g.shadowBlur=0;
+  const img=await loadImg(o.frame);if(img){const fw=W-120,fh=fw*img.height/img.width,h2=Math.min(fh,480);g.save();rr(g,60,180,fw,h2,28);g.clip();g.drawImage(img,0,(img.height-img.height*h2/fh)/2,img.width,img.height*h2/fh,60,180,fw,h2);g.restore();g.lineWidth=6;g.strokeStyle=o.accent||'#fc3';rr(g,60,180,fw,h2,28);g.stroke()}
+  let y=img?800:260;g.fillStyle='#fff';g.font='900 120px system-ui,Arial';g.fillText(o.big,W/2,y);y+=50;g.font='700 34px system-ui,Arial';g.fillStyle='#ffffffaa';g.fillText(o.bigLabel||'',W/2,y);y+=70;
+  g.font='700 40px system-ui,Arial';for(const[k,v]of o.lines){g.textAlign='left';g.fillStyle='#ffffff99';g.fillText(k,140,y);g.textAlign='right';g.fillStyle='#fff';g.fillText(v,W-140,y);y+=56}
+  g.textAlign='center';g.fillStyle=o.accent||'#fc3';g.font='800 40px system-ui,Arial';g.fillText(URLT.replace('https://',''),W/2,H-60);return c}
+ async function share(o){const c=await make(o),text=o.text+' '+URLT,name=(o.file||'score')+'.png';
+  const dataURL=c.toDataURL('image/png');
+  try{if(window.AndroidShare&&typeof window.AndroidShare.shareImage==='function'){window.AndroidShare.shareImage(dataURL.split(',')[1],text);return 'android'}}catch(e){}
+  try{const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=new File([blob],name,{type:'image/png'});
+   if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text,title:o.title});return 'share'}
+   if(navigator.share&&!navigator.canShare){await navigator.share({text,title:o.title,url:URLT});return 'share-text'}}catch(e){if(e&&e.name==='AbortError')return 'cancel'}
+  const a=document.createElement('a');a.href=dataURL;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  try{await navigator.clipboard.writeText(text)}catch(e){}return 'download'}
+ return {make,share}})();
+
+let lastSet=null;
+document.querySelectorAll('.shareBtn').forEach(b=>b.onclick=async e=>{e.stopPropagation();b.disabled=true;let frame=null;try{renderer.render(scene,camera);frame=renderer.domElement.toDataURL('image/jpeg',.85)}catch(er){}
+  const lv=b.dataset.ctx==='lvl',r=lastSet;const lines=[['Title',title()],['Strength',S.str.toFixed(0)],['Size',S.size.toFixed(0)],['Stamina',S.sta.toFixed(0)],['Status',S.natty?'🟢 Natty':'💉 Not natty']];
+  if(!lv&&r)lines.unshift([r.name,r.desc]);
+  const res=await ShareCard.share({title:'HEALTH AND HIT',accent:'#ff1a1a',bg1:'#1a0000',bg2:'#000',frame,big:'LEVEL '+S.level,bigLabel:lv?'LEVEL UP!':(r&&r.ok?'SET COMPLETE':'SET FAILED'),lines,
+   text:lv?`Just hit Level ${S.level} (${title()}) in HealthAndHIT 💪`:`${r?r.name+': '+r.desc+' — ':''}Level ${S.level} ${title()} in HealthAndHIT 💪`,file:'healthandhit'});
+  b.disabled=false;if(res==='download')toast('IMAGE SAVED · TEXT COPIED')});
 // ---------- INPUT ----------
 const act=$('actBtn');const pd=e=>{e.preventDefault();press();};act.addEventListener('pointerdown',pd);act.addEventListener('pointerup',e=>{e.preventDefault();release();});act.addEventListener('pointerleave',release);
 $('lBtn').addEventListener('pointerdown',e=>{e.preventDefault();side(-1);});$('rBtn').addEventListener('pointerdown',e=>{e.preventDefault();side(1);});
