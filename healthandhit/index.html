@@ -401,4 +401,9 @@ function loop(now){requestAnimationFrame(loop);let dt=Math.min(.05,(now-lastT)/1
  renderer.render(scene,camera);}
 resize();applyGfx();buildChar(S.gender);sndTxt();toMenu();hud();camera.position.copy(camT.p);requestAnimationFrame(loop);
 window.HH={get S(){return S},get mg(){return mg},get state(){return state},press,release,side,startEx,usePU,toHub,unlockRoids};
+
+// ---------- audio lifecycle: silence when hidden / leaving, auto-pause ----------
+{const off=()=>{try{if(AC&&AC.state==='running')AC.suspend()}catch(e){}},on=()=>{try{if(AC&&AC.state==='suspended')AC.resume()}catch(e){}};
+ const bg=()=>{try{if(!paused&&state!=="menu")togglePause()}catch(e){}off()};
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)bg();else on()});addEventListener('pagehide',bg);addEventListener('blur',off);addEventListener('focus',on);window.__appPause=bg;}
 </script></body></html>

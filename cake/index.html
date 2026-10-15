@@ -372,4 +372,9 @@ function loop(now){requestAnimationFrame(loop);let dt=Math.min(.05,(now-last)/10
  renderer.render(scene,camera);}
 resize();applyGfx();sndT();toMenu();camera.position.copy(view.p);requestAnimationFrame(loop);
 window.CC={get S(){return S},get R(){return R},get O(){return O},get phase(){return phase},goPhase,addIng,addMix,takeOut,target,start,camera,cakeG,hitCake,frostAt,deco,serve,spin};
+
+// ---------- audio lifecycle: silence when hidden / leaving, auto-pause ----------
+{const off=()=>{try{if(AC&&AC.state==='running')AC.suspend()}catch(e){}},on=()=>{try{if(AC&&AC.state==='suspended')AC.resume()}catch(e){}};
+ const bg=()=>{try{if(!paused&&mode!=="menu")togglePause()}catch(e){}off()};
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)bg();else on()});addEventListener('pagehide',bg);addEventListener('blur',off);addEventListener('focus',on);window.__appPause=bg;}
 </script></body></html>

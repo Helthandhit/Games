@@ -62,16 +62,26 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 #touch .boost{background:#e91e63aa;font-size:16px}
 #touch button.on{background:#fff6}
 @media (pointer:coarse){#touch.show{display:flex}#speedo{bottom:120px}}
+#stagebar{position:fixed;top:72px;left:50%;transform:translateX(-50%);width:min(420px,70vw);height:16px;background:#000a;border:1px solid #fff5;border-radius:8px;overflow:hidden;z-index:2;pointer-events:none}
+#stagefill{height:100%;width:0;background:linear-gradient(90deg,#e10600,#ff5a4f)}#stagelbl{position:absolute;inset:0;font:800 11px system-ui;color:#fff;text-align:center;line-height:16px;text-shadow:0 1px 2px #000;white-space:nowrap}
+#stagebar .flag{position:absolute;right:3px;top:0;font-size:11px;line-height:16px}
+#count{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:6;pointer-events:none;font:italic 900 clamp(90px,22vw,220px) system-ui;color:#fff;text-shadow:0 0 30px #e10600,0 6px 0 #000}
+#count.pop{animation:cpop .9s ease-out}@keyframes cpop{0%{transform:scale(1.8);opacity:0}25%{transform:scale(1);opacity:1}100%{opacity:.85}}
+#over:not(.hidden) .card,#stagec:not(.hidden) .card{animation:fadeUp .45s ease-out}@keyframes fadeUp{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+.stgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;max-width:760px;margin:6px auto 12px}
+.stg{background:#111;border:2px solid #e10600;color:#fff;border-radius:12px;padding:10px;font:800 15px system-ui;cursor:pointer;text-align:left}.stg small{display:block;color:#aaa;font-weight:600;font-size:12px;margin-top:3px}
+.stg .sr{color:#ffcc33;font-size:18px;letter-spacing:2px}.stg.lock{filter:grayscale(1);opacity:.45;cursor:default}
+.stars3{font-size:clamp(40px,9vw,64px);color:#ffcc33;letter-spacing:6px;text-shadow:0 0 18px #ff9800}.stars3 i{color:#444;font-style:normal}
 </style></head><body>
 <div id="hud" class="hidden"><div>Score <span id="score">0</span> <span id="mult"></span></div><div><span id="dist">0</span> m · 🪙 <span id="coinsH">0</span></div><div>Best <span id="best">0</span></div><button id="pauseBtn">⏸</button></div>
-<div id="hpbar" class="hidden" style="position:fixed;top:52px;left:10px;width:min(180px,40vw);height:14px;background:#0008;border-radius:7px;overflow:hidden;z-index:2;pointer-events:none;border:1px solid #fff4"><div id="hpfill" style="height:100%;width:100%;background:linear-gradient(90deg,#ff1744,#ffeb3b,#76ff03);transition:width .15s"></div><span id="hplbl" style="position:absolute;left:6px;top:-1px;font:800 11px system-ui;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap">🔧 DAMAGE 0%</span></div><div id="comboTimer" class="hidden"><div id="comboFill"></div></div>
+<div id="hpbar" class="hidden" style="position:fixed;top:52px;left:10px;width:min(180px,40vw);height:14px;background:#0008;border-radius:7px;overflow:hidden;z-index:2;pointer-events:none;border:1px solid #fff4"><div id="hpfill" style="height:100%;width:100%;background:linear-gradient(90deg,#ff1744,#ffeb3b,#76ff03);transition:width .15s"></div><span id="hplbl" style="position:absolute;left:6px;top:-1px;font:800 11px system-ui;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap">🔧 DAMAGE 0%</span></div><div id="stagebar" class="hidden"><div id="stagefill"></div><span id="stagelbl"></span><span class="flag">🏁</span></div><div id="count"></div><div id="comboTimer" class="hidden"><div id="comboFill"></div></div>
 <canvas id="speedo" class="hidden" width="300" height="192"></canvas>
 <div id="boostbar" class="hidden"><div id="boostfill"></div></div>
 <div id="touch"><div><button id="tl">◀</button> <button id="tr">▶</button></div><button id="tb" class="boost">BOOST</button></div>
 
 <div id="menu" class="screen"><h1>PADDOCKSCAN</h1><p>Dodge traffic · Grab coins · Chain near misses</p>
 <p id="menuInfo" class="wallet"></p>
-<div class="menuBtns"><button class="btn" id="playBtn">▶ PLAY</button><a class="mbtn" href="../" style="display:inline-block;text-decoration:none;text-align:center">🏠 Back to Game Hub</a>
+<div class="menuBtns"><button class="btn" id="playBtn">🏁 STAGES</button><button class="btn" id="endlessBtn" style="background:linear-gradient(#333,#111);border-color:#e10600">♾ ENDLESS</button><a class="mbtn" href="../" style="display:inline-block;text-decoration:none;text-align:center">🏠 Back to Game Hub</a>
 <button class="mbtn" data-go="cars" id="carsBtn">🚗 Car Select</button>
 <button class="mbtn" data-go="scenery" id="sceneBtn">🏞️ Scenery Select</button>
 <button class="mbtn" data-go="scores" id="scoresBtn">🏆 High Scores</button>
@@ -99,9 +109,13 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 
 <div id="pause" class="screen hidden"><h1>PAUSED</h1><button class="btn" id="resumeBtn">▶ RESUME</button><button class="mbtn" id="quitBtn">Quit to Menu</button></div>
 
+<div id="stages" class="screen hidden"><div class="card"><h2>Stage Select</h2><p id="stagesInfo"></p><div class="stgrid" id="stageList"></div><button class="mbtn back">◀ Back</button></div></div>
+<div id="stagec" class="screen hidden"><div class="card"><h1 style="font-size:clamp(32px,7vw,64px)">STAGE CLEAR!</h1><p id="scName"></p><div class="stars3" id="scStars"></div>
+<div class="bd" id="scBd"></div><p class="wallet" id="scWallet"></p>
+<button class="btn" id="nextStageBtn">NEXT STAGE ▶</button><button class="mbtn" id="scRetry">↻ Retry</button><button class="mbtn" id="scShare">📤 Share</button><button class="mbtn" id="scMenu">Menu</button></div></div>
 <div id="over" class="screen hidden"><div class="card"><h1 id="overTitle" style="font-size:clamp(36px,8vw,70px)">CRASHED!</h1><div id="newBest" class="hidden">🏆 NEW BEST!</div>
 <div class="bd" id="breakdown"></div><p class="wallet" id="overWallet"></p>
-<button class="btn" id="againBtn">PLAY AGAIN</button><button class="mbtn" id="shareBtn">📤 Share score</button><button class="mbtn" id="menuBtn">Main Menu</button></div></div>
+<button class="btn" id="againBtn">↻ RETRY</button><button class="mbtn" id="shareBtn">📤 Share score</button><button class="mbtn" id="menuBtn">Main Menu</button></div></div>
 <script id="three-src" type="text/plain">/**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -117,10 +131,10 @@ const $=id=>document.getElementById(id);
 // ---------- OutRun-style road: procedural bends (X) and hills (Y) applied as a world bend in every vertex shader ----------
 const RX=s=>46*Math.sin(.0081*s)+24*Math.sin(.0173*s+1.3)+3*Math.sin(.031*s+.4);
 const RY=s=>12*Math.sin(.0115*s+.7)+5*Math.sin(.0262*s+2.1);
-const BEND={value:new THREE.Vector4(0,0,0,1)},BMIN=-80,BMAX=330;
-const bendX=(z,sp)=>{const ss=sp+Math.max(BMIN,Math.min(BMAX,-z-sp));return RX(ss)-RX(sp)};
-const bendY=(z,sp)=>{const ss=sp+Math.max(BMIN,Math.min(BMAX,-z-sp));return RY(ss)-RY(sp)};
-const curvX=s=>(RX(s+2)-2*RX(s)+RX(s-2))/4, slopeY=s=>(RY(s+1)-RY(s-1))/2;
+const BEND={value:new THREE.Vector4(0,0,0,1)},BMIN=-80,BMAX=330;let CURV=1;
+const bendX=(z,sp)=>{const ss=sp+Math.max(BMIN,Math.min(BMAX,-z-sp));return (RX(ss)-RX(sp))*CURV};
+const bendY=(z,sp)=>{const ss=sp+Math.max(BMIN,Math.min(BMAX,-z-sp));return (RY(ss)-RY(sp))*CURV};
+const curvX=s=>(RX(s+2)-2*RX(s)+RX(s-2))/4*CURV, slopeY=s=>(RY(s+1)-RY(s-1))/2*CURV;
 {const SC=THREE.ShaderChunk;
  SC.common+=`
 uniform vec4 uBend;
@@ -131,7 +145,7 @@ vec4 bendW(vec4 w){float ss=uBend.x+clamp(-w.z-uBend.x,${BMIN}.,${BMAX}.);w.x+=(
  SC.project_vertex='vec4 mvPosition = viewMatrix * bendW( modelMatrix * vec4( transformed, 1.0 ) );\ngl_Position = projectionMatrix * mvPosition;';
  SC.worldpos_vertex='#if defined( USE_ENVMAP ) || defined( DISTANCE ) || defined ( USE_SHADOWMAP ) || defined ( USE_TRANSMISSION ) || NUM_SPOT_LIGHT_COORDS > 0\n\tvec4 worldPosition = bendW( modelMatrix * vec4( transformed, 1.0 ) );\n#endif';
  THREE.Material.prototype.onBeforeCompile=function(sh){sh.uniforms.uBend=BEND};}
-function setBend(sp,on=1){BEND.value.set(sp,RX(sp),RY(sp),on)}
+function setBend(sp,on=1){BEND.value.set(sp,RX(sp),RY(sp),on*CURV)}
 const LS={get(k,d){try{const v=localStorage.getItem('tr3d_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('tr3d_'+k,JSON.stringify(v))}catch(e){}}};
 // ---------- persistent data ----------
 let wallet=LS.get('wallet',0),owned=LS.get('owned',['swift']),selCar=LS.get('car','swift'),selTheme=LS.get('theme','country'),sound=LS.get('sound',true),quality=LS.get('quality','high');
@@ -418,7 +432,7 @@ function drawSpeedo(kmh,b){const w=300,h=192,cx=150,cy=165,R=130;sctx.clearRect(
 function popup(txt,col='#fff'){const d=document.createElement('div');d.className='popup';d.textContent=txt;d.style.color=col;document.body.appendChild(d);setTimeout(()=>d.remove(),1100)}
 // ---------- audio ----------
 let AC=null,eng={};
-function initAudio(){if(AC)return;try{AC=new (window.AudioContext||window.webkitAudioContext)();
+function initAudio(){if(AC){if(AC.state==='suspended')AC.resume().catch(()=>{});return}try{AC=new (window.AudioContext||window.webkitAudioContext)();
   const o1=AC.createOscillator(),o2=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o1.type='sawtooth';o2.type='square';o2.detune.value=-1200;f.type='lowpass';f.frequency.value=900;f.Q.value=4;g.gain.value=0;
   const g2=AC.createGain();g2.gain.value=.4;o1.connect(f);o2.connect(g2).connect(f);f.connect(g).connect(AC.destination);o1.start();o2.start();eng={o1,o2,f,g}}catch(e){AC=null}}
 function engineUpdate(on,v,b){if(!AC)return;const t=AC.currentTime,gear=(v%14)/14,fr=45+v*1.1+gear*70;
@@ -426,9 +440,9 @@ function engineUpdate(on,v,b){if(!AC)return;const t=AC.currentTime,gear=(v%14)/1
 function beep(f,d=.12,type='sine',vol=.12,f2){if(!AC||!sound)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d)}
 function crashSound(){if(!AC||!sound)return;const n=AC.sampleRate*.6,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const s=AC.createBufferSource(),g=AC.createGain();g.gain.value=.4;s.buffer=b;s.connect(g).connect(AC.destination);s.start()}
 // ---------- screens ----------
-const SCREENS=['menu','cars','scenery','scores','howto','pause','over'];
-function show(id){for(const s of SCREENS)$(s).classList.toggle('hidden',s!==id);const inGame=id===null||id==='pause';for(const h of['hud','hpbar','boostbar','speedo','comboTimer'])$(h).classList.toggle('hidden',!inGame&&id!=='over');$('touch').classList.toggle('show',id===null)}
-function goMenu(){state='menu';reset();show('menu');refreshMenu()}
+const SCREENS=['menu','cars','scenery','scores','howto','pause','over','stages','stagec'];
+function show(id){for(const s of SCREENS)$(s).classList.toggle('hidden',s!==id);const inGame=id===null||id==='pause';for(const h of['hud','hpbar','boostbar','speedo','comboTimer','stagebar'])$(h).classList.toggle('hidden',!inGame&&id!=='over');if(mode!=='stage')$('stagebar').classList.add('hidden');$('touch').classList.toggle('show',id===null);if(id!==null)$('count').textContent=''}
+function goMenu(){engineUpdate(false,0);state='menu';reset();CURV=1;show('menu');refreshMenu()}
 function refreshMenu(){$('menuInfo').textContent=`🪙 ${wallet} coins · ${carById(selCar).name} · ${THEMES[selTheme].name}`;$('soundBtn').textContent=sound?'🔊 Sound: On':'🔇 Sound: Off';$('qualBtn').textContent='✨ Graphics: '+(quality==='high'?'High':'Low')}
 const qb=document.createElement('button');qb.className='mbtn';qb.id='qualBtn';$('soundBtn').after(qb);
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{initAudio();beep(660,.06);const go=b.dataset.go;show(go);if(go==='cars')showPreview(CARS.findIndex(c=>c.id===selCar));if(go==='scenery')renderScenes();if(go==='scores')renderScores(selTheme)});
@@ -453,9 +467,10 @@ function renderScores(k){$('scTabs').innerHTML=Object.entries(THEMES).map(([id,t
   const hs=LS.get('hs_'+k,[]);$('scTable').innerHTML='<tr><th>#</th><th>Score</th><th>Distance</th><th>Car</th><th>Date</th></tr>'+(hs.length?hs.map((h,i)=>`<tr><td>${['🥇','🥈','🥉','4','5'][i]}</td><td><b>${h.score}</b></td><td>${h.dist} m</td><td>${h.car}</td><td>${h.date}</td></tr>`).join(''):'<tr><td colspan="5" style="opacity:.6">No runs yet — go set one!</td></tr>')}
 // ---------- game state ----------
 let state='menu',speed=0,dist=0,boost=1,boosting=false,lane=1,targetX=LANES[1],spawnZ=-60,shake=0,traffic=[],coins=[];
+let mode='endless',stageIdx=0,finishZ=0,finishObj=null,stageT=0,dmgTaken=0,cdT=0,cdEnd=0,cdN=0,prevState='play';
 let S={},hp=100,dmgFx=0,inv=0,hazards=[],lastRun=null,knocks=0,dents=null;const keys={};let touchBoost=false;
 const coinGeo=new THREE.CylinderGeometry(.5,.5,.12,24),coinMat=new THREE.MeshStandardMaterial({color:0xffcc33,metalness:1,roughness:.2,emissive:0x553300});
-function reset(){laneQ.length=0;chT=-1;
+function reset(){laneQ.length=0;chT=-1;stageT=0;dmgTaken=0;if(finishObj){scene.remove(finishObj);finishObj=null}
   traffic.forEach(t=>scene.remove(t));coins.forEach(c=>scene.remove(c));traffic=[];coins=[];
   speed=carById(selCar).top*.62;dist=0;hp=carById(selCar).dur;knocks=0;repairVis();dmgFx=0;inv=0;hazards.forEach(h=>scene.remove(h));hazards=[];boost=1;boosting=false;lane=1;targetX=LANES[1];spawnZ=player.position.z-160;shake=0;
   S={dist:0,boost:0,coin:0,near:0,coins:0,nears:0,combo:0,maxCombo:0,comboT:0,total:0};
@@ -463,19 +478,61 @@ function reset(){laneQ.length=0;chT=-1;
 }
 const mult=()=>1+Math.min(S.combo,20)*.25;
 function bestFor(k){return LS.get('hs_'+k,[])[0]?.score||0}
-function start(){window.GHDaily?.played();initAudio();if(AC&&AC.state==='suspended')AC.resume();reset();spawnZ=player.position.z-160;state='play';show(null);$('best').textContent=bestFor(selTheme)}
-function pause(){if(state!=='play')return;state='pause';show('pause');engineUpdate(false,0)}
-function resume(){if(state!=='pause')return;state='play';show(null);clock.getDelta()}
+function start(){window.GHDaily?.played();initAudio();if(AC&&AC.state==='suspended')AC.resume();CURV=mode==='stage'?STG().curv:1;reset();spawnZ=player.position.z-160;
+  if(mode==='stage'){finishZ=player.position.z-STG().len;finishObj=buildFinish(finishZ);scene.add(finishObj)}
+  state='count';cdT=3;cdEnd=performance.now()+3000;cdN=0;show(null);$('best').textContent=mode==='stage'?'★'.repeat(stageSave().stars[stageIdx]||0)||'—':bestFor(selTheme)}
+function pause(){if(state!=='play'&&state!=='count')return;prevState=state;state='pause';show('pause');engineUpdate(false,0)}
+function resume(){if(state!=='pause')return;state=prevState||'play';if(state==='count')cdEnd=performance.now()+Math.max(0,cdT)*1000;show(null);clock.getDelta();if(AC&&AC.state==='suspended')AC.resume()}
+// ---------- STAGES ----------
+const STAGES=[
+ {name:'Warm-Up Lap',len:1200,dens:0,holes:.6,curv:.6,nm:3},
+ {name:'Country Sprint',len:1600,dens:.1,holes:.8,curv:.75,nm:4},
+ {name:'Hill Climb',len:2000,dens:.2,holes:1,curv:.9,nm:5},
+ {name:'Rush Hour',len:2200,dens:.4,holes:1,curv:.9,nm:7},
+ {name:'Pothole Alley',len:2400,dens:.35,holes:1.8,curv:1,nm:7},
+ {name:'Twisty Pass',len:2600,dens:.45,holes:1.2,curv:1.25,nm:8},
+ {name:'Lorry Convoy',len:2800,dens:.6,holes:1.2,curv:1.1,nm:9},
+ {name:'Express Run',len:3000,dens:.7,holes:1.4,curv:1.2,nm:10},
+ {name:'Rollercoaster',len:3200,dens:.75,holes:1.5,curv:1.4,nm:11},
+ {name:'Grand Final',len:3600,dens:.9,holes:1.7,curv:1.45,nm:12}];
+const STG=()=>STAGES[stageIdx];
+const stageSave=()=>LS.get('stages',{unlocked:1,stars:{}});
+const rampNow=()=>mode==='stage'?Math.min(1,STG().dens*.75+Math.min(1,dist/STG().len)*.25):Math.min(1,dist/12000);
+function starsFor(dp,nears){return 1+(dp<=50?1:0)+(dp<=20&&nears>=STG().nm?1:0)}
+const fmtT=t=>Math.floor(t/60)+':'+(t%60).toFixed(1).padStart(4,'0');
+const checkTex=canvasTex(416,64,(g,w,h)=>{for(let x=0;x<26;x++)for(let y=0;y<4;y++){g.fillStyle=(x+y)%2?'#111':'#fff';g.fillRect(x*16,y*16,16,16)}});
+const bannerTex=canvasTex(512,64,(g,w,h)=>{for(let x=0;x<32;x++)for(let y=0;y<2;y++){g.fillStyle=(x+y)%2?'#111':'#fff';g.fillRect(x*16,y*8+(y?48:0)-(y?8:0),16,8)}
+  g.fillStyle='#e10600';g.fillRect(0,8,w,40);g.fillStyle='#fff';g.font='italic 900 34px system-ui,Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('🏁 FINISH 🏁',w/2,29)});
+function buildFinish(z){const g=new THREE.Group(),blk=M(0x0b0b0b),red=M(0xe10600),ban=new THREE.MeshStandardMaterial({map:bannerTex,emissive:0xffffff,emissiveMap:bannerTex,emissiveIntensity:.35});
+  for(const sd of[-1,1]){const p=box(.8,8.5,.8,blk);p.position.set(sd*8.2,4.25,0);g.add(p);const st=box(.86,1.2,.86,red);st.position.set(sd*8.2,6,0);g.add(st)}
+  const beam=box(17.2,1.8,.7,[blk,blk,blk,blk,ban,ban]);beam.position.set(0,8.4,0);g.add(beam);
+  const line=new THREE.Mesh(new THREE.PlaneGeometry(13,2),new THREE.MeshStandardMaterial({map:checkTex,roughness:.8}));line.rotation.x=-Math.PI/2;line.position.y=.06;line.receiveShadow=true;g.add(line);
+  g.position.z=z;return noCull(g)}
+function renderStages(){const sv=stageSave();$('stagesInfo').textContent=`🚗 ${carById(selCar).name} · ${THEMES[selTheme].name}`;
+  $('stageList').innerHTML=STAGES.map((st,i)=>{const lk=i>=sv.unlocked,n=sv.stars[i]||0;return `<button class="stg${lk?' lock':''}" data-i="${i}">${i+1}. ${st.name}<small>${(st.len/1000).toFixed(1)} km${lk?' · 🔒 Clear stage '+i:''}</small><span class="sr">${'★'.repeat(n)}<span style="color:#444">${'★'.repeat(3-n)}</span></span></button>`}).join('');
+  document.querySelectorAll('.stg').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(i>=stageSave().unlocked){beep(150,.1);return}stageIdx=i;mode='stage';start()})}
+function stageComplete(){state='stagec';engineUpdate(false,0);const car=carById(selCar),dp=Math.round(dmgTaken/car.dur*100),stars=starsFor(dp,S.nears);
+  lastRun={score:Math.floor(S.total),dist:Math.floor(dist),coins:S.coins,nears:S.nears,knocks,stage:stageIdx+1,stars,time:stageT,dmg:dp};
+  window.GHDaily?.report('paddock',{type:'run',...lastRun,wrecked:false});
+  const bonus=stars*20;wallet+=S.coins+bonus;LS.set('wallet',wallet);
+  const sv=stageSave(),prev=sv.stars[stageIdx]||0;sv.stars[stageIdx]=Math.max(prev,stars);sv.unlocked=Math.max(sv.unlocked,Math.min(STAGES.length,stageIdx+2));LS.set('stages',sv);
+  $('scName').textContent=`Stage ${stageIdx+1} · ${STG().name}`+(stars>prev&&prev?' · NEW BEST!':'');
+  $('scStars').innerHTML='★'.repeat(stars)+'<i>'+'★'.repeat(3-stars)+'</i>';
+  $('scBd').innerHTML=`<span>Time</span><b>${fmtT(stageT)}</b><span>Score</span><b>${Math.floor(S.total)}</b><span>Coins</span><b>${S.coins}</b><span>Near misses</span><b>${S.nears} / ${STG().nm} for ★★★</b><span>Damage taken</span><b>${dp}%${knocks?' ('+knocks+' knock'+(knocks>1?'s':'')+')':''}</b><span class="tot">Stars</span><b class="tot">${stars} / 3</b>`;
+  $('scWallet').textContent=`+${S.coins} 🪙 +${bonus} star bonus → wallet ${wallet} · ★★ = ≤50% damage · ★★★ = ≤20% damage + ${STG().nm} near misses`;
+  $('nextStageBtn').classList.toggle('hidden',stageIdx>=STAGES.length-1);
+  beep(660,.15,'triangle',.14,990);setTimeout(()=>beep(990,.3,'triangle',.14,1320),160);popup('🏁 FINISH!','#fff');
+  setTimeout(()=>{if(state==='stagec')show('stagec')},700)}
 function gameOver(why){
-  $('overTitle').textContent=why==='wreck'?'WRECKED!':'CRASHED!';lastRun={score:Math.floor(S.total),dist:Math.floor(dist),coins:S.coins,nears:S.nears,knocks};window.GHDaily?.report('paddock',{type:'run',...lastRun,wrecked:why==='wreck'});
+  $('overTitle').textContent=why==='wreck'?'WRECKED!':'CRASHED!';if(mode==='stage')$('overTitle').textContent+=' ';lastRun={score:Math.floor(S.total),dist:Math.floor(dist),coins:S.coins,nears:S.nears,knocks};window.GHDaily?.report('paddock',{type:'run',...lastRun,wrecked:why==='wreck'});
   state='over';shake=.7;crashSound();engineUpdate(false,0);
   if(S.combo>0)popup('COMBO LOST','#ff5252');S.combo=0;
   const total=Math.floor(S.total),prevBest=bestFor(selTheme);
-  const hs=LS.get('hs_'+selTheme,[]);hs.push({score:total,dist:Math.floor(dist),car:carById(selCar).name,date:new Date().toLocaleDateString()});hs.sort((a,b)=>b.score-a.score);LS.set('hs_'+selTheme,hs.slice(0,5));
+  if(mode==='endless'){const hs=LS.get('hs_'+selTheme,[]);hs.push({score:total,dist:Math.floor(dist),car:carById(selCar).name,date:new Date().toLocaleDateString()});hs.sort((a,b)=>b.score-a.score);LS.set('hs_'+selTheme,hs.slice(0,5))}
   wallet+=S.coins;LS.set('wallet',wallet);
   $('breakdown').innerHTML=`<span>Distance (${Math.floor(dist)} m)</span><b>${Math.floor(S.dist)}</b><span>Boost speed bonus</span><b>${Math.floor(S.boost)}</b><span>Coins (${S.coins})</span><b>${Math.floor(S.coin)}</b><span>Near misses (${S.nears})</span><b>${Math.floor(S.near)}</b><span>Max combo</span><b>×${(1+Math.min(S.maxCombo,20)*.25).toFixed(2)} (${S.maxCombo})</b><span class="tot">TOTAL</span><b class="tot">${total}</b>`;
-  $('newBest').classList.toggle('hidden',!(total>prevBest&&total>0));
-  $('overWallet').textContent=`+${S.coins} 🪙 → wallet ${wallet}`;$('best').textContent=Math.max(total,prevBest);
+  $('newBest').classList.toggle('hidden',!(mode==='endless'&&total>prevBest&&total>0));if(mode==='stage')$('breakdown').innerHTML=`<span>Stage ${stageIdx+1} · ${STG().name}</span><b>${Math.min(100,Math.floor(dist/STG().len*100))}% done</b>`+$('breakdown').innerHTML;
+  $('overWallet').textContent=`+${S.coins} 🪙 → wallet ${wallet}`;if(mode==='endless')$('best').textContent=Math.max(total,prevBest);
   setTimeout(()=>{if(state==='over')show('over')},800);
 }
 // ---------- Share score card: red/black PNG image (Android bridge / Web Share L2 files / PNG download) ----------
@@ -505,12 +562,20 @@ window.ShareCard=(()=>{const RED='#e10600',PLAY='Coming soon to the Play Store';
   const a=document.createElement('a');a.href=dataURL;a.download=name;document.body.appendChild(a);a.click();a.remove();return 'download'}
  return {make,share}})();
 
-$('shareBtn').onclick=async()=>{const b=$('shareBtn');b.disabled=true;let frame=null;try{renderer.render(scene,camera);frame=renderer.domElement.toDataURL('image/jpeg',.85)}catch(e){}
+const doShare=async b=>{b.disabled=true;let frame=null;try{renderer.render(scene,camera);frame=renderer.domElement.toDataURL('image/jpeg',.85)}catch(e){}
   const r=lastRun||{score:0,dist:0,coins:0,nears:0};const res=await ShareCard.share({title:'PADDOCKSCAN',frame,big:String(r.score),bigLabel:'SCORE',
-   lines:[['Car',carById(selCar).name],['Scenery',THEMES[selTheme].name],['Distance',r.dist+' m'],['Best',String(bestFor(selTheme))],['Coins · Near misses',r.coins+' · '+r.nears],['Knocks survived',String(r.knocks||0)]],
+   lines:[['Car',carById(selCar).name],['Scenery',THEMES[selTheme].name],['Distance',r.dist+' m'],r.stage?['Stage',r.stage+' · '+STAGES[r.stage-1].name+' '+'★'.repeat(r.stars||0)]:['Best',String(bestFor(selTheme))],['Coins · Near misses',r.coins+' · '+r.nears],['Knocks survived',String(r.knocks||0)]],
    text:`I scored ${r.score} in PaddockScan by Health and HIT driving the ${carById(selCar).name}! Can you beat it?`,file:'paddockscan-score'});
   b.disabled=false;if(res==='download')popup('Score card saved','#ff5252')};
-$('playBtn').onclick=start;$('againBtn').onclick=start;$('menuBtn').onclick=goMenu;$('resumeBtn').onclick=resume;$('quitBtn').onclick=goMenu;$('pauseBtn').onclick=pause;
+$('shareBtn').onclick=()=>doShare($('shareBtn'));$('scShare').onclick=()=>doShare($('scShare'));
+$('playBtn').onclick=()=>{initAudio();beep(660,.06);renderStages();show('stages')};$('endlessBtn').onclick=()=>{mode='endless';start()};$('againBtn').onclick=start;
+$('nextStageBtn').onclick=()=>{if(stageIdx<STAGES.length-1){stageIdx++;mode='stage';start()}};$('scRetry').onclick=start;$('scMenu').onclick=goMenu;
+// ---------- audio lifecycle: stop all sound when hidden / leaving; auto-pause runs ----------
+function audioOff(){try{engineUpdate(false,0);if(AC&&AC.state==='running')AC.suspend()}catch(e){}}
+function bgPause(){if(state==='play'||state==='count')pause();audioOff()}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)bgPause()});addEventListener('pagehide',bgPause);window.__appPause=bgPause;
+document.querySelector('a[href="../"]').addEventListener('click',audioOff);
+$('menuBtn').onclick=goMenu;$('resumeBtn').onclick=resume;$('quitBtn').onclick=goMenu;$('pauseBtn').onclick=pause;
 function nearLane(x){let b=0;for(let i=1;i<4;i++)if(Math.abs(LANES[i]-x)<Math.abs(LANES[b]-x))b=i;return b}
 const laneQ=[];let chT=-1,chFrom=0;
 function steer(d){if(state!=='play')return;if(laneQ.length<2)laneQ.push(d)}
@@ -519,11 +584,12 @@ addEventListener('keydown',e=>{
   if(keys[e.code])return;keys[e.code]=true;
   if(['ArrowLeft','KeyA'].includes(e.code))steer(-1);
   if(['ArrowRight','KeyD'].includes(e.code))steer(1);
-  if(e.code==='Escape'||e.code==='KeyP'){if(state==='play')pause();else if(state==='pause')resume()}
+  if(e.code==='Escape'||e.code==='KeyP'){if(state==='play'||state==='count')pause();else if(state==='pause')resume()}
   if(e.code==='Enter'&&(state==='menu'&&!$('menu').classList.contains('hidden')||state==='over'&&!$('over').classList.contains('hidden')))start();
+  if(e.code==='Enter'&&state==='stagec'&&!$('stagec').classList.contains('hidden')&&stageIdx<STAGES.length-1){stageIdx++;start()}
 });
 addEventListener('keyup',e=>keys[e.code]=false);
-addEventListener('blur',()=>{for(const k in keys)keys[k]=false;pause()});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false;bgPause()});
 function hold(id,on,off){const b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('on');on()});for(const ev of['pointerup','pointercancel','pointerleave'])b.addEventListener(ev,()=>{b.classList.remove('on');off&&off()})}
 hold('tl',()=>steer(-1));hold('tr',()=>steer(1));hold('tb',()=>touchBoost=true,()=>touchBoost=false);
 let sx=null;addEventListener('touchstart',e=>{if(e.target.tagName!=='BUTTON')sx=e.touches[0].clientX},{passive:true});
@@ -539,10 +605,10 @@ function makeHazard(type){const g=new THREE.Group();g.userData.type=type;
     const c1=mesh(G.box,crossMat,.5,.14,.02),c2=mesh(G.box,crossMat,.14,.5,.02);c1.position.z=c2.position.z=.31;k.add(c1,c2);k.position.y=1.1;g.add(k)}
   return noCull(g)}
 function spawnRow(z){
-  const ramp=Math.min(1,dist/12000);
+  if(mode==='stage'&&z<finishZ+40)return 0;const ramp=rampNow();
   const free=[0,1,2,3].sort(()=>Math.random()-.5),n=Math.random()<.2+ramp*.3?(Math.random()<ramp*.2?3:2):1,rv=rnd(10,12);
   let ext=0;for(let i=0;i<n;i++){const c=makeTraffic(n===3?'car':undefined);c.position.set(LANES[free[i]],0,z);c.userData.v=rv;scene.add(c);traffic.push(c);ext=Math.max(ext,c.userData.len-1.9)}
-  const hzL=free[n+1];if(n<=1&&hzL!==undefined){const r=Math.random();const ty=r<.22?'hole':r<.30?'debris':r<.37?'repair':null;if(ty){const h=makeHazard(ty);h.position.set(LANES[hzL],0,z-rnd(6,14));scene.add(h);hazards.push(h)}}
+  const hzL=free[n+1];if(n<=1&&hzL!==undefined){const r=Math.random();const HZ=mode==='stage'?STG().holes:1,a1=.22*HZ;const ty=r<a1?'hole':r<a1+.08?'debris':r<a1+.15?'repair':null;if(ty){const h=makeHazard(ty);h.position.set(LANES[hzL],0,z-rnd(6,14));scene.add(h);hazards.push(h)}}
   const cl=free[n];if(cl!==undefined&&Math.random()<.75)for(let k=0;k<4;k++){const c=new THREE.Mesh(coinGeo,coinMat);c.rotation.x=Math.PI/2;c.position.set(LANES[cl],1,z+k*3-4);c.castShadow=true;c.frustumCulled=false;scene.add(c);coins.push(c)}
   return ext;
 }
@@ -551,7 +617,7 @@ const parts=[];function emit(kind,n){for(let i=0;i<n;i++){const m=new THREE.Mesh
   const L=carById(selCar).L;m.position.set(player.position.x+rnd(-.4,.4),.9,player.position.z+(kind==='smoke'?-L/2+.6:rnd(-1,1)));if(kind==='spark')m.scale.setScalar(.08);
   m.userData={k:kind,life:kind==='smoke'?1.2:.5,vx:rnd(-3,3)*(kind==='spark'?2:.2),vy:kind==='spark'?rnd(2,6):rnd(1,2),vz:kind==='spark'?rnd(-2,6):rnd(4,8)};scene.add(m);parts.push(m)}}
 function updateFx(dt){for(let i=parts.length-1;i>=0;i--){const m=parts[i],u=m.userData;u.life-=dt;m.position.x+=u.vx*dt;m.position.y+=u.vy*dt;m.position.z+=u.vz*dt;if(u.k==='spark')u.vy-=15*dt;else m.scale.setScalar(1+(1.2-u.life)*2.2);if(u.life<=0){scene.remove(m);parts.splice(i,1)}}}
-function damage(d,label){hp=Math.max(0,hp-d);damageVis();dmgFx=1;shake=Math.max(shake,.35);emit('spark',14);popup(`-${d} HP ${label}`,'#ff7043');beep(110,.25,'sawtooth',.14,-50);if(navigator.vibrate)try{navigator.vibrate(80)}catch(e){}
+function damage(d,label){dmgTaken+=Math.min(d,hp);hp=Math.max(0,hp-d);damageVis();dmgFx=1;shake=Math.max(shake,.35);emit('spark',14);popup(`-${d} HP ${label}`,'#ff7043');beep(110,.25,'sawtooth',.14,-50);if(navigator.vibrate)try{navigator.vibrate(80)}catch(e){}
   if(hp<=0){gameOver('wreck')}}
 // ---------- knocks vs crashes ----------
 // Hard/head-on = game over. Light glancing knock (corner clip while changing lane, or low closing speed bump) = damage.
@@ -591,7 +657,7 @@ function loop(){
     const dx=chT>=0?(LANES[lane]-chFrom)*(1-Math.min(1,chT/CH))*.6:0;
     player.rotation.y=-dx*.07;player.rotation.z=dx*.025;
     if(S.combo>0){S.comboT-=dt;if(S.comboT<=0){S.combo=0}}
-    while(spawnZ>player.position.z-spawnAhead()){const ext=spawnRow(spawnZ)||0;const rel=Math.max(8,speed-10),gap=Math.max(22,rel*1.8+speed*.35);spawnZ-=gap+ext*2+Math.random()*gap*.6*(1-Math.min(1,dist/12000)*.5)}
+    while(spawnZ>player.position.z-spawnAhead()){const ext=spawnRow(spawnZ)||0;const rel=Math.max(8,speed-10),gap=Math.max(22,rel*1.8+speed*.35);spawnZ-=gap+ext*2+Math.random()*gap*.6*(1-rampNow()*.5)}
     for(let i=traffic.length-1;i>=0;i--){const c=traffic[i];c.position.z-=c.userData.v*dt;const dz=c.position.z-player.position.z,ax=Math.abs(c.position.x-player.position.x),hl=c.userData.len+2;
       if(c.userData.wob){c.userData.wob=Math.max(0,c.userData.wob-dt*1.5);c.rotation.y=Math.sin(t*14)*.12*c.userData.wob}
       const cw=c.userData.hw+car.W/2-.05;if(ax<cw&&Math.abs(dz)<hl-.1&&inv<=0){const k=classifyHit(c,ax,cw);if(k.hard){speed*=.3;gameOver('crash');break}knock(c,k);if(state!=='play')break;continue}
@@ -613,6 +679,11 @@ function loop(){
     $('score').textContent=Math.floor(S.total);$('mult').textContent=S.combo?`×${mult().toFixed(2)}`:'';$('dist').textContent=Math.floor(dist);$('coinsH').textContent=S.coins;
     $('comboFill').style.width=(S.combo?S.comboT/4*100:0)+'%';
     drawSpeedo(v*3.6,boosting);engineUpdate(true,v,boosting);
+    if(mode==='stage'&&state==='play'){stageT+=dt;const f=Math.min(1,dist/STG().len);$('stagefill').style.width=f*100+'%';$('stagelbl').textContent=`STAGE ${stageIdx+1} · ${Math.floor(dist)} / ${STG().len} m`;if(dist>=STG().len)stageComplete()}
+  }else if(state==='count'){cdT=(cdEnd-performance.now())/1000;v=0;const n=Math.ceil(cdT);const c=$('count');
+    if(n!==cdN&&n>0){cdN=n;c.textContent=n;c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop');beep(440,.15,'square',.08)}
+    if(cdT<=0){state='play';cdN=0;c.textContent='GO!';c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop');beep(880,.35,'square',.1);setTimeout(()=>{if(c.textContent==='GO!')c.textContent=''},800)}
+    if(mode==='stage'){$('stagefill').style.width='0%';$('stagelbl').textContent=`STAGE ${stageIdx+1} · ${STG().name} · ${STG().len} m`}
   }else if(state==='menu'){v=14;player.position.z-=v*dt;player.position.x=Math.sin(t*.6)*3;player.rotation.y=-Math.cos(t*.6)*.15;boosting=false}
   else if(state==='over'){player.rotation.y+=dt*4*Math.max(0,shake)}
   {const moving=state==='play'&&Math.sign(targetX-player.position.x)===indSide&&Math.abs(targetX-player.position.x)>.3;
@@ -639,5 +710,5 @@ function loop(){
   requestAnimationFrame(loop);
 }
 setPlayerCar(selCar);applyQuality();applyTheme(selTheme);reset();refreshMenu();show('menu');loop();
-window.__game={get hp(){return hp},get knocks(){return knocks},classifyHit,makeTraffic,get traffic(){return traffic},get speed(){return speed},get px(){return player.position.x},get pz(){return player.position.z},curvX,RY,start,pause,resume,get state(){return state},get score(){return S},get theme(){return selTheme},get car(){return selCar}};
+window.__game={get mode(){return mode},set mode(m){mode=m},get stageIdx(){return stageIdx},set stageIdx(i){stageIdx=i},STAGES,starsFor,stageSave,setDist(d){player.position.z-=d-dist;dist=d},get dist(){return dist},get finishZ(){return finishZ},get stageT(){return stageT},get dmgTaken(){return dmgTaken},get CURV(){return CURV},get ac(){return AC&&AC.state},bgPause,get hp(){return hp},get knocks(){return knocks},classifyHit,makeTraffic,get traffic(){return traffic},get speed(){return speed},get px(){return player.position.x},get pz(){return player.position.z},curvX,RY,start,pause,resume,get state(){return state},get score(){return S},get theme(){return selTheme},get car(){return selCar}};
 </script></body></html>
