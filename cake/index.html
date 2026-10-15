@@ -219,11 +219,11 @@ function goPhase(p){phase=p;
   R.frostCol.set(FROST[R.frost].c);
   const m=document.createElement('div');m.style.width='100%';m.innerHTML='<div class="meter"><div class="z" style="left:75%;width:25%"></div><div class="f" id="covF"></div></div>';$('ctrl').appendChild(m);
   btn('Decorate ▶','mint',()=>goPhase('deco'),'toDeco');if(!cakeG.children.length)buildCake();covUI();}
- if(p==='deco'){setView('cake');phaseHead('5 · Decorate','Pick a topping and tap the cake. Drag the background to spin.');R.tool=R.tool||'sprinkles';
+ if(p==='deco'){setView('cake');phaseHead('5 · Decorate','Pick a topping and tap the cake — rub/drag to scatter sprinkles or pipe a line. Drag the background to spin.');R.tool=R.tool||'sprinkles';
   for(const k in TOP){const lk=!owned('top',k,TOP[k]);btn(`${TOP[k].e} ${TOP[k].n}${lk?' 🔒':''} <small id="cnt_${k}">${R.placed[k]||''}</small>`,R.tool===k?'':'lav',()=>{if(lk){toast('Unlock in Shop');sfx.bad();return;}R.tool=k;goPhase('deco');},'top_'+k);}
   const r=document.createElement('div');r.style.width='100%';$('ctrl').appendChild(r);
   if(R.tool==='topper'){const i=document.createElement('input');i.id='topTxt';i.value=R.topTxt||'YUM!';i.maxLength=12;i.style.cssText='font-size:16px;padding:6px;border-radius:10px;border:2px solid #ff9ec4;width:140px';i.oninput=()=>R.topTxt=i.value;$('ctrl').appendChild(i);}
-  btn('↩ Undo','lav',()=>{const o=R.decos&&R.decos.pop();if(o){cakeG.remove(o);R.placed[o.userData.k]--;}},'undoDeco');btn('🍽️ Serve!','',serve,'serveBtn');}
+  btn('↩ Undo','lav',()=>{const o=R.decos&&R.decos.pop();if(o){cakeG.remove(o);if(o.userData.inst&&SPI){SPI.count=Math.min(SPI.count,o.userData.inst[0]);}R.placed[o.userData.k]--;}},'undoDeco');btn('🍽️ Serve!','',serve,'serveBtn');}
 }
 function ingUI(){const tg=target();for(const k of avail('ing',ING)){const b=$('ing_'+k);if(!b)continue;const n=R.added[k]||0;const t=tg?tg[k]||0:0;const max=Math.max(4,t+2);
  b.innerHTML=`<span class="e">${ING[k].e}</span>${ING[k].n} ${n}${tg?'/'+t:''}<span class="m"><i style="width:${n/max*100}%;background:${tg?(n===t?'#5ccf9c':n>t?'#ff6f7f':'#ffc95c'):'#ff9ec4'}"></i>${tg&&t?`<b style="position:absolute;left:${t/max*100}%;top:0;bottom:0;width:3px;background:#5a3550;margin-left:-2px"></b>`:''}</span>`;}}
@@ -251,6 +251,7 @@ function buildCake(){cakeG.clear();R.dollops=[];R.decos=[];R.placed={};R.sampled
   if(i>0){const f=mesh(shapeGeo(R.shape,.02,-.01),M(FROST[R.frost].c,.5),0,i*(LH*rise+.02)-.01,0,cakeG);f.userData.surf=true;f.userData.fill=true;}}
  R.topY=R.layers*(LH*rise+.02)-.02;R.decos=[];}
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+function surfObjs(){const objs=[];cakeG.traverse(o=>{if(o.isMesh&&!o.isInstancedMesh&&(o.userData.surf||o.userData.doll))objs.push(o);});return objs}
 function hitCake(x,y){ndc.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFromCamera(ndc,camera);const objs=[];cakeG.traverse(o=>{if(o.isMesh&&o.userData.surf)objs.push(o);});const h=ray.intersectObjects(objs,false)[0];return h||null;}
 function localHit(h){const p=cakeG.worldToLocal(h.point.clone());const n=h.face.normal.clone().transformDirection(h.object.matrixWorld);const q=new THREE.Quaternion();cakeG.getWorldQuaternion(q);n.applyQuaternion(q.invert()).normalize();return{p,n};}
 function sampleSurface(){const pts=[];const objs=[];cakeG.traverse(o=>{if(o.isMesh&&o.userData.surf&&!o.userData.fill&&!o.userData.doll)objs.push(o);});cakeG.updateMatrixWorld(true);const rc=new THREE.Raycaster();
@@ -263,8 +264,23 @@ function frostAt(h){if(!R.sampled)sampleSurface();const{p,n}=localHit(h);
 function covUI(){const f=$('covF');if(f)f.style.width=Math.min(100,R.cover*100)+'%';}
 // ===== DECORATIONS =====
 const SPR=['#ff6fa5','#5ccf9c','#6cb8f0','#f5c542','#a98bf0','#ffffff'];
-function deco(k,h){const{p,n}=localHit(h);const g=new THREE.Group();g.position.copy(p);g.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),n);g.userData.k=k;
- if(k==='sprinkles'){for(let i=0;i<14;i++){const s=mesh(new THREE.CapsuleGeometry(.004,.016,2,6),M(pick(SPR),.4),(Math.random()-.5)*.11,.004,(Math.random()-.5)*.11,g);s.rotation.set(Math.PI/2,0,Math.random()*6);s.castShadow=false;}}
+// sprinkles: one InstancedMesh per cake; each sprinkle is re-projected onto the frosted surface (dollops included) and lifted along the normal so it always sits on top
+const SPR_MAX=3000,sprGeo=new THREE.CapsuleGeometry(.004,.016,2,6),sprMat=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.4});let SPI=null;
+function sprInst(){if(!SPI||SPI.parent!==cakeG){SPI=new THREE.InstancedMesh(sprGeo,sprMat,SPR_MAX);SPI.count=0;SPI.frustumCulled=false;SPI.castShadow=false;SPI.userData.spr=true;cakeG.add(SPI)}return SPI}
+const _m4=new THREE.Matrix4(),_qa=new THREE.Quaternion(),_qb=new THREE.Quaternion(),_eu=new THREE.Euler(),_one=new THREE.Vector3(1,1,1),_cl=new THREE.Color(),_va=new THREE.Vector3(),_vb=new THREE.Vector3(),_UP=new THREE.Vector3(0,1,0),_rc=new THREE.Raycaster();
+function scatter(p,n,num,spread){const I=sprInst(),objs=surfObjs();cakeG.updateMatrixWorld(true);const gq=new THREE.Quaternion();cakeG.getWorldQuaternion(gq);_qa.setFromUnitVectors(_UP,n);
+ for(let i=0;i<num&&I.count<SPR_MAX;i++){_va.set((Math.random()-.5)*spread,0,(Math.random()-.5)*spread).applyQuaternion(_qa).add(p);
+  let pos=_va.clone(),nn=n.clone();const o=cakeG.localToWorld(_va.clone().addScaledVector(n,.08)),dir=n.clone().negate().applyQuaternion(gq);_rc.set(o,dir);_rc.far=.2;const h=_rc.intersectObjects(objs,false)[0];
+  if(h){pos=cakeG.worldToLocal(h.point.clone())}
+  _vb.copy(pos).addScaledVector(nn,.007);_qb.setFromUnitVectors(_UP,nn);_eu.set(Math.PI/2,0,Math.random()*6.28);const qr=new THREE.Quaternion().setFromEuler(_eu);_qb.multiply(qr);
+  _m4.compose(_vb,_qb,_one);I.setMatrixAt(I.count,_m4);I.setColorAt(I.count,_cl.set(pick(SPR)));I.count++}
+ I.instanceMatrix.needsUpdate=true;if(I.instanceColor)I.instanceColor.needsUpdate=true}
+function topAt(p,n){cakeG.updateMatrixWorld(true);const gq=new THREE.Quaternion();cakeG.getWorldQuaternion(gq);_rc.set(cakeG.localToWorld(p.clone().addScaledVector(n,.08)),n.clone().negate().applyQuaternion(gq));_rc.far=.2;const h=_rc.intersectObjects(surfObjs(),false)[0];return h?cakeG.worldToLocal(h.point.clone()):p.clone()}
+function rubSprinkles(h,d){const{p,n}=localHit(h);const I=sprInst();
+ if(!drag.dab||drag.dabN>=40){const g=new THREE.Group();g.userData.k='sprinkles';g.userData.inst=[I.count,I.count];cakeG.add(g);R.decos.push(g);R.placed.sprinkles=(R.placed.sprinkles||0)+1;const c=$('cnt_sprinkles');if(c)c.textContent=R.placed.sprinkles;drag.dab=g;drag.dabN=0}
+ const num=Math.min(12,2+(d/5|0));scatter(p,n,num,.03+Math.min(.05,d*.001));drag.dab.userData.inst[1]=I.count;drag.dabN+=num;if(Math.random()<.25)sfx.pop()}
+function deco(k,h){const lh=localHit(h),n=lh.n,p=k==='sprinkles'?lh.p:topAt(lh.p,n);const g=new THREE.Group();g.position.copy(p);g.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),n);g.userData.k=k;
+ if(k==='sprinkles'){const I=sprInst(),s0=I.count;scatter(p,n,14,.11);g.userData.inst=[s0,I.count];}
  if(k==='cherry'){mesh(new THREE.SphereGeometry(.03,16,12),M('#d3122f',.15,.1),0,.028,0,g);const st=mesh(new THREE.CylinderGeometry(.002,.002,.06,4),M('#5b8a3a'),.01,.075,0,g);st.rotation.z=-.3;}
  if(k==='strawberry'){const b=mesh(new THREE.ConeGeometry(.032,.06,14),M('#ff3b5c',.35),0,.035,0,g);b.rotation.x=Math.PI;for(let i=0;i<5;i++){const l=mesh(new THREE.ConeGeometry(.012,.03,4),M('#4fb35d'),Math.cos(i*1.26)*.015,.07,Math.sin(i*1.26)*.015,g);l.rotation.z=Math.cos(i*1.26)*1.2;l.rotation.x=-Math.sin(i*1.26)*1.2;}}
  if(k==='candle'){g.quaternion.identity();mesh(new THREE.CylinderGeometry(.008,.008,.1,10),M(pick(SPR),.5),0,.05,0,g);const f=mesh(new THREE.ConeGeometry(.008,.025,10),M('#ffb340',.5,0,{emissive:'#ff9a1a',emissiveIntensity:3}),0,.115,0,g);f.castShadow=false;g.userData.flame=f;}
@@ -354,6 +370,7 @@ cv.addEventListener('pointerdown',e=>{if(paused)return;drag={x:e.clientX,y:e.cli
 cv.addEventListener('pointermove',e=>{if(!drag||paused)return;
  if(phase==='mix'){const[bx,by]=bowlScreen();const a=Math.atan2(e.clientY-by,e.clientX-bx);let d=a-drag.a;if(d>Math.PI)d-=2*Math.PI;if(d<-Math.PI)d+=2*Math.PI;drag.a=a;addMix(Math.abs(d)*.018);spoonA+=d;}
  else if((phase==='frost'||phase==='deco'||phase==='serve')&&!drag.onCake){spin.rotation.y+=(e.clientX-drag.x)*.01;}
+ else if(phase==='deco'&&drag.onCake&&(R.tool==='sprinkles'||R.tool==='piping')){const d=Math.hypot(e.clientX-drag.x,e.clientY-drag.y);if(d<(R.tool==='piping'?24:4))return;const h=hitCake(e.clientX,e.clientY);if(h){if(R.tool==='sprinkles')rubSprinkles(h,d);else deco('piping',h);}}
  else if(phase==='frost'&&drag.onCake){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>6){const h=hitCake(e.clientX,e.clientY);if(h)frostAt(h);}else return;}
  drag.x=e.clientX;drag.y=e.clientY;});
 addEventListener('pointerup',()=>{drag=null;mixerHold=false;});
@@ -377,7 +394,7 @@ function loop(now){requestAnimationFrame(loop);let dt=Math.min(.05,(now-last)/10
  camera.position.lerp(view.p,Math.min(1,dt*3));(camera.userData.l=camera.userData.l||view.l.clone()).lerp(view.l,Math.min(1,dt*3));camera.lookAt(camera.userData.l);
  renderer.render(scene,camera);}
 resize();applyGfx();sndT();toMenu();camera.position.copy(view.p);requestAnimationFrame(loop);
-window.CC={get S(){return S},get R(){return R},get O(){return O},get phase(){return phase},goPhase,addIng,addMix,takeOut,target,start,camera,cakeG,hitCake,frostAt,deco,serve,spin};
+window.CC={get S(){return S},get R(){return R},get O(){return O},get phase(){return phase},goPhase,addIng,addMix,takeOut,target,start,camera,cakeG,hitCake,frostAt,deco,serve,spin,get sprCount(){return SPI&&SPI.parent===cakeG?SPI.count:0}};
 
 // ---------- audio lifecycle: silence when hidden / leaving, auto-pause ----------
 {const off=()=>{try{if(AC&&AC.state==='running')AC.suspend()}catch(e){}},on=()=>{try{if(AC&&AC.state==='suspended')AC.resume()}catch(e){}};

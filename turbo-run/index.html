@@ -122,6 +122,19 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 .shFoot{display:flex;gap:8px;justify-content:center;margin-top:6px}.shFoot .btn{margin-top:4px;padding:9px 16px;font-size:16px}
 #shRev{background:linear-gradient(#333,#111);box-shadow:0 6px 0 #000;border:2px solid #2a6bff;touch-action:none}#shRev.on{border-color:#ff2d75;transform:translateY(3px)}
 @media (orientation:landscape){#shop{align-items:flex-end;justify-content:center}.shPanel{max-height:calc(100dvh - 20px);width:min(430px,50vw)}}
+
+.shBar{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:4px 0}
+#shBasketBtn{border:2px solid #ffffff33;background:#ffffff12;color:#fff;border-radius:12px;padding:6px 10px;font:800 13px system-ui;cursor:pointer}#shBasketBtn.full{border-color:#ffcc33;background:#ffcc3322;color:#ffcc33}
+#shTabs{flex-wrap:nowrap;gap:4px}#shTabs button{font-size:12px;padding:6px 7px;flex:1;white-space:nowrap}
+.shTools{display:flex;gap:6px;justify-content:center;margin:0 0 6px}.shTools button{border:1px solid #ffffff2a;background:#0000;color:#ddd;border-radius:9px;padding:4px 10px;font:700 12px system-ui;cursor:pointer}.shTools button.on{border-color:#2a6bff;color:#9fc0ff}
+.shRow.tap{cursor:pointer}.shRow.pv{background:#ffcc3314;border-radius:10px}.shRow em{color:#ffcc33;font-style:normal}.pips em{color:#ffcc33;font-style:normal}
+.tag{flex:0 0 auto;font:800 12px system-ui;color:#ffcc33;background:#ffffff0f;border-radius:9px;padding:6px 8px;white-space:nowrap}
+.bc{white-space:nowrap;color:#ffcc33}.bx{border:0;background:#e10600;color:#fff;border-radius:50%;width:28px;height:28px;font-weight:900;cursor:pointer;flex:0 0 auto}.shRow.tot{border-top:2px solid #e10600;font-size:16px}
+.btn.sec{background:linear-gradient(#333,#111);box-shadow:0 6px 0 #000}
+.showroom{text-align:center}.showroom .sign{font:900 12px system-ui;color:#111;background:repeating-linear-gradient(45deg,#ffcc33 0 12px,#e6b000 12px 24px);padding:5px;border-radius:6px;transform:rotate(-1.5deg);margin:2px 6px 8px}
+.showroom .crow{display:flex;align-items:center;justify-content:space-between}.showroom .carname{font-size:22px;margin:0}.showroom small{opacity:.7;font-size:11px}.cdesc{font-size:12px!important;margin:4px!important;opacity:.85}
+.showroom .stat{margin:3px auto;font-size:12px}.showroom .stat span{width:78px}.showroom .stat small{width:64px;font-size:11px;text-align:left}.price{font:900 22px system-ui;color:#ffcc33;margin:6px 0 0}
+#shToast{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top));transform:translate(-50%,-20px);opacity:0;transition:.25s;z-index:20;background:#111;border:2px solid #e10600;color:#fff;font:800 14px system-ui;padding:10px 14px;border-radius:14px;max-width:92vw;text-align:center;pointer-events:none;box-shadow:0 8px 24px #000a}#shToast.on{opacity:1;transform:translate(-50%,0)}
 </style></head><body>
 <div id="hud" class="hidden"><div>Score <span id="score">0</span> <span id="mult"></span></div><div><span id="dist">0</span> m · 🪙 <span id="coinsH">0</span></div><div>Best <span id="best">0</span></div><button id="pauseBtn">⏸</button></div>
 <div id="hpbar" class="hidden" style="position:fixed;top:52px;left:10px;width:min(180px,40vw);height:14px;background:#0008;border-radius:7px;overflow:hidden;z-index:2;pointer-events:none;border:1px solid #fff4"><div id="hpfill" style="height:100%;width:100%;background:linear-gradient(90deg,#ff1744,#ffeb3b,#76ff03);transition:width .15s"></div><span id="hplbl" style="position:absolute;left:6px;top:-1px;font:800 11px system-ui;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap">🔧 DAMAGE 0%</span></div><div id="stagebar" class="hidden"><div id="stagefill"></div><span id="stagelbl"></span><span class="flag">🏁</span></div><div id="count"></div><div id="comboTimer" class="hidden"><div id="comboFill"></div></div>
@@ -138,10 +151,10 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 <button class="mbtn" data-go="howto">❓ How to Play</button>
 <button class="mbtn" id="soundBtn">🔊 Sound: On</button></div></div>
 
-<div id="cars" class="screen hidden"><div class="card"><h2>Car Select</h2>
+<div id="cars" class="screen hidden"><div class="card"><h2>Car Select</h2><p style="margin:0 0 6px;font-size:13px;opacity:.75">Your garage · owned cars only</p>
 <div class="carwrap"><button class="arrow" id="cPrev">◀</button><div id="preview"><div id="lockTag" class="hidden"></div></div><button class="arrow" id="cNext">▶</button></div>
 <div class="carname" id="cName"></div><p id="cDesc"></p><div id="cStats"></div>
-<p class="wallet" id="cWallet"></p><button class="btn" id="cAction">SELECT</button><button class="mbtn back">◀ Back</button></div></div>
+<p class="wallet" id="cWallet"></p><button class="btn" id="cAction">SELECT</button><p class="hint" style="opacity:.8;font-size:14px">🔧 Buy more cars at <b>Marc's Autos</b> → 🚗 Cars tab <button class="mbtn" id="cToMarc" style="display:inline-block;width:auto;padding:6px 12px;margin:6px auto 0">Go to Marc's ▶</button></p><button class="mbtn back">◀ Back</button></div></div>
 
 <div id="scenery" class="screen hidden"><div class="card"><h2>Scenery</h2><div class="grid" id="sceneList"></div><button class="mbtn back">◀ Back</button></div></div>
 
@@ -163,7 +176,7 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 <div id="pause" class="screen hidden"><h1>PAUSED</h1><button class="btn" id="resumeBtn">▶ RESUME</button><button class="mbtn" id="quitBtn">Quit to Menu</button></div>
 
 <div id="stages" class="screen hidden"><div class="card"><h2>Stage Select</h2><p id="stagesInfo"></p><div class="stgrid" id="stageList"></div><button class="mbtn back">◀ Back</button></div></div>
-<div id="shop" class="screen hidden"><div class="shPanel"><div class="shHead"><button class="arrow" id="shPrev">◀</button><div><div class="shTitle">MARC'S AUTOS</div><small id="shCar"></small></div><button class="arrow" id="shNext">▶</button></div><p class="wallet" id="shWallet"></p><div class="tabs" id="shTabs"><button data-t="perf">⚙️ Performance</button><button data-t="cos">🎨 Cosmetics</button><button data-t="exh">💥 Exhaust</button></div><div id="shList"></div><div class="shFoot"><button class="btn" id="shRev">🔊 HOLD TO REV</button><button class="btn" id="shDone">DONE</button></div></div></div>
+<div id="shop" class="screen hidden"><div class="shPanel"><div class="shHead"><button class="arrow" id="shPrev">◀</button><div><div class="shTitle">MARC'S AUTOS</div><small id="shCar"></small></div><button class="arrow" id="shNext">▶</button></div><div class="shBar"><span class="wallet" id="shWallet"></span><button id="shBasketBtn"></button></div><div class="tabs" id="shTabs"><button data-t="perf">⚙️ Perf</button><button data-t="cos">🎨 Style</button><button data-t="exh">💥 Exhaust</button><button data-t="cars">🚗 Cars</button></div><div class="shTools"><button id="shReset">↺ Reset</button><button id="shCmp"></button></div><div id="shList"></div><div class="shFoot"><button class="btn" id="shRev">🔊 HOLD TO REV</button><button class="btn" id="shDone">DONE</button></div></div></div>
 <div id="fade"></div>
 <div id="stagec" class="screen hidden"><div class="card"><h1 style="font-size:clamp(32px,7vw,64px)">STAGE CLEAR!</h1><p id="scName"></p><div class="stars3" id="scStars"></div><div id="areaCard" class="hidden"></div>
 <div class="bd" id="scBd"></div><p class="wallet" id="scWallet"></p>
@@ -570,8 +583,8 @@ const ENGP={
 function initAudio(){if(AC){if(AC.state==='suspended')AC.resume().catch(()=>{});return}try{AC=new (window.AudioContext||window.webkitAudioContext)();
   const n=AC.sampleRate*2;noiseBuf=AC.createBuffer(1,n,AC.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;setEngine(selCar)}catch(e){AC=null}}
 function distCurve(k){const n=1024,c=new Float32Array(n);for(let i=0;i<n;i++){const x=i/n*2-1;c[i]=(1+k)*x/(1+k*Math.abs(x))}return c}
-function setEngine(id){if(!AC)return;if(eng){try{eng.master.gain.value=0;eng.nodes.forEach(o=>o.stop());eng.master.disconnect()}catch(e){}}
-  const P=ENGP[id]||ENGP.swift,ex=getU(id).exhaust,mk=t=>{const o=AC.createOscillator();o.type=t;o.start();return o},G2=v=>{const g=AC.createGain();g.gain.value=v;return g};
+function setEngine(id,exO){if(!AC)return;if(eng){try{eng.master.gain.value=0;eng.nodes.forEach(o=>o.stop());eng.master.disconnect()}catch(e){}}
+  const P=ENGP[id]||ENGP.swift,ex=exO??getU(id).exhaust,mk=t=>{const o=AC.createOscillator();o.type=t;o.start();return o},G2=v=>{const g=AC.createGain();g.gain.value=v;return g};
   const master=G2(0);master.connect(AC.destination);const shift=G2(1);shift.connect(master);
   const lp=AC.createBiquadFilter();lp.type='lowpass';lp.Q.value=P.q;lp.connect(shift);
   const ws=AC.createWaveShaper();ws.curve=distCurve(P.dist+ex*12);ws.connect(lp);const lope=G2(1);lope.connect(ws);
@@ -614,7 +627,7 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{initAudio();bee
 document.querySelectorAll('.back').forEach(b=>b.onclick=()=>{beep(440,.06);show('menu');refreshMenu()});
 $('soundBtn').onclick=()=>{initAudio();sound=!sound;LS.set('sound',sound);refreshMenu()};
 qb.onclick=()=>{quality=quality==='high'?'low':'high';LS.set('quality',quality);applyQuality();applyTheme(selTheme);refreshMenu()};
-$('cPrev').onclick=()=>showPreview(pvIdx-1);$('cNext').onclick=()=>showPreview(pvIdx+1);
+const ownStep=d=>{let i=pvIdx;do{i=(i+d+CARS.length)%CARS.length}while(!owned.includes(CARS[i].id)&&i!==pvIdx);showPreview(i)};$('cPrev').onclick=()=>ownStep(-1);$('cNext').onclick=()=>ownStep(1);
 function updateGarage(){const c=CARS[pvIdx],own=owned.includes(c.id);
   $('cName').textContent=c.name;$('cDesc').textContent=c.desc;
   $('cStats').innerHTML=[['Top speed',c.top/STATMAX.top,Math.round(c.top*3.6*1.45)+' km/h'],['Acceleration',c.acc/STATMAX.acc],['Handling',c.hand/STATMAX.hand],['Boost capacity',c.boost/STATMAX.boost],['Durability',c.dur/STATMAX.dur,c.dur+' HP']].map(([n,v,t])=>`<div class="stat"><span>${n}</span><div class="bar"><i style="width:${v*100}%"></i></div><small style="width:70px">${t||''}</small></div>`).join('');
@@ -734,7 +747,11 @@ $('nextStageBtn').onclick=()=>{clearTimeout(shopTimer);if((stageIdx+1)%5===0){op
 // ---------- MARC'S AUTOS: sketchy workshop scene ----------
 const WS={scene:null,cam:new THREE.PerspectiveCamera(50,1,.1,120),car:null,table:null,t:0,after:null,revHold:false,rev:0,wasRev:false,buzz:null,signM:null,sM:null,sPivot:null,signL:null,tubeM:null,tubeL:null,sOn:1,sNext:0,tab:'perf'};
 function buildWorkshop(){const s=new THREE.Scene();s.background=new THREE.Color(0x070607);s.fog=new THREE.Fog(0x070607,16,38);
-  s.add(new THREE.HemisphereLight(0xb0a0b8,0x2a2018,1.1));
+  s.add(new THREE.HemisphereLight(0xc8c0d0,0x2a2018,1.2));
+  {const key=new THREE.DirectionalLight(0xfff4ee,2.6);key.position.set(3,7,8);key.target.position.set(0,.6,0);s.add(key,key.target);const fill=new THREE.DirectionalLight(0xff6aa0,1.1);fill.position.set(-6,3,2);s.add(fill);const fill2=new THREE.DirectionalLight(0x6a9aff,1.1);fill2.position.set(6,3,-3);s.add(fill2);
+   const es=new THREE.Scene();es.add(new THREE.Mesh(new THREE.SphereGeometry(10,16,8),new THREE.MeshBasicMaterial({color:0x3a3038,side:THREE.BackSide})));
+   for(const[x,y,z,c]of[[0,8,0,0xffffff],[7,3,-3,0xff2d75],[-7,3,3,0x2a6bff],[0,3,8,0xffffff],[0,4,-8,0xff1a1a]]){const p=new THREE.Mesh(new THREE.PlaneGeometry(5,3),new THREE.MeshBasicMaterial({color:c}));p.position.set(x,y,z);p.lookAt(0,0,0);es.add(p)}
+   WS.env=pmrem.fromScene(es,.02).texture}
   const wallT=canvasTex(512,256,(g,W,H)=>{noise(g,W,H,'#4a4440',55,22000);g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=2;
     for(let y=0;y<H;y+=24){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();for(let x=(y/24%2)*24;x<W;x+=48){g.beginPath();g.moveTo(x,y);g.lineTo(x,y+24);g.stroke()}}
     for(let i=0;i<16;i++){const x=Math.random()*W,l=40+Math.random()*140,gr=g.createLinearGradient(0,0,0,l);gr.addColorStop(0,'rgba(35,25,15,.7)');gr.addColorStop(1,'rgba(35,25,15,0)');g.fillStyle=gr;g.fillRect(x,0,5+Math.random()*12,l)}
@@ -775,7 +792,7 @@ function buildWorkshop(){const s=new THREE.Scene();s.background=new THREE.Color(
   const tb=box(1.4,1.5,.7,M(0xb01010,{metalness:.4,roughness:.5}));tb.position.set(8.6,.75,-2.6);s.add(tb);for(let i=0;i<4;i++){const dr=box(1.3,.04,.02,M(0x222222));dr.position.set(8.6,.35+i*.33,-2.24);s.add(dr)}
   const bench=box(4,.15,1.2,M(0x5a4030,{roughness:.9}));bench.position.set(4.5,1.1,-7.2);s.add(bench);for(const x of[2.7,6.3]){const lg=box(.12,1.1,1,M(0x333333));lg.position.set(x,.55,-7.2);s.add(lg)}
   return s}
-function wsCar(){if(WS.car)WS.table.remove(WS.car);WS.car=buildCar(carById(selCar),getU(selCar));WS.car.position.y=.22;WS.table.add(WS.car)}
+// wsCar: see Marc's Autos 1.6 block
 function startBuzz(){if(!AC||WS.buzz)return;const o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=100;f.type='lowpass';f.frequency.value=500;g.gain.value=0;o.connect(f).connect(g).connect(AC.destination);o.start();WS.buzz={o,g}}
 function stopBuzz(){if(WS.buzz){try{WS.buzz.g.gain.value=0;WS.buzz.o.stop()}catch(e){}WS.buzz=null}}
 function wsUpdate(dt){WS.t+=dt;const t=WS.t;WS.table.rotation.y+=dt*.32;
@@ -786,7 +803,7 @@ function wsUpdate(dt){WS.t+=dt;const t=WS.t;WS.table.rotation.y+=dt*.32;
   if(WS.buzz&&AC)WS.buzz.g.gain.setTargetAtTime(sound&&AC.state==='running'?.006+.012*WS.sOn:0,AC.currentTime,.01);
   const tf=(t%7<.35&&Math.random()<.5)?.15:1;WS.tubeM.color.setScalar(tf);WS.tubeL.intensity=70*tf;
   // rev the engine (hold REV)
-  if(eng&&eng.id!==selCar)setEngine(selCar);
+  {const[w,x]=wsEngWant();if(eng&&(eng.id!==w||eng.ex!==x))setEngine(w,x)}
   const tgt=WS.revHold?1:0;WS.rev+=(tgt-WS.rev)*Math.min(1,dt*(WS.revHold?2.4:1.5));
   if(eng){const P=eng.P;engineRaw(true,P.idle+(P.red-P.idle)*WS.rev*.95,WS.revHold?1:0,false)}
   // camera: car sits above the bottom panel (portrait) or left of the side panel (landscape)
@@ -794,30 +811,73 @@ function wsUpdate(dt){WS.t+=dt;const t=WS.t;WS.table.rotation.y+=dt*.32;
   if(por){WS.cam.position.set(Math.sin(t*.2)*.6,3.9,17);WS.cam.lookAt(0,2.3,-1);WS.cam.setViewOffset(w,h,0,h*.25,w,h)}
   else{WS.cam.position.set(Math.sin(t*.2)*.6,3.2,11.5);WS.cam.lookAt(0,2.3,-1);WS.cam.setViewOffset(w,h,w*.2,0,w,h)}
   WS.cam.updateProjectionMatrix()}
-function openShop(after){LS.set('marcSeen',true);initAudio();clearTimeout(shopTimer);WS.after=after||null;if(!WS.scene)WS.scene=buildWorkshop();state='garage';engineUpdate(false,0);setEngine(selCar);wsCar();show('shop');renderShop();startBuzz();
+function openShop(after){LS.set('marcSeen',true);initAudio();clearTimeout(shopTimer);WS.after=after||null;if(!WS.scene)WS.scene=buildWorkshop();state='garage';engineUpdate(false,0);WS.prev=fitted();WS.basket={};WS.view='shop';WS.cmp=false;WS.ci=Math.max(0,CARS.findIndex(c=>c.id===selCar));if(WS.tab==='cars'&&after==='next')WS.tab='perf';setEngine(selCar);wsCar();show('shop');renderShop();startBuzz();
   $('shDone').textContent=after==='next'?'NEXT STAGE ▶':'DONE'}
-function closeShop(){stopBuzz();WS.revHold=false;WS.rev=0;engineUpdate(false,0);const a=WS.after;WS.after=null;setPlayerCar(selCar);if(a==='next'&&stageIdx<STAGES.length-1){stageIdx++;mode='stage';start()}else goMenu()}
+function closeShop(){if(bCount())toast('🧺 Basket emptied — nothing was charged');WS.basket={};WS.prev=null;WS.cmp=false;WS.view='shop';stopBuzz();WS.revHold=false;WS.rev=0;engineUpdate(false,0);const a=WS.after;WS.after=null;setPlayerCar(selCar);if(a==='next'&&stageIdx<STAGES.length-1){stageIdx++;mode='stage';start()}else goMenu()}
+// ---------- Marc's Autos 1.6: preview-only taps, basket, checkout, CARS showroom ----------
 const ownsC=(u,k)=>u.own.includes(k);
-function effText(k,l){const c=carById(selCar);return {tank:`+${22*l}% boost time`,nos:`boost ×${(1.45+.07*l).toFixed(2)}`,engine:`top ${Math.round(c.top*(1+.04*l)*3.6*1.45)} km/h`,tyres:`lane change −${8*l}%`,armour:`${Math.round(c.dur*(1+.15*l))} HP`,brakes:`${Math.round((.35+.07*l)*100)}% brake force`}[k]}
-function renderShop(){const u=getU(selCar),c=carById(selCar);$('shWallet').textContent=`🪙 ${wallet}`;$('shCar').textContent=c.name+' · '+(ENGP[c.id]||ENGP.swift).name;
-  document.querySelectorAll('#shTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===WS.tab));let h='';
-  if(WS.tab==='perf')h=UPG.map(p=>{const l=u[p.k],mx=l>=p.max,cost=UPCOST[l];return `<div class="shRow"><div class="shI">${p.icon}</div><div class="shT"><b>${p.name}</b><small>${p.desc} · ${effText(p.k,l)}${mx?'':' → '+effText(p.k,l+1)}</small><span class="pips">${'▰'.repeat(l)}<i>${'▱'.repeat(p.max-l)}</i></span></div><button class="shB" data-up="${p.k}" ${mx||wallet<cost?'disabled':''}>${mx?'MAX':`UPGRADE<br>${cost} 🪙`}</button></div>`}).join('');
-  else if(WS.tab==='cos')h=Object.entries(COS).map(([cat,C])=>`<div class="shCat">${C.name}</div><div class="chips">`+C.items.map(it=>{const on=u[cat]===it.id,own=it.cost===0||ownsC(u,cat+':'+it.id);
-    const sw=it.col!==undefined?`<i class="sw" style="background:#${new THREE.Color(it.col).getHexString()}${cat==='paint'&&it.fin==='hh'?';background:linear-gradient(90deg,#d40000 60%,#111 60%)':''}"></i>`:'';
-    return `<button class="chip${on?' on':''}" data-cat="${cat}" data-id="${it.id}">${sw}${it.name}${it.fin==='matte'?' (matte)':''}<small>${on?'✔ fitted':own?'owned':it.cost+' 🪙'}</small></button>`}).join('')+'</div>').join('');
-  else h=EXH.map(e=>{const own=e.id===0||ownsC(u,'exh:'+e.id),on=u.exhaust===e.id,locked=e.id>0&&!own&&!(e.id===1||ownsC(u,'exh:'+(e.id-1)));
-    return `<div class="shRow"><div class="shI">${['🔇','📢','💥'][e.id]}</div><div class="shT"><b>${e.name}</b><small>${e.desc}</small></div><button class="shB" data-exh="${e.id}" ${on||locked||(!own&&wallet<e.cost)?'disabled':''}>${on?'✔ FITTED':own?'FIT':locked?'🔒 Sports first':`BUY<br>${e.cost} 🪙`}</button></div>`}).join('')+'<p class="shNote">Hold 🔊 REV to hear it. Lift off for pops &amp; crackles.</p>';
-  $('shList').innerHTML=h;
-  $('shList').querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{const u=getU(selCar),k=b.dataset.up,l=u[k],p=UPG.find(x=>x.k===k);if(l>=p.max||wallet<UPCOST[l])return;wallet-=UPCOST[l];u[k]=l+1;setU(selCar,u);LS.set('wallet',wallet);buyFx();renderShop()});
-  $('shList').querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{const u=getU(selCar),cat=b.dataset.cat,it=cosItem(cat,b.dataset.id),key=cat+':'+it.id;
-    if(!(it.cost===0||u.own.includes(key))){if(wallet<it.cost){beep(150,.12,'square',.08);return}wallet-=it.cost;u.own.push(key);LS.set('wallet',wallet);buyFx()}else beep(700,.05);u[cat]=it.id;setU(selCar,u);wsCar();renderShop()});
-  $('shList').querySelectorAll('[data-exh]').forEach(b=>b.onclick=()=>{const u=getU(selCar),e=EXH[+b.dataset.exh],key='exh:'+e.id;
-    if(!(e.id===0||u.own.includes(key))){if(wallet<e.cost)return;wallet-=e.cost;u.own.push(key);LS.set('wallet',wallet);buyFx()}u.exhaust=e.id;setU(selCar,u);setEngine(selCar);wsCar();renderShop();if(AC){WS.revHold=true;setTimeout(()=>WS.revHold=false,900)}})}
+const QUIPS=["Pleasure doing business. No questions asked.","Cash only. No refunds. No receipts.","She'll fly. Probably. Don't tell anyone where you got it.","Lovely. Now, you never saw me.","Parts are 100% genuine-ish.","Drive it like you stole it. You didn't. I think."];
+Object.assign(WS,{prev:null,basket:{},cmp:false,ci:0,view:'shop',sx:null});
+const fitted=()=>getU(selCar);
+function shReset(){WS.prev=fitted();for(const k in WS.basket)if(k!=='car')delete WS.basket[k];WS.cmp=false}
+function perfCost(k,from,to){let c=0;for(let l=from;l<to;l++)c+=UPCOST[l];return c}
+const bTotal=()=>Object.values(WS.basket).reduce((a,b)=>a+b.cost,0),bCount=()=>Object.keys(WS.basket).length;
+function shCarId(){return WS.tab==='cars'?CARS[WS.ci].id:selCar}
+function shU(){if(WS.tab==='cars'){const id=CARS[WS.ci].id;return id===selCar&&!WS.cmp?WS.prev:getU(id)}return WS.cmp?fitted():WS.prev}
+function wsCar(){if(WS.car)WS.table.remove(WS.car);const id=shCarId();WS.car=buildCar(carById(id),shU());WS.car.position.y=.22;if(WS.env)WS.car.traverse(o=>{if(o.material&&o.material.isMeshStandardMaterial&&!o.material.envMap){o.material=o.material.clone();o.material.envMap=WS.env;o.material.envMapIntensity=1.2}});WS.table.add(WS.car)}
+function wsEngWant(){return [shCarId(),shU().exhaust]}
+function previewPerf(k){const p=UPG.find(x=>x.k===k),f=fitted()[k];let l=WS.prev[k];l=l>=p.max?f:l+1;if(l===f){WS.prev[k]=f;delete WS.basket['perf:'+k];beep(500,.05)}
+  else{WS.prev[k]=l;WS.basket['perf:'+k]={label:`${p.icon} ${p.name} → Lv ${l}`,cost:perfCost(k,f,l),apply:u=>{u[k]=l}};beep(760,.05)}renderShop()}
+function previewCos(cat,id){const u=fitted(),it=cosItem(cat,id),key=cat+':'+it.id;WS.prev[cat]=it.id;
+  if(it.cost===0||u.own.includes(key)){u[cat]=it.id;setU(selCar,u);delete WS.basket['cos:'+cat];beep(700,.05)}
+  else{WS.basket['cos:'+cat]={label:`${COS[cat].name}: ${it.name}${it.fin==='matte'?' (matte)':''}`,cost:it.cost,apply:u=>{u.own.push(key);u[cat]=it.id}};beep(760,.05)}wsCar();renderShop()}
+function previewExh(id){const u=fitted(),e=EXH[id],key='exh:'+id;WS.prev.exhaust=id;
+  if(id===0||u.own.includes(key)){u.exhaust=id;setU(selCar,u);delete WS.basket.exh}else WS.basket.exh={label:`💥 Exhaust: ${e.name}`,cost:e.cost,apply:u=>{u.own.push(key);u.exhaust=id}};
+  wsCar();renderShop();if(AC){initAudio();WS.revHold=true;setTimeout(()=>WS.revHold=false,1100)}}
+function previewCar(){const c=CARS[WS.ci];if(owned.includes(c.id)){if(selCar!==c.id){selCar=c.id;LS.set('car',selCar);shReset();setPlayerCar(selCar)}toast('🔑 Keys are in it. Drive safe-ish.')}
+  else{WS.basket.car={label:`🚗 ${c.name}`,cost:c.cost,car:c.id};toast(`🧺 ${c.name} added to basket`)}beep(760,.05);renderShop()}
+function checkout(){const tot=bTotal();if(!bCount()||tot>wallet){beep(150,.12,'square',.08);return}wallet-=tot;LS.set('wallet',wallet);const u=fitted();
+  for(const[k,b]of Object.entries(WS.basket)){if(b.car){if(!owned.includes(b.car)){owned.push(b.car);LS.set('owned',owned)}}else b.apply(u)}setU(selCar,u);
+  WS.basket={};WS.prev=fitted();WS.cmp=false;WS.view='shop';buyFx();toast('🧔 Marc: “'+QUIPS[Math.random()*QUIPS.length|0]+'”',3200);wsCar();renderShop()}
+function toast(t,ms=1800){let d=$('shToast');if(!d){d=document.createElement('div');d.id='shToast';document.body.appendChild(d)}d.textContent=t;d.classList.add('on');clearTimeout(d._t);d._t=setTimeout(()=>d.classList.remove('on'),ms)}
+function effText(k,l,id=selCar){const c=carById(id);return {tank:`+${22*l}% boost time`,nos:`boost ×${(1.45+.07*l).toFixed(2)}`,engine:`top ${Math.round(c.top*(1+.04*l)*3.6*1.45)} km/h`,tyres:`lane change −${8*l}%`,armour:`${Math.round(c.dur*(1+.15*l))} HP`,brakes:`${Math.round((.35+.07*l)*100)}% brake force`}[k]}
+const statBar=(n,v,t)=>`<div class="stat"><span>${n}</span><div class="bar"><i style="width:${Math.min(100,v*100)}%"></i></div><small>${t||''}</small></div>`;
+function renderShop(){const u=fitted(),pv=WS.prev,c=carById(selCar),tot=bTotal(),n=bCount();
+  $('shWallet').innerHTML=`🪙 ${wallet}`;$('shBasketBtn').innerHTML=`🧺 Basket (${n}) · ${tot} 🪙`;$('shBasketBtn').classList.toggle('full',n>0);
+  $('shCar').textContent=WS.tab==='cars'?'The showroom · cash only':c.name+' · '+(ENGP[c.id]||ENGP.swift).name;
+  $('shCmp').textContent=WS.cmp?'👁 Showing: FITTED':'👁 Showing: PREVIEW';$('shCmp').classList.toggle('on',WS.cmp);
+  $('shPrev').style.visibility=$('shNext').style.visibility=WS.tab==='cars'||WS.view==='basket'?'hidden':'visible';
+  document.querySelectorAll('#shTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===WS.tab&&WS.view!=='basket'));let h='';
+  if(WS.view==='basket'){const need=tot-wallet;h=`<div class="shCat">🧺 Your basket</div>`+(n?Object.entries(WS.basket).map(([k,b])=>`<div class="shRow"><div class="shT"><b>${b.label}</b></div><b class="bc">${b.cost} 🪙</b><button class="bx" data-rm="${k}" aria-label="remove">✕</button></div>`).join(''):'<p class="shNote">Basket is empty. Tap parts to preview them, then add them here.</p>')+
+    `<div class="shRow tot"><div class="shT"><b>Total</b></div><b class="bc">${tot} 🪙</b></div><p class="shNote">${n&&need>0?`❌ You need ${need} more 🪙`:'Wallet: '+wallet+' 🪙'}</p><div class="shFoot"><button class="btn" id="shCheckout" ${!n||need>0?'disabled':''}>💵 CHECKOUT · ${tot} 🪙</button><button class="btn sec" id="shBack">◀ Keep shopping</button></div>`}
+  else if(WS.tab==='perf')h=UPG.map(p=>{const f=u[p.k],l=pv[p.k],mx=f>=p.max,ch=l!==f;return `<div class="shRow tap${ch?' pv':''}" data-up="${p.k}"><div class="shI">${p.icon}</div><div class="shT"><b>${p.name}</b><small>${p.desc} · ${effText(p.k,f)}${ch?` → <em>${effText(p.k,l)}</em>`:''}</small><span class="pips">${'▰'.repeat(f)}<em>${'▰'.repeat(l-f)}</em><i>${'▱'.repeat(p.max-l)}</i></span></div><span class="tag">${mx?'MAX':ch?`🧺 ${perfCost(p.k,f,l)} 🪙`:`+1 · ${UPCOST[f]} 🪙`}</span></div>`}).join('')+'<p class="shNote">Tap to preview the next level (tap again for more). Nothing is charged until checkout.</p>';
+  else if(WS.tab==='cos')h=Object.entries(COS).map(([cat,C])=>`<div class="shCat">${C.name}</div><div class="chips">`+C.items.map(it=>{const fit=u[cat]===it.id,on=pv[cat]===it.id,own=it.cost===0||ownsC(u,cat+':'+it.id);
+    const sw=it.col!==undefined||it.fin==='hh'?`<i class="sw" style="background:${it.fin==='hh'?'linear-gradient(90deg,#d40000 60%,#111 60%)':'#'+new THREE.Color(it.col).getHexString()}"></i>`:'';
+    return `<button class="chip${on?' on':''}" data-cat="${cat}" data-id="${it.id}">${sw}${it.name}${it.fin==='matte'?' (matte)':''}<small>${fit?'✔ fitted':own?'owned · free':(on?'🧺 ':'')+it.cost+' 🪙'}</small></button>`}).join('')+'</div>').join('');
+  else if(WS.tab==='exh')h=EXH.map(e=>{const own=e.id===0||ownsC(u,'exh:'+e.id),fit=u.exhaust===e.id,on=pv.exhaust===e.id;
+    return `<div class="shRow tap${on&&!fit?' pv':''}" data-exh="${e.id}"><div class="shI">${['🔇','📢','💥'][e.id]}</div><div class="shT"><b>${e.name}</b><small>${e.desc}</small></div><span class="tag">${fit?'✔ FITTED':own?'OWNED':(on?'🧺 ':'')+e.cost+' 🪙'}</span></div>`}).join('')+'<p class="shNote">Tap to preview — it revs automatically. Hold 🔊 REV to hear it again.</p>';
+  else{const cc=CARS[WS.ci],own=owned.includes(cc.id),inB=WS.basket.car?.car===cc.id,eu=getU(cc.id);
+    h=`<div class="showroom"><div class="sign">💵 CASH ONLY · NO REFUNDS · NO QUESTIONS 💵</div><div class="crow"><button class="arrow" id="ciPrev">◀</button><div><div class="carname">${cc.name}</div><small>${WS.ci+1} / ${CARS.length} · ${(ENGP[cc.id]||{}).name||''}</small></div><button class="arrow" id="ciNext">▶</button></div>
+    <p class="cdesc">${cc.desc}</p>${statBar('Speed',cc.top*(1+.04*eu.engine)/(STATMAX.top*1.2),Math.round(cc.top*(1+.04*eu.engine)*3.6*1.45)+' km/h')}${statBar('Handling',cc.hand/STATMAX.hand)}${statBar('Boost',cc.boost/STATMAX.boost)}${statBar('Toughness',cc.dur*(1+.15*eu.armour)/(STATMAX.dur*1.6),Math.round(cc.dur*(1+.15*eu.armour))+' HP')}
+    <div class="price">${own?'✔ In your garage':`${cc.cost} 🪙`}</div><div class="shFoot"><button class="btn sec" id="ciHear">🔊 Hear engine</button><button class="btn" id="ciAct">${own?(selCar===cc.id?'✔ DRIVING':'🔑 DRIVE'):inB?'🧺 IN BASKET':'🧺 ADD TO BASKET'}</button></div><p class="shNote">Swipe the turntable or use the arrows to browse.</p></div>`}
+  $('shList').innerHTML=h;const L=$('shList');
+  L.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>previewPerf(b.dataset.up));
+  L.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>previewCos(b.dataset.cat,b.dataset.id));
+  L.querySelectorAll('[data-exh]').forEach(b=>b.onclick=()=>previewExh(+b.dataset.exh));
+  L.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const k=b.dataset.rm;delete WS.basket[k];if(k.startsWith('perf:'))WS.prev[k.slice(5)]=fitted()[k.slice(5)];else if(k.startsWith('cos:'))WS.prev[k.slice(4)]=fitted()[k.slice(4)];else if(k==='exh')WS.prev.exhaust=fitted().exhaust;beep(300,.05);wsCar();renderShop()});
+  if($('shCheckout'))$('shCheckout').onclick=checkout;if($('shBack'))$('shBack').onclick=()=>{WS.view='shop';renderShop()};
+  if($('ciPrev')){$('ciPrev').onclick=()=>shCi(-1);$('ciNext').onclick=()=>shCi(1);$('ciAct').onclick=previewCar;$('ciHear').onclick=()=>{initAudio();WS.revHold=true;setTimeout(()=>WS.revHold=false,1300)}}}
+function shCi(d){WS.ci=(WS.ci+d+CARS.length)%CARS.length;beep(600,.04);wsCar();renderShop()}
 function buyFx(){beep(880,.12,'triangle',.12,1320);setTimeout(()=>beep(1320,.12,'triangle',.1,1760),110)}
-$('marcBtn').onclick=()=>{beep(660,.06);openShop('menu')};$('shDone').onclick=()=>{beep(440,.06);closeShop()};
-document.querySelectorAll('#shTabs button').forEach(b=>b.onclick=()=>{WS.tab=b.dataset.t;beep(700,.04);renderShop();$('shList').scrollTop=0});
-const shCycle=d=>{let i=CARS.findIndex(c=>c.id===selCar);do{i=(i+d+CARS.length)%CARS.length}while(!owned.includes(CARS[i].id));selCar=CARS[i].id;LS.set('car',selCar);setEngine(selCar);wsCar();renderShop()};
+$('cToMarc').onclick=()=>{WS.tab='cars';openShop('menu')};$('marcBtn').onclick=()=>{beep(660,.06);openShop('menu')};$('shDone').onclick=()=>{beep(440,.06);closeShop()};
+document.querySelectorAll('#shTabs button').forEach(b=>b.onclick=()=>{WS.tab=b.dataset.t;WS.view='shop';if(WS.tab==='cars')WS.ci=Math.max(0,CARS.findIndex(c=>c.id===selCar));wsCar();beep(700,.04);renderShop();$('shList').scrollTop=0});
+const shCycle=d=>{let i=CARS.findIndex(c=>c.id===selCar);do{i=(i+d+CARS.length)%CARS.length}while(!owned.includes(CARS[i].id));selCar=CARS[i].id;LS.set('car',selCar);shReset();setEngine(selCar);wsCar();renderShop()};
 $('shPrev').onclick=()=>shCycle(-1);$('shNext').onclick=()=>shCycle(1);
+$('shBasketBtn').onclick=()=>{WS.view=WS.view==='basket'?'shop':'basket';beep(660,.05);renderShop();$('shList').scrollTop=0};
+$('shReset').onclick=()=>{shReset();beep(400,.06);wsCar();renderShop();toast('↺ Back to fitted parts')};
+$('shCmp').onclick=()=>{WS.cmp=!WS.cmp;beep(700,.04);wsCar();renderShop()};
+$('shop').addEventListener('pointerdown',e=>{if(e.target===$('shop'))WS.sx=e.clientX});
+$('shop').addEventListener('pointerup',e=>{if(WS.sx!==null&&Math.abs(e.clientX-WS.sx)>40){if(WS.tab!=='cars'){WS.tab='cars';WS.view='shop';renderShop()}shCi(e.clientX<WS.sx?1:-1)}WS.sx=null});
 hold('shRev',()=>{initAudio();WS.revHold=true},()=>{WS.revHold=false});
 addEventListener('pointerdown',()=>{if(state==='garage'&&AC&&AC.state==='suspended')AC.resume()});
 function areaSwitch(){const i=AREAS.findIndex(a=>a.t===themeId),na=AREAS[(i+1)%AREAS.length];$('fade').classList.add('on');
@@ -971,5 +1031,5 @@ function loop(){
 try{setPlayerCar(selCar);applyQuality();applyTheme(selTheme);reset();refreshMenu();show('menu');loop();
   {const sv=stageSave();if(sv.unlocked>=6&&!LS.get('marcSeen',false)){LS.set('marcSeen',true);setTimeout(()=>{if(state==='menu'){popup("🔧 MARC'S AUTOS IS OPEN!",'#ff2d75');openShop('menu')}},900)}}
 }catch(e){window.__bootErr&&window.__bootErr(e.stack||e)}
-window.__game={get mode(){return mode},set mode(m){mode=m},get stageIdx(){return stageIdx},set stageIdx(i){stageIdx=i},STAGES,starsFor,stageSave,setDist(d){player.position.z-=d-dist;dist=d},get dist(){return dist},get finishZ(){return finishZ},get stageT(){return stageT},get dmgTaken(){return dmgTaken},get CURV(){return CURV},get ac(){return AC&&AC.state},bgPause,get hp(){return hp},get knocks(){return knocks},classifyHit,makeTraffic,get traffic(){return traffic},get speed(){return speed},get px(){return player.position.x},get pz(){return player.position.z},curvX,RY,start,pause,resume,get state(){return state},get score(){return S},get theme(){return selTheme},get car(){return selCar},get themeId(){return themeId},openShop,closeShop,WS,effCar,getU,setU,get wallet(){return wallet},set wallet(w){wallet=w;LS.set('wallet',w)},get eng(){return eng},ENGP,stageComplete,get nextArea(){return nextArea}};
+window.__game={get mode(){return mode},set mode(m){mode=m},get stageIdx(){return stageIdx},set stageIdx(i){stageIdx=i},STAGES,starsFor,stageSave,setDist(d){player.position.z-=d-dist;dist=d},get dist(){return dist},get finishZ(){return finishZ},get stageT(){return stageT},get dmgTaken(){return dmgTaken},get CURV(){return CURV},get ac(){return AC&&AC.state},bgPause,get hp(){return hp},get knocks(){return knocks},classifyHit,makeTraffic,get traffic(){return traffic},get speed(){return speed},get px(){return player.position.x},get pz(){return player.position.z},curvX,RY,start,pause,resume,get state(){return state},get score(){return S},get theme(){return selTheme},get car(){return selCar},get themeId(){return themeId},openShop,closeShop,WS,checkout,renderShop,effCar,getU,setU,get wallet(){return wallet},set wallet(w){wallet=w;LS.set('wallet',w)},get eng(){return eng},ENGP,stageComplete,get nextArea(){return nextArea}};
 </script></body></html>
