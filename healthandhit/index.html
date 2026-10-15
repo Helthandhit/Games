@@ -316,35 +316,40 @@ function finish(ok){if(!mg)return;const m=mg;const k=m.k;const q=k==='hiit'?Math
  $('rBody').innerHTML=`${EX[k].name}: ${k==='hiit'?m.dist.toFixed(0)+'m':m.reps+' reps @ '+m.w+'kg'}<br>+${xp} XP · +${coins} 🪙<br>STR +${gStr.toFixed(1)} · SIZE +${gSize.toFixed(1)} · STA +${gSta.toFixed(1)}<br>${notes.join('<br>')}${S.sideFx?'<br>Side-effects meter: '+S.sideFx+'%':''}`;
  show('mg',false);show('result');state='result';hud();}
 function afterResult(){show('result',false);if(S.xp>=xpNeed()){S.xp-=xpNeed();S.level++;S.str=Math.min(100,S.str+3);S.size=Math.min(100,S.size+4);S.coins+=25;save();morph();state='lvlup';pose='flex';show('hub',false);show('lvlup');camT.p.set(0,1.4,3.0);camT.l.set(0,1.15,0);$('luTitle').textContent=`LEVEL ${S.level} – ${title().toUpperCase()}`;const un=Object.entries(EX).filter(([k,e])=>e.lv===S.level).map(([k,e])=>e.name);$('luBody').innerHTML=`+25 🪙 · heavier weights unlocked${un.length?'<br>NEW EXERCISE: '+un.join(', '):''}`;sfx.lvl();hud();}else toHub();}
-// ---------- Share score card (Web Share L2 / Android bridge / download fallback) ----------
+// ---------- Share score card: red/black PNG image (Android bridge / Web Share L2 files / PNG download) ----------
 // Android bridge: window.AndroidShare.shareImage(base64Png:string /*no data: prefix*/, text:string) -> void
-window.ShareCard=(()=>{const URLT='https://helthandhit.github.io/Games/';
+window.ShareCard=(()=>{const RED='#e10600',PLAY='Coming soon to the Play Store';
  function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
  function loadImg(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
+ function fit(g,t,max,font){let s=parseInt(font.match(/(\d+)px/)[1]);do{g.font=font.replace(/\d+px/,s+'px');s-=2}while(g.measureText(t).width>max&&s>14)}
  async function make(o){const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
-  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,o.bg1||'#0b0b1e');bg.addColorStop(1,o.bg2||'#000');g.fillStyle=bg;g.fillRect(0,0,W,H);
-  g.textAlign='center';g.fillStyle=o.accent||'#ffcc33';g.font='italic 900 96px system-ui,Arial';g.shadowColor=o.accent||'#f50';g.shadowBlur=30;g.fillText(o.title,W/2,130);g.shadowBlur=0;
-  const img=await loadImg(o.frame);if(img){const fw=W-120,fh=fw*img.height/img.width,h2=Math.min(fh,480);g.save();rr(g,60,180,fw,h2,28);g.clip();g.drawImage(img,0,(img.height-img.height*h2/fh)/2,img.width,img.height*h2/fh,60,180,fw,h2);g.restore();g.lineWidth=6;g.strokeStyle=o.accent||'#fc3';rr(g,60,180,fw,h2,28);g.stroke()}
-  let y=img?800:260;g.fillStyle='#fff';g.font='900 120px system-ui,Arial';g.fillText(o.big,W/2,y);y+=50;g.font='700 34px system-ui,Arial';g.fillStyle='#ffffffaa';g.fillText(o.bigLabel||'',W/2,y);y+=70;
-  g.font='700 40px system-ui,Arial';for(const[k,v]of o.lines){g.textAlign='left';g.fillStyle='#ffffff99';g.fillText(k,140,y);g.textAlign='right';g.fillStyle='#fff';g.fillText(v,W-140,y);y+=56}
-  g.textAlign='center';g.fillStyle=o.accent||'#fc3';g.font='800 40px system-ui,Arial';g.fillText(URLT.replace('https://',''),W/2,H-60);return c}
- async function share(o){const c=await make(o),text=o.text+' '+URLT,name=(o.file||'score')+'.png';
+  g.fillStyle='#000';g.fillRect(0,0,W,H);const rg=g.createRadialGradient(W/2,0,50,W/2,0,900);rg.addColorStop(0,'#5a0000');rg.addColorStop(1,'#000');g.fillStyle=rg;g.fillRect(0,0,W,H);
+  g.fillStyle=RED;g.fillRect(0,0,W,16);g.fillRect(0,H-16,W,16);
+  g.save();g.globalAlpha=.08;g.fillStyle=RED;for(let i=-H;i<W;i+=90){g.beginPath();g.moveTo(i,H);g.lineTo(i+40,H);g.lineTo(i+40+H*.6,0);g.lineTo(i+H*.6,0);g.fill()}g.restore();
+  g.textAlign='center';g.fillStyle='#fff';fit(g,o.title,W-120,'italic 900 92px system-ui,Arial');g.shadowColor=RED;g.shadowBlur=30;g.fillText(o.title,W/2,128);g.shadowBlur=0;
+  const img=await loadImg(o.frame);let y=176;if(img){const fw=W-120,fh=fw*img.height/img.width,h2=Math.min(fh,440);g.save();rr(g,60,y,fw,h2,24);g.clip();g.drawImage(img,0,(img.height-img.height*h2/fh)/2,img.width,img.height*h2/fh,60,y,fw,h2);g.restore();g.lineWidth=6;g.strokeStyle=RED;rr(g,60,y,fw,h2,24);g.stroke();y+=h2+40}else y+=60;
+  g.fillStyle=RED;g.font='800 34px system-ui,Arial';g.fillText((o.bigLabel||'SCORE').toUpperCase(),W/2,y+30);y+=30;
+  g.fillStyle='#fff';fit(g,o.big,W-120,'900 130px system-ui,Arial');g.fillText(o.big,W/2,y+120);y+=160;
+  const lines=(o.lines||[]).slice(0,6),bh=lines.length*58+30;g.fillStyle='rgba(255,255,255,.05)';rr(g,90,y,W-180,bh,20);g.fill();g.strokeStyle='rgba(225,6,0,.6)';g.lineWidth=3;rr(g,90,y,W-180,bh,20);g.stroke();y+=58;
+  for(const[k,v]of lines){g.textAlign='left';g.fillStyle='#ffffffaa';fit(g,String(k),420,'700 36px system-ui,Arial');g.fillText(k,130,y);g.textAlign='right';g.fillStyle='#fff';fit(g,String(v),480,'800 38px system-ui,Arial');g.fillText(v,W-130,y);y+=58}
+  g.textAlign='center';const by=H-190;g.fillStyle=RED;rr(g,W/2-300,by,600,70,35);g.fill();g.fillStyle='#fff';g.font='800 34px system-ui,Arial';g.fillText(PLAY,W/2,by+47);
+  g.font='italic 900 44px system-ui,Arial';const a='HEALTH ',b='AND ',d='HIT',wa=g.measureText(a).width,wb=g.measureText(b).width,wd=g.measureText(d).width;let x=W/2-(wa+wb+wd)/2;g.textAlign='left';
+  g.fillStyle='#fff';g.fillText(a,x,H-56);g.fillStyle=RED;g.fillText(b,x+wa,H-56);g.fillStyle='#fff';g.fillText(d,x+wa+wb,H-56);return c}
+ async function share(o){const c=await make(o),text=o.text+' '+PLAY+'!',name=(o.file||'score')+'.png';
   const dataURL=c.toDataURL('image/png');
   try{if(window.AndroidShare&&typeof window.AndroidShare.shareImage==='function'){window.AndroidShare.shareImage(dataURL.split(',')[1],text);return 'android'}}catch(e){}
   try{const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=new File([blob],name,{type:'image/png'});
-   if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text,title:o.title});return 'share'}
-   if(navigator.share&&!navigator.canShare){await navigator.share({text,title:o.title,url:URLT});return 'share-text'}}catch(e){if(e&&e.name==='AbortError')return 'cancel'}
-  const a=document.createElement('a');a.href=dataURL;a.download=name;document.body.appendChild(a);a.click();a.remove();
-  try{await navigator.clipboard.writeText(text)}catch(e){}return 'download'}
+   if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text,title:o.title});return 'share'}}catch(e){if(e&&e.name==='AbortError')return 'cancel'}
+  const a=document.createElement('a');a.href=dataURL;a.download=name;document.body.appendChild(a);a.click();a.remove();return 'download'}
  return {make,share}})();
 
 let lastSet=null;
 document.querySelectorAll('.shareBtn').forEach(b=>b.onclick=async e=>{e.stopPropagation();b.disabled=true;let frame=null;try{renderer.render(scene,camera);frame=renderer.domElement.toDataURL('image/jpeg',.85)}catch(er){}
   const lv=b.dataset.ctx==='lvl',r=lastSet;const lines=[['Title',title()],['Strength',S.str.toFixed(0)],['Size',S.size.toFixed(0)],['Stamina',S.sta.toFixed(0)],['Status',S.natty?'🟢 Natty':'💉 Not natty']];
   if(!lv&&r)lines.unshift([r.name,r.desc]);
-  const res=await ShareCard.share({title:'HEALTH AND HIT',accent:'#ff1a1a',bg1:'#1a0000',bg2:'#000',frame,big:'LEVEL '+S.level,bigLabel:lv?'LEVEL UP!':(r&&r.ok?'SET COMPLETE':'SET FAILED'),lines,
+  const res=await ShareCard.share({title:'HEALTH AND HIT',frame,big:'LEVEL '+S.level,bigLabel:lv?'LEVEL UP!':(r&&r.ok?'SET COMPLETE':'SET FAILED'),lines,
    text:lv?`Just hit Level ${S.level} (${title()}) in HealthAndHIT 💪`:`${r?r.name+': '+r.desc+' — ':''}Level ${S.level} ${title()} in HealthAndHIT 💪`,file:'healthandhit'});
-  b.disabled=false;if(res==='download')toast('IMAGE SAVED · TEXT COPIED')});
+  b.disabled=false;if(res==='download')toast('SCORE CARD SAVED')});
 // ---------- INPUT ----------
 const act=$('actBtn');const pd=e=>{e.preventDefault();press();};act.addEventListener('pointerdown',pd);act.addEventListener('pointerup',e=>{e.preventDefault();release();});act.addEventListener('pointerleave',release);
 $('lBtn').addEventListener('pointerdown',e=>{e.preventDefault();side(-1);});$('rBtn').addEventListener('pointerdown',e=>{e.preventDefault();side(1);});

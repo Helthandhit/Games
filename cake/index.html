@@ -61,7 +61,7 @@ input[type=range]{width:240px;accent-color:#ff6fa5}
 <div id="shop" class="screen hidden"><div class="panel"><h2>🛍️ Shop</h2><p class="pill" id="shopCoins" style="display:inline-block">🪙 0</p><div id="shopList" style="max-height:52vh;overflow:auto;text-align:left"></div><button class="btn" data-back>Back</button></div></div>
 <div id="pause" class="screen hidden"><div class="panel"><h2>Paused</h2><button class="btn" id="resumeBtn">▶ Resume</button><br><button class="btn butter sm" id="pSnd">Sound</button><br><button class="btn lav" id="quitBtn">Main Menu</button></div></div>
 <div id="serve" class="screen hidden" style="background:rgba(255,240,246,.25);justify-content:flex-end"><div class="panel"><div id="face">😊</div><div id="quote" class="sub"></div><div class="stars" id="stars"></div><div class="bd" id="bd"></div><div id="earn" style="font-weight:bold"></div>
-<button class="btn" id="nextBtn">Next Order ▶</button><button class="btn mint sm" id="photoBtn">📸 Photo</button><button class="btn lav sm" id="srvMenu">Menu</button></div></div>
+<button class="btn" id="nextBtn">Next Order ▶</button><button class="btn mint sm" id="photoBtn">📸 Photo</button><button class="btn sm" id="shareBtn" style="background:#e10600;color:#fff">📤 Share</button><button class="btn lav sm" id="srvMenu">Menu</button></div></div>
 <div id="toast" style="opacity:0"></div>
 <script id="three-src" type="text/plain">/**
  * @license
@@ -281,7 +281,7 @@ function serve(){phase='serve';setView('serve');show('phase',false);const sc={};
  const total=Math.max(0,Object.values(sc).reduce((a,b)=>a+b,0));const stars=total>=90?5:total>=75?4:total>=55?3:total>=35?2:1;
  const coins=O?stars*8+S.level*2:Math.round(stars*2);S.coins+=coins;S.served++;S.best=Math.max(S.best,total);let lv='';
  if(O&&stars>=3){S.xp++;if(S.xp>=2){S.xp=0;S.level++;lv=`<br>🎉 LEVEL UP! Now level ${S.level}${S.level===3?' – orders are now timed!':''}`;}}
- save();hudTop();
+ window.__lastServe={total,stars,coins,level:S.level,order:!!O,cust:O?O.cust[1]:'',sc:{...sc}};save();hudTop();
  const faces=['😖','😕','🙂','😄','🤩'],quotes=['"Is this… a cake?"','"Hmm, it\'s edible."','"Nice! Thank you."','"Delicious, I love it!"','"MASTERPIECE! Best cake ever!"'];
  $('face').textContent=(O?O.cust[0]+' ':'')+faces[stars-1];$('quote').textContent=O?O.cust[1]+': '+quotes[stars-1]:'Your creation!';
  $('stars').textContent='★'.repeat(stars)+'☆'.repeat(5-stars);$('bd').innerHTML=Object.entries(sc).map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('')+`<div style="border-top:2px solid #ffd2e3"><span>Total</span><b>${total}</b></div>`;
@@ -304,6 +304,38 @@ $('gfxBtn').onclick=()=>{S.gfx=S.gfx==='high'?'low':'high';save();applyGfx();};
 const togglePause=()=>{if(mode==='menu')return;paused=!paused;show('pause',paused);};
 $('pauseBtn').onclick=togglePause;$('resumeBtn').onclick=togglePause;$('quitBtn').onclick=toMenu;
 $('nextBtn').onclick=()=>start(mode);$('srvMenu').onclick=toMenu;
+// ---------- Share score card: red/black PNG image (Android bridge / Web Share L2 files / PNG download) ----------
+// Android bridge: window.AndroidShare.shareImage(base64Png:string /*no data: prefix*/, text:string) -> void
+window.ShareCard=(()=>{const RED='#e10600',PLAY='Coming soon to the Play Store';
+ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+ function loadImg(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src})}
+ function fit(g,t,max,font){let s=parseInt(font.match(/(\d+)px/)[1]);do{g.font=font.replace(/\d+px/,s+'px');s-=2}while(g.measureText(t).width>max&&s>14)}
+ async function make(o){const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  g.fillStyle='#000';g.fillRect(0,0,W,H);const rg=g.createRadialGradient(W/2,0,50,W/2,0,900);rg.addColorStop(0,'#5a0000');rg.addColorStop(1,'#000');g.fillStyle=rg;g.fillRect(0,0,W,H);
+  g.fillStyle=RED;g.fillRect(0,0,W,16);g.fillRect(0,H-16,W,16);
+  g.save();g.globalAlpha=.08;g.fillStyle=RED;for(let i=-H;i<W;i+=90){g.beginPath();g.moveTo(i,H);g.lineTo(i+40,H);g.lineTo(i+40+H*.6,0);g.lineTo(i+H*.6,0);g.fill()}g.restore();
+  g.textAlign='center';g.fillStyle='#fff';fit(g,o.title,W-120,'italic 900 92px system-ui,Arial');g.shadowColor=RED;g.shadowBlur=30;g.fillText(o.title,W/2,128);g.shadowBlur=0;
+  const img=await loadImg(o.frame);let y=176;if(img){const fw=W-120,fh=fw*img.height/img.width,h2=Math.min(fh,440);g.save();rr(g,60,y,fw,h2,24);g.clip();g.drawImage(img,0,(img.height-img.height*h2/fh)/2,img.width,img.height*h2/fh,60,y,fw,h2);g.restore();g.lineWidth=6;g.strokeStyle=RED;rr(g,60,y,fw,h2,24);g.stroke();y+=h2+40}else y+=60;
+  g.fillStyle=RED;g.font='800 34px system-ui,Arial';g.fillText((o.bigLabel||'SCORE').toUpperCase(),W/2,y+30);y+=30;
+  g.fillStyle='#fff';fit(g,o.big,W-120,'900 130px system-ui,Arial');g.fillText(o.big,W/2,y+120);y+=160;
+  const lines=(o.lines||[]).slice(0,6),bh=lines.length*58+30;g.fillStyle='rgba(255,255,255,.05)';rr(g,90,y,W-180,bh,20);g.fill();g.strokeStyle='rgba(225,6,0,.6)';g.lineWidth=3;rr(g,90,y,W-180,bh,20);g.stroke();y+=58;
+  for(const[k,v]of lines){g.textAlign='left';g.fillStyle='#ffffffaa';fit(g,String(k),420,'700 36px system-ui,Arial');g.fillText(k,130,y);g.textAlign='right';g.fillStyle='#fff';fit(g,String(v),480,'800 38px system-ui,Arial');g.fillText(v,W-130,y);y+=58}
+  g.textAlign='center';const by=H-190;g.fillStyle=RED;rr(g,W/2-300,by,600,70,35);g.fill();g.fillStyle='#fff';g.font='800 34px system-ui,Arial';g.fillText(PLAY,W/2,by+47);
+  g.font='italic 900 44px system-ui,Arial';const a='HEALTH ',b='AND ',d='HIT',wa=g.measureText(a).width,wb=g.measureText(b).width,wd=g.measureText(d).width;let x=W/2-(wa+wb+wd)/2;g.textAlign='left';
+  g.fillStyle='#fff';g.fillText(a,x,H-56);g.fillStyle=RED;g.fillText(b,x+wa,H-56);g.fillStyle='#fff';g.fillText(d,x+wa+wb,H-56);return c}
+ async function share(o){const c=await make(o),text=o.text+' '+PLAY+'!',name=(o.file||'score')+'.png';
+  const dataURL=c.toDataURL('image/png');
+  try{if(window.AndroidShare&&typeof window.AndroidShare.shareImage==='function'){window.AndroidShare.shareImage(dataURL.split(',')[1],text);return 'android'}}catch(e){}
+  try{const blob=await new Promise(r=>c.toBlob(r,'image/png'));const file=new File([blob],name,{type:'image/png'});
+   if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text,title:o.title});return 'share'}}catch(e){if(e&&e.name==='AbortError')return 'cancel'}
+  const a=document.createElement('a');a.href=dataURL;a.download=name;document.body.appendChild(a);a.click();a.remove();return 'download'}
+ return {make,share}})();
+$('shareBtn').onclick=async()=>{const b=$('shareBtn');b.disabled=true;let frame=null;show('serve',false);try{renderer.render(scene,camera);frame=renderer.domElement.toDataURL('image/jpeg',.85)}catch(e){}show('serve');
+  const r=window.__lastServe||{total:0,stars:0,coins:0,level:S.level,order:false,sc:{}};
+  const lines=[['Rating','★'.repeat(r.stars)+'☆'.repeat(5-r.stars)],...Object.entries(r.sc).slice(0,3).map(([k,v])=>[k,String(v)]),['Baker level',String(r.level)],['Best cake',String(S.best)]];
+  const res=await ShareCard.share({title:'SPRINKLES AND LAYERS',frame,big:String(r.total),bigLabel:r.order?'ORDER SCORE':'CAKE SCORE',lines,
+   text:`I baked a ${r.stars}-star cake (${r.total} pts) in Sprinkles and Layers by Health and HIT 🎂`,file:'sprinkles-and-layers'});
+  b.disabled=false;if(res==='download')toast('📤 Score card saved');};
 $('photoBtn').onclick=()=>{show('serve',false);renderer.render(scene,camera);const a=document.createElement('a');a.download='my-cake.png';a.href=renderer.domElement.toDataURL('image/png');a.click();show('serve');toast('📸 Saved!');sfx.ding();};
 addEventListener('keydown',e=>{if(e.code==='Escape'||e.code==='KeyP'){if(document.activeElement&&document.activeElement.tagName==='INPUT'&&e.code==='KeyP')return;togglePause();}});
 // pointer on canvas
