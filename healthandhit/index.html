@@ -71,7 +71,7 @@ input.code{font-size:20px;padding:6px;width:160px;text-align:center;background:#
 <div id="mg" class="hidden">
 <div id="mgTitle">BENCH</div><div id="mgInfo"></div>
 <div id="meter"><div id="fill"></div><div id="zone"></div><div id="marker"></div></div>
-<div id="bal" class="hidden"><div id="balM"></div></div>
+<div id="boostInd" style="display:none;position:fixed;top:54px;left:50%;transform:translateX(-50%);background:#000c;border:1px solid #ff2a2a;color:#ffd0d0;font:700 13px system-ui;padding:4px 10px;border-radius:10px;z-index:20;white-space:nowrap;pointer-events:none"></div><div id="bal" class="hidden"><div id="balM"></div></div>
 <div class="ctrl"><button class="cbtn" id="lBtn">L</button><button class="cbtn wide" id="actBtn">TAP</button><button class="cbtn" id="rBtn">R</button></div>
 <div id="inv"></div>
 </div>
@@ -255,14 +255,19 @@ function puButtons(el,inSet){el.innerHTML='';for(const k in PU){const b=document
 function hubUI(){const el=$('exList');el.innerHTML='';for(const k in EX){const e=EX[k];const b=document.createElement('button');const lk=S.level<e.lv;b.className='ex'+(lk?' locked':'');b.id='ex_'+k;b.innerHTML=`${e.icon} ${e.name}<small>${lk?'🔒 Level '+e.lv:(k==='hiit'?'Sprint target '+hiitTarget()+'m':weightFor(k)+' kg × '+repTarget(k))}</small>`;b.onclick=()=>{if(!lk)startEx(k);else{toast('LOCKED');sfx.bad();}};el.appendChild(b);}
  puButtons($('puList'),false);hud();}
 function usePU(k){if(!(S.inv[k]>0))return;S.inv[k]--;sfx.buy();
- if(k==='drink'){S.energy=100;buffs.fast=20;toast('⚡ ENERGISED!');}
- if(k==='chicken'){S.size=Math.min(100,S.size+3);S.energy=Math.min(100,S.energy+30);toast('🍗 GAINS!');morph();}
- if(k==='shake'){buffs.shake=1;toast('🥤 PROTEIN LOADED');}
- if(k==='pre'){S.energy=Math.min(100,S.energy+40);buffs.pre=1;toast('💥 PRE-WORKOUT!');}
+ if(k==='drink'){zb.drink=ZBD.drink;S.energy=100;buffs.fast=20;toast('⚡ ENERGISED!');}
+ if(k==='chicken'){zb.chicken=ZBD.chicken;S.size=Math.min(100,S.size+3);S.energy=Math.min(100,S.energy+30);toast('🍗 GAINS!');morph();}
+ if(k==='shake'){zb.shake=ZBD.shake;buffs.shake=1;toast('🥤 PROTEIN LOADED');}
+ if(k==='pre'){zb.pre=ZBD.pre;S.energy=Math.min(100,S.energy+40);buffs.pre=1;toast('💥 PRE-WORKOUT!');}
  save();refresh();}
 function useRoids(){if(S.sideFx>=100){toast('DOCTOR SAYS NO');fx('Side-effects maxed. Rest it off.');sfx.bad();return;}
  S.roid=3;S.natty=false;S.sideFx=Math.min(100,S.sideFx+35);S.energy=100;sfx.roid();toast('💉 UNNATURAL POWER!');fx('Natty badge revoked 🚫');fx('Side effects: '+S.sideFx+'%');save();refresh();}
 const buffs={fast:0,shake:0,pre:0};
+const zb={drink:0,pre:0,shake:0,chicken:0},ZBD={drink:20,pre:25,shake:20,chicken:15},ZBM={drink:.25,pre:.4,shake:.15,chicken:.15};
+const boostMul=()=>1+Object.keys(zb).reduce((a,k)=>a+(zb[k]>0?ZBM[k]:0),0)+(S.roid>0?.3:0);
+function baseZW(k,w){const sk=Math.min(.09,S.str*.0007+(S.level-1)*.006);let z=.2-sk;if(k==='squat')z+=Math.min(.05,Math.max(0,w-30)/1400);return z}
+const zoneW=(k,w)=>Math.max(.06,Math.min(.38,baseZW(k,w)*boostMul()));
+const balTol=()=>Math.max(.55,Math.min(1.6,(1.15-S.str*.003-(S.level-1)*.02)*boostMul()));
 function refresh(){hud();if(state==='hub')hubUI();if(state==='set')puButtons($('inv'),true);}
 // secret: type ROIDS or tap logo 5x
 let typed='';addEventListener('keydown',e=>{if(e.key.length===1){typed=(typed+e.key.toUpperCase()).slice(-5);if(typed==='ROIDS')unlockRoids();}});
@@ -277,21 +282,21 @@ function toMenu(){state='menu';paused=false;mg=null;pose='idle';['hud','hub','mg
 function toHub(){state='hub';mg=null;pose='idle';['menu','mg','result','lvlup','charSel'].forEach(i=>show(i,false));show('hud');show('hub');camT.p.set(2.2,1.6,3.4);camT.l.set(0,1.05,0);hubUI();}
 function startEx(k){if(S.energy<12){toast('TOO TIRED – REST/EAT');sfx.bad();return;}
  state='set';show('hub',false);show('mg');const w=weightFor(k);setPlates(w);
- mg={k,w,reps:0,target:k==='hiit'?hiitTarget():repTarget(k),miss:0,t:0,zc:.5,zw:0,pos:0,power:0,hold:false,prog:0,bal:0,balV:0,dist:0,last:null,time:k==='hiit'?15:(k==='dead'?40:0),repAnim:0,done:false,timer:0};
- const dif=Math.min(1,(S.level-1)/9);mg.zw=(buffs.pre?.24:.17)-dif*.05+S.str*.0005;if(k==='squat')mg.zw+=Math.min(.06,Math.max(0,w-30)/1200);newZone();
+ mg={k,w,lock:0,reps:0,target:k==='hiit'?hiitTarget():repTarget(k),miss:0,t:0,zc:.5,zw:0,pos:0,power:0,hold:false,prog:0,bal:0,balV:0,dist:0,last:null,time:k==='hiit'?15:(k==='dead'?40:0),repAnim:0,done:false,timer:0};
+ const dif=Math.min(1,(S.level-1)/9);mg.zw=zoneW(k,w);newZone();
  pose=k;ph=k==='bench'?1:0;ph2=0;
  $('mgTitle').textContent=`${EX[k].icon} ${EX[k].name.toUpperCase()}${k!=='hiit'?' · '+w+' KG':''}`;
  const lr=k==='dead'||k==='hiit';show('lBtn',lr);show('rBtn',lr);show('bal',k==='dead');
  $('actBtn').textContent=k==='squat'?'HOLD':k==='dead'?'MASH':k==='hiit'?'GO!':'TAP';show('actBtn',k!=='hiit');
  if(k==='bench'){camT.p.set(1.9,2.0,1.6);camT.l.set(0,.8,-.3);}else if(k==='hiit'){camT.p.set(3,1.5,2);camT.l.set(0,1,0);}else{camT.p.set(1.9,1.4,2.8);camT.l.set(0,1,0);}
  puButtons($('inv'),true);info();sfx.clank();}
-function newZone(){mg.zc=.2+Math.random()*.6;if(mg.k==='squat')mg.zc=.62+Math.random()*.25;}
+function newZone(){mg.zc=.2+Math.random()*.6;if(mg.k==='squat')mg.zc=.62+Math.random()*.25;mg.zc=Math.min(mg.zc,1-mg.zw/2);}
 function info(){const m=mg;let s;if(m.k==='hiit')s=`Distance ${m.dist.toFixed(0)} / ${m.target} m · ${Math.max(0,m.time).toFixed(1)}s`;else s=`Reps ${m.reps} / ${m.target} · Misses ${m.miss}/3`+(m.k==='dead'?` · ${Math.max(0,m.time).toFixed(0)}s`:'');$('mgInfo').textContent=s;}
 function costE(v){const r=v*(1-S.sta/250);S.energy=Math.max(0,S.energy-r);}
 function press(){if(state!=='set'||paused||!mg||mg.done)return;const m=mg;
  if(m.k==='bench'||m.k==='curl'){if(m.repAnim>0)return;if(Math.abs(m.pos-m.zc)<m.zw/2){m.reps++;m.repAnim=1;sfx.good();costE(m.k==='bench'?5:3);newZone();}else{m.miss++;sfx.bad();toast('MISS');costE(7);}}
  else if(m.k==='squat'){if(m.repAnim>0)return;m.hold=true;}
- else if(m.k==='dead'){m.prog+=.05+S.str*.0008+(S.roid?0.04:0);m.prog=Math.min(1,m.prog);sfx.tap();costE(.6);}
+ else if(m.k==='dead'){if(m.lock>0)return;m.prog+=.075+S.str*.0006+(S.roid?.03:0)+(zb.pre>0?.015:0);m.prog=Math.min(1,m.prog);sfx.tap();costE(.5);}
  info();check();}
 function release(){if(state!=='set'||!mg||mg.k!=='squat'||!mg.hold)return;const m=mg;m.hold=false;if(Math.abs(m.power-m.zc)<m.zw/2){m.reps++;sfx.good();costE(6);newZone();}else{m.miss++;sfx.bad();toast(m.power>m.zc?'TOO DEEP':'TOO SHALLOW');costE(6);}m.repAnim=1;info();check();}
 function side(d){if(state!=='set'||paused||!mg)return;const m=mg;if(m.k==='dead'){m.balV-=d*.9;sfx.tap();}else if(m.k==='hiit'){if(m.last!==d){m.dist+=1.5+S.sta*.03+(buffs.fast?.6:0)+(S.roid?.8:0);runT+=Math.PI/2;m.last=d;sfx.tap();costE(.35);}else{toast('ALTERNATE!');}info();check();}}
@@ -337,16 +342,22 @@ let lastT=performance.now();
 function loop(now){requestAnimationFrame(loop);let dt=Math.min(.05,(now-lastT)/1000);lastT=now;if(paused)dt=0;T+=dt;
  if(toastT>0){toastT-=dt;if(toastT<=0)$('toast').style.opacity=0;}
  for(const b of['fast'])if(buffs[b]>0)buffs[b]=Math.max(0,buffs[b]-dt);
+ for(const b in zb)if(zb[b]>0)zb[b]=Math.max(0,zb[b]-dt);
+ {const ic={drink:'⚡',pre:'💥',shake:'🥤',chicken:'🍗'};const parts=Object.keys(zb).filter(b=>zb[b]>0).map(b=>ic[b]+' '+Math.ceil(zb[b])+'s');if(S.roid>0)parts.push('💉 '+S.roid+' sets');
+  const bi=$('boostInd');const txt=parts.length?'BOOST '+parts.join(' · ')+' · zones ×'+boostMul().toFixed(2):'';if(bi.textContent!==txt)bi.textContent=txt;bi.style.display=txt&&state==='set'?'block':'none';}
+ if(state==='set'&&mg&&mg.k!=='hiit'&&mg.k!=='dead'){const tz=zoneW(mg.k,mg.w);mg.zw+=(tz-mg.zw)*Math.min(1,dt*3);mg.zc=Math.min(mg.zc,1-mg.zw/2);}
  roidGrow+=((S.roid>0?1:0)-roidGrow)*Math.min(1,dt*2);if(C.root&&Math.abs(roidGrow-(C._rg||0))>.003){C._rg=roidGrow;morph();}
  if(state==='set'&&mg&&dt>0){const m=mg;m.t+=dt;const spd=(1.6+m.w/120+S.level*.08)*(buffs.fast?.7:1)*(m.k==='curl'?1.3:1);
   if(m.k==='bench'||m.k==='curl'){m.pos=(Math.sin(m.t*spd*2)+1)/2;if(m.repAnim>0){m.repAnim=Math.max(0,m.repAnim-dt*(buffs.fast?2.6:1.6));const p=Math.sin((1-m.repAnim)*Math.PI);if(m.k==='bench')ph=1-p*.85;else{if(m.reps%2)ph=p;else ph2=p;}}else if(m.k==='bench')ph=1;
    $('marker').style.left=m.pos*100+'%';$('zone').style.left=(m.zc-m.zw/2)*100+'%';$('zone').style.width=m.zw*100+'%';$('fill').style.width='0';}
   else if(m.k==='squat'){if(m.hold){m.power+=dt*(.55+m.w/400);if(m.power>1.05){m.hold=false;m.miss++;sfx.bad();toast('COLLAPSED');m.repAnim=1;info();check();}}else if(m.repAnim>0){m.repAnim=Math.max(0,m.repAnim-dt*2);m.power=m.power*m.repAnim;}
    ph=Math.min(1,m.power);$('fill').style.width=Math.min(1,m.power)*100+'%';$('marker').style.left=Math.min(1,m.power)*100+'%';$('zone').style.left=(m.zc-m.zw/2)*100+'%';$('zone').style.width=m.zw*100+'%';}
-  else if(m.k==='dead'){m.time-=dt;m.prog=Math.max(0,m.prog-dt*(.12+m.w/900));m.balV+=(Math.random()-.5)*dt*6+m.bal*dt*1.5;m.balV*=.97;m.bal+=m.balV*dt;
-   if(Math.abs(m.bal)>1){m.miss++;m.bal=0;m.balV=0;m.prog=0;sfx.clank();toast('LOST BALANCE');}
-   if(m.prog>=1){m.reps++;m.prog=0;sfx.good();costE(6);}
-   ph=m.prog;$('fill').style.width=m.prog*100+'%';$('zone').style.width='0';$('marker').style.left=m.prog*100+'%';$('balM').style.left=(m.bal+1)*50+'%';info();check();}
+  else if(m.k==='dead'){m.time-=dt;const tol=balTol();
+   if(m.lock>0){m.lock-=dt;m.prog=m.lock>.45?1:Math.max(0,m.lock/.45);m.bal*=Math.exp(-dt*4);m.balV=0;if(m.lock<=0){m.lock=0;m.prog=0;}}
+   else if(m.prog>=1){m.reps++;m.lock=.9;m.prog=1;m.bal*=.5;sfx.good();sfx.lvl();toast("IT'S UP! 💪");costE(5);}
+   else{m.prog=Math.max(0,m.prog-dt*(.08+m.w/1500));const load=.4+m.prog;m.balV+=(Math.random()-.5)*dt*5*load+m.bal*dt*.6;m.balV*=Math.exp(-dt*1.2);m.bal+=m.balV*dt;
+    if(Math.abs(m.bal)>tol){m.miss++;m.bal=0;m.balV=0;m.prog=0;sfx.clank();toast('LOST BALANCE');}}
+   ph=m.prog;$('fill').style.width=m.prog*100+'%';$('zone').style.width='0';$('marker').style.left=m.prog*100+'%';$('balM').style.left=(Math.max(-1,Math.min(1,m.bal/tol))+1)*50+'%';info();check();}
   else if(m.k==='hiit'){m.time-=dt;$('fill').style.width=Math.min(1,m.dist/m.target)*100+'%';$('zone').style.width='0';$('marker').style.left=Math.min(1,m.dist/m.target)*100+'%';info();check();}
   if(m.k!=='dead'&&m.k!=='hiit')info();hud();}
  if(C.root)applyPose(dt);
