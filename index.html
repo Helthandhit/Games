@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>George's Game Hub</title>
-<style>body{margin:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);min-height:100vh;background:radial-gradient(circle at top,#1a0b3a,#05050f 70%);color:#fff;font-family:system-ui,sans-serif}
+<style>html,*{-webkit-tap-highlight-color:transparent!important;-webkit-tap-highlight-color:rgba(0,0,0,0)!important;-webkit-touch-callout:none}*:focus,*:focus-visible{outline:none!important}button,a,canvas{user-select:none;-webkit-user-select:none}
+body{margin:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);min-height:100vh;background:radial-gradient(circle at top,#1a0b3a,#05050f 70%);color:#fff;font-family:system-ui,sans-serif}
 h1{text-align:center;font-size:clamp(32px,8vw,64px);margin:40px 10px 8px;color:#0ff;text-shadow:0 0 10px #0ff,0 0 30px #f0f;letter-spacing:2px;font-style:italic}
 p.sub{text-align:center;color:#c9f;margin:0 0 30px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;max-width:1000px;margin:0 auto;padding:0 18px 40px}
@@ -34,4 +35,4 @@ function renderDaily(){const D=window.GHDaily;if(!D)return;const s=D.streak(),d=
  const g=document.getElementById('dGo');g.href=d.url;g.textContent=(d.done?'Play again':'Play')+' '+d.gameName+' ▶';document.getElementById('dGame').textContent='New challenge at midnight';renderDaily.day=d.date}
 renderDaily();addEventListener('pageshow',renderDaily);addEventListener('focus',renderDaily);document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderDaily()});
 setInterval(()=>{if(window.GHDaily&&GHDaily.today()!==renderDaily.day)renderDaily()},30000);
-</script><div style="position:fixed;bottom:4px;right:8px;font:11px system-ui;color:#fff6;pointer-events:none">v1.8.1</div></body></html>
+</script><div style="position:fixed;bottom:4px;right:8px;font:11px system-ui;color:#fff6;pointer-events:none">v1.8.2</div></body></html>
