@@ -34,4 +34,4 @@ function renderDaily(){const D=window.GHDaily;if(!D)return;const s=D.streak(),d=
  const g=document.getElementById('dGo');g.href=d.url;g.textContent=(d.done?'Play again':'Play')+' '+d.gameName+' ▶';document.getElementById('dGame').textContent='New challenge at midnight';renderDaily.day=d.date}
 renderDaily();addEventListener('pageshow',renderDaily);addEventListener('focus',renderDaily);document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderDaily()});
 setInterval(()=>{if(window.GHDaily&&GHDaily.today()!==renderDaily.day)renderDaily()},30000);
-</script><div style="position:fixed;bottom:4px;right:8px;font:11px system-ui;color:#fff6;pointer-events:none">v1.8.0</div></body></html>
+</script><div style="position:fixed;bottom:4px;right:8px;font:11px system-ui;color:#fff6;pointer-events:none">v1.8.1</div></body></html>
