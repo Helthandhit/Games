@@ -1,0 +1,36 @@
+PaddockScan sound and environment credits. Every file below is CC0 1.0 (public domain dedication):
+https://creativecommons.org/publicdomain/zero/1.0/
+All files were trimmed, converted to mono and encoded as Ogg Opus (32-48 kbps) for the game.
+
+ENGINE LOOPS
+eng_a_lo.ogg   <- loop_0.wav  "racing car engine sound loops" by domasx2 (CC0)  https://opengameart.org/content/racing-car-engine-sound-loops
+eng_a_hi.ogg   <- loop_5.wav  same pack (CC0)
+eng_b.ogg      <- Car_Engine_Loop.ogg   "Car sound effects pack (low quality)" (CC0)  https://opengameart.org/content/car-sound-effects-pack-low-quality
+eng_c.ogg      <- Car_Engine_Loop_2.ogg same pack (CC0)
+backfire.ogg   <- explosionCrunch_000.ogg (trimmed, low-passed)  Kenney "Sci-fi Sounds" (CC0)  https://kenney.nl/assets/sci-fi-sounds
+nitrous.ogg    <- thrusterFire_000.ogg  Kenney "Sci-fi Sounds" (CC0)  https://kenney.nl/assets/sci-fi-sounds
+
+IMPACTS AND PICKUPS
+crash_heavy.ogg <- qubodup-crash.ogg  "Crash Collision" by qubodup (CC0)  https://opengameart.org/content/crash-collision
+crash_metal.ogg <- impactMetal_heavy_000.ogg  Kenney "Impact Sounds" (CC0)  https://kenney.nl/assets/impact-sounds
+knock.ogg       <- impactMetal_light_000.ogg  Kenney "Impact Sounds" (CC0)
+pothole.ogg     <- impactPunch_heavy_000.ogg  Kenney "Impact Sounds" (CC0)
+whoosh.ogg      <- whoosh2.wav  "Air Whoosh" (CC0)  https://opengameart.org/content/air-whoosh
+coin.ogg        <- handleCoins.ogg   Kenney "RPG Audio" (CC0)  https://kenney.nl/assets/rpg-audio
+cash.ogg        <- handleCoins2.ogg  Kenney "RPG Audio" (CC0)
+repair.ogg      <- confirmation_001.ogg  Kenney "Interface Sounds" (CC0)  https://kenney.nl/assets/interface-sounds
+ding.ogg        <- bong_001.ogg   Kenney "Interface Sounds" (CC0)
+click.ogg       <- click_001.ogg  Kenney "Interface Sounds" (CC0)
+
+AMBIENCE
+rain.ogg   <- amb_rain_loop_1.ogg (first 14 s)  "Amb Rain Loop 1" (CC0)  https://opengameart.org/content/amb-rain-loop-1
+wind.ogg   <- "wind woosh loop.ogg"  "Wind Whoosh Loop" (CC0)  https://opengameart.org/content/wind-whoosh-loop
+garage.ogg <- machine_11.ogg  "30 CC0 SFX Loops" (CC0)  https://opengameart.org/content/30-cc0-sfx-loops
+
+STILL PROCEDURAL (WebAudio): tyre squeal, neon sign buzz, gear-change dips, the per-car engine "character" layer, the tunnel reverb (generated impulse response).
+
+ENVIRONMENT MAPS (../env/*.jpg, 512x256 LDR reflection maps made from 1k HDRIs), Poly Haven, CC0  https://polyhaven.com/license
+country.jpg <- "Kloofendal 48d Partly Cloudy (Pure Sky)"  https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
+city.jpg    <- "Dikhololo Night"   https://polyhaven.com/a/dikhololo_night
+coast.jpg   <- "Venice Sunset"     https://polyhaven.com/a/venice_sunset
+snow.jpg    <- "Snowy Park 01"     https://polyhaven.com/a/snowy_park_01
