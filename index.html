@@ -11,6 +11,7 @@ p.sub{text-align:center;color:#c9f;margin:0 0 30px}
 .card h2{margin:12px 14px 4px;font-size:22px}.card span{display:block;margin:0 14px 14px;color:#9ab}
 .card.hh{border-color:#ff1a1a;background:#0b0b0b;box-shadow:0 0 18px #ff1a1a66}.card.hh:hover{box-shadow:0 0 30px #ff1a1a}.card.hh h2{color:#ff3b3b}
 .card.cake{border-color:#ff9ec4;background:#2a1626;box-shadow:0 0 18px #ff9ec466}.card.cake:hover{box-shadow:0 0 30px #ff9ec4}.card.cake h2{color:#ffb3d1}
+.card.ff{border-color:#e10600;background:#000;box-shadow:0 0 18px #e1060066}.card.ff:hover{box-shadow:0 0 30px #e10600}.card.ff h2{color:#fff;font-style:italic;text-transform:uppercase}.card.ff h2 em{color:#e10600;font-style:inherit}
 .soon{filter:grayscale(1);opacity:.5;border-color:#555;box-shadow:none;pointer-events:none}.daily{max-width:1000px;margin:0 auto 26px;padding:0 18px;display:grid;grid-template-columns:minmax(200px,1fr) 2fr;gap:18px}
 @media(max-width:640px){.daily{grid-template-columns:1fr}}
 .pan{background:#0b0b0b;border:2px solid #e10600;border-radius:16px;box-shadow:0 0 18px #e1060055;padding:16px 18px}
@@ -27,6 +28,7 @@ p.sub{text-align:center;color:#c9f;margin:0 0 30px}
 <a class="card" href="turbo-run/"><img src="turbo-run/menu.png" alt="PaddockScan"><h2>PaddockScan</h2><span>Dodge traffic, grab coins, chain near misses</span></a>
 <a class="card hh" href="healthandhit/"><img src="healthandhit/menu.png" alt="HealthAndHIT"><h2>HealthAndHIT</h2><span>Lift, sprint and level up your gym hero</span></a>
 <a class="card cake" href="cake/"><img src="cake/menu.png" alt="Sprinkles and Layers"><h2>Sprinkles and Layers</h2><span>Bake, frost &amp; decorate cakes for picky customers</span></a>
+<a class="card ff" href="frontline-fury/"><img src="frontline-fury/menu.png" alt="Frontline Fury"><h2>Frontline <em>Fury</em></h2><span>Run, gun &amp; take down the gunship</span></a>
 </div><script src="daily.js"></script><script>
 function renderDaily(){const D=window.GHDaily;if(!D)return;const s=D.streak(),d=D.daily();
  document.getElementById('sCount').textContent=s.count;document.getElementById('sLabel').textContent=(s.count===1?'day':'days')+' streak';
