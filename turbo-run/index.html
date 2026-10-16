@@ -321,10 +321,10 @@ const tyreGeo=new THREE.CylinderGeometry(1,1,1,20),rimGeo=new THREE.CylinderGeom
 function roundShape(pts,r=.2){const s=new THREE.Shape(),n=pts.length,L=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t],cut=(p,q)=>{const d=Math.hypot(q[0]-p[0],q[1]-p[1]);return Math.min(r,.22/Math.max(d,.01))};
   for(let i=0;i<n;i++){const p=pts[i],a=pts[(i-1+n)%n],b=pts[(i+1)%n],A=L(p,a,cut(p,a)),B=L(p,b,cut(p,b));if(i===0)s.moveTo(A[0],A[1]);else s.lineTo(A[0],A[1]);s.quadraticCurveTo(p[0],p[1],B[0],B[1])}s.closePath();return s}
 function extrude(pts,w,mat){const s=quality==='low'?(()=>{const s=new THREE.Shape();pts.forEach(([u,v],i)=>i?s.lineTo(u,v):s.moveTo(u,v));return s})():roundShape(pts);const g=new THREE.ExtrudeGeometry(s,{depth:w,curveSegments:quality==='high'?6:3,bevelEnabled:true,bevelThickness:quality==='low'?.04:.07,bevelSize:quality==='low'?.04:.06,bevelSegments:quality==='high'?4:2});g.rotateY(Math.PI/2);g.translate(-w/2,0,0);const m=new THREE.Mesh(g,mat);m.castShadow=m.receiveShadow=true;return m}
-function wheel(r,w){const g=new THREE.Group();const t=new THREE.Mesh(tyreGeo,tyreMat);t.scale.set(r,w,r);t.castShadow=true;g.add(t);
-  const rim=new THREE.Mesh(holeRimGeo,holeRimMat);rim.scale.set(r*.62,w+.02,r*.62);g.add(rim);
-  for(let i=0;i<5;i++){const s=new THREE.Mesh(spokeGeo,blackMat);s.scale.set(1,w+.04,r*.1);s.position.set(0,0,0);s.rotation.y=i*Math.PI/5;g.add(s)}
-  g.rotation.z=Math.PI/2;return g}
+function wheel(r,w){const g=new THREE.Group(),hub=new THREE.Group();hub.rotation.z=Math.PI/2;g.add(hub);const t=new THREE.Mesh(tyreGeo,tyreMat);t.scale.set(r,w,r);t.castShadow=true;hub.add(t);
+  const rim=new THREE.Mesh(rimGeo,rimMat);rim.scale.set(r*.62,w+.02,r*.62);hub.add(rim);
+  for(let i=0;i<5;i++){const s=new THREE.Mesh(spokeGeo,blackMat);s.scale.set(r*1.15/.06,w+.04,r*.1);s.rotation.y=i*Math.PI/5;hub.add(s)}
+  g.userData.parts=hub.children;return g}
 // ---------- MARC'S AUTOS: upgrades & cosmetics (saved per car in localStorage 'tr3d_upg') ----------
 const UPG=[{k:'tank',name:'Nitrous tank',icon:'🧪',desc:'Longer boost',max:4},{k:'nos',name:'Nitrous power',icon:'🔥',desc:'Stronger boost',max:4},{k:'engine',name:'Engine',icon:'⚙️',desc:'Higher top speed',max:5},
  {k:'tyres',name:'Tyres',icon:'🛞',desc:'Lane-change speed & grip',max:4},{k:'armour',name:'Armour',icon:'🛡️',desc:'More knock durability',max:4},{k:'brakes',name:'Brakes',icon:'🛑',desc:'Harder, quicker braking',max:3}];
@@ -353,7 +353,7 @@ const hhTex=canvasTex(512,96,(g,w,h)=>{g.font='italic 900 64px system-ui,Arial';
   g.lineWidth=8;g.strokeStyle='#000';for(const[t,col,o]of[[a,'#fff',0],[b,'#111',wa],[c,'#fff',wa+wb]]){g.strokeText(t,x+o,h/2);g.fillStyle=col;g.fillText(t,x+o,h/2)}});
 function addCosmetics(car,spec,u,paint){const L=spec.L,W=spec.W;
   // rims
-  if(u.rims!=='stock'){const rm=new THREE.MeshStandardMaterial({color:cosItem('rims',u.rims).col,metalness:.9,roughness:.22});for(const w of car.userData.wheels)w.children.forEach((m,i)=>{if(i>0)m.material=rm})}
+  if(u.rims!=='stock'){const rm=new THREE.MeshStandardMaterial({color:cosItem('rims',u.rims).col,metalness:.9,roughness:.22});for(const w of car.userData.wheels)w.userData.parts.forEach((m,i)=>{if(i===1)m.material=rm})}
   // spoiler
   const top=spec.low[spec.low.length-2][1];
   if(u.spoiler==='lip'){const l=box(W*.82,.05,.2,paint);l.position.set(0,top+.03,L/2-.14);car.add(l)}
