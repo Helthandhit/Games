@@ -61,7 +61,20 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 #touch button{pointer-events:auto;width:76px;height:76px;border-radius:50%;border:3px solid #fff8;background:#0006;color:#fff;font-size:30px;font-weight:900}
 #touch .boost{background:#e91e63aa;font-size:16px}
 #touch button.on{background:#fff6}
-@media (pointer:coarse){#touch.show{display:flex}#speedo{bottom:120px}}
+@media (pointer:coarse){#touch.show{display:block}#speedo{bottom:120px}}
+/* 1.6.2: big touch zones. Each steering zone is an invisible button covering a bottom corner; the visible circle sits inside it */
+#touch{inset:auto 0 0 0;height:min(34vh,260px);padding:0;justify-content:initial}
+#touch .tz{position:absolute;bottom:0;top:0;height:auto;width:36%;border:0;border-radius:0;background:transparent;padding:0;margin:0;pointer-events:auto;touch-action:none;-webkit-user-select:none;display:flex;align-items:flex-end;justify-content:center;
+ padding-bottom:max(26px,env(safe-area-inset-bottom));font-size:0}
+#touch #tl{left:0}#touch #tr{right:0}#touch #tb{left:36%;width:28%}
+#touch .tz i{font-style:normal;display:flex;align-items:center;justify-content:center;width:var(--bs,84px);height:var(--bs,84px);border-radius:50%;border:3px solid #fff8;background:#0006;color:#fff;font-size:calc(var(--bs,84px)*.4);font-weight:900;pointer-events:none}
+#touch .boost i{background:#e91e63aa;font-size:calc(var(--bs,84px)*.2)}
+#touch .tz.on i{background:#fff6}#touch.large{--bs:108px}#touch .boost i{width:calc(var(--bs,84px)*.92);height:calc(var(--bs,84px)*.92)}
+#touch #tl i{margin-left:-8%}#touch #tr i{margin-right:-8%}
+@media (pointer:coarse){#speedo{bottom:calc(min(34vh,260px) - 10px)}}
+.optRow{margin:10px 0;text-align:left}.optRow b{display:block;margin-bottom:6px}.optRow .chips{display:flex;flex-wrap:wrap;gap:6px}
+.optRow button{border:2px solid #ffffff2a;background:#ffffff12;color:#fff;border-radius:12px;padding:9px 12px;font:700 14px system-ui;cursor:pointer}.optRow button.on{border-color:#e10600;background:#e1060033}
+.optRow small{display:block;opacity:.7;font-size:12px;margin-top:4px}
 #stagebar{position:fixed;top:72px;left:50%;transform:translateX(-50%);width:min(420px,70vw);height:16px;background:#000a;border:1px solid #fff5;border-radius:8px;overflow:hidden;z-index:2;pointer-events:none}
 #stagefill{height:100%;width:0;background:linear-gradient(90deg,#e10600,#ff5a4f)}#stagelbl{position:absolute;inset:0;font:800 11px system-ui;color:#fff;text-align:center;line-height:16px;text-shadow:0 1px 2px #000;white-space:nowrap}
 #stagebar .flag{position:absolute;right:3px;top:0;font-size:11px;line-height:16px}
@@ -140,7 +153,7 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 <div id="hpbar" class="hidden" style="position:fixed;top:52px;left:10px;width:min(180px,40vw);height:14px;background:#0008;border-radius:7px;overflow:hidden;z-index:2;pointer-events:none;border:1px solid #fff4"><div id="hpfill" style="height:100%;width:100%;background:linear-gradient(90deg,#ff1744,#ffeb3b,#76ff03);transition:width .15s"></div><span id="hplbl" style="position:absolute;left:6px;top:-1px;font:800 11px system-ui;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap">🔧 DAMAGE 0%</span></div><div id="stagebar" class="hidden"><div id="stagefill"></div><span id="stagelbl"></span><span class="flag">🏁</span></div><div id="count"></div><div id="comboTimer" class="hidden"><div id="comboFill"></div></div>
 <canvas id="speedo" class="hidden" width="300" height="192"></canvas>
 <div id="boostbar" class="hidden"><div id="boostfill"></div></div>
-<div id="touch"><div><button id="tl">◀</button> <button id="tr">▶</button></div><button id="tb" class="boost">BOOST</button></div>
+<div id="touch"><button id="tl" class="tz" aria-label="Steer left"><i>◀</i></button><button id="tb" class="tz boost" aria-label="Boost"><i>BOOST</i></button><button id="tr" class="tz" aria-label="Steer right"><i>▶</i></button></div>
 
 <div id="menu" class="screen"><h1>PADDOCKSCAN</h1><p>Dodge traffic · Grab coins · Chain near misses</p>
 <p id="menuInfo" class="wallet"></p>
@@ -149,7 +162,7 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 <button class="mbtn" data-go="scenery" id="sceneBtn">🏞️ Scenery Select</button>
 <button class="mbtn" data-go="scores" id="scoresBtn">🏆 High Scores</button>
 <button class="mbtn" data-go="howto">❓ How to Play</button>
-<button class="mbtn" id="soundBtn">🔊 Sound: On</button></div></div>
+<button class="mbtn" id="soundBtn">🔊 Sound: On</button><button class="mbtn" id="optBtn">⚙️ Options</button></div></div>
 
 <div id="cars" class="screen hidden"><div class="card"><h2>Car Select</h2><p style="margin:0 0 6px;font-size:13px;opacity:.75">Your garage · owned cars only</p>
 <div class="carwrap"><button class="arrow" id="cPrev">◀</button><div id="preview"><div id="lockTag" class="hidden"></div></div><button class="arrow" id="cNext">▶</button></div>
@@ -173,7 +186,8 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 ⭐ <b>3-star clears</b> pay a +50 🪙 bonus.<br>
 🔧 <b>Marc's Autos</b> opens after stages 5, 10, 15 and 20 (or from the menu): spend coins on nitrous, engine, tyres, armour and brakes, paint, rims, spoilers, tint, underglow, flames, stripes, decals and exhausts. Upgrades are saved per car.</div><button class="mbtn back">◀ Back</button></div></div>
 
-<div id="pause" class="screen hidden"><h1>PAUSED</h1><button class="btn" id="resumeBtn">▶ RESUME</button><button class="mbtn" id="quitBtn">Quit to Menu</button></div>
+<div id="pause" class="screen hidden"><h1>PAUSED</h1><button class="btn" id="resumeBtn">▶ RESUME</button><button class="mbtn" id="pOptBtn">⚙️ Options</button><button class="mbtn" id="quitBtn">Quit to Menu</button></div>
+<div id="options" class="screen hidden"><div class="card"><h2>Options</h2><div id="optList"></div><button class="mbtn" id="optBack">◀ Back</button></div></div>
 
 <div id="stages" class="screen hidden"><div class="card"><h2>Stage Select</h2><p id="stagesInfo"></p><div class="stgrid" id="stageList"></div><button class="mbtn back">◀ Back</button></div></div>
 <div id="shop" class="screen hidden"><div class="shPanel"><div class="shHead"><button class="arrow" id="shPrev">◀</button><div><div class="shTitle">MARC'S AUTOS</div><small id="shCar"></small></div><button class="arrow" id="shNext">▶</button></div><div class="shBar"><span class="wallet" id="shWallet"></span><button id="shBasketBtn"></button></div><div class="tabs" id="shTabs"><button data-t="perf">⚙️ Perf</button><button data-t="cos">🎨 Style</button><button data-t="exh">💥 Exhaust</button><button data-t="cars">🚗 Cars</button></div><div class="shTools"><button id="shReset">↺ Reset</button><button id="shCmp"></button></div><div id="shList"></div><div class="shFoot"><button class="btn" id="shRev">🔊 HOLD TO REV</button><button class="btn" id="shDone">DONE</button></div></div></div>
@@ -617,7 +631,7 @@ function whoosh(){if(!AC||!sound||AC.state!=='running')return;const t=AC.current
 function beep(f,d=.12,type='sine',vol=.12,f2){if(!AC||!sound)return;const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d)}
 function crashSound(){if(!AC||!sound)return;const n=AC.sampleRate*.6,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const s=AC.createBufferSource(),g=AC.createGain();g.gain.value=.4;s.buffer=b;s.connect(g).connect(AC.destination);s.start()}
 // ---------- screens ----------
-const SCREENS=['menu','cars','scenery','scores','howto','pause','over','stages','stagec','shop'];
+const SCREENS=['options','menu','cars','scenery','scores','howto','pause','over','stages','stagec','shop'];
 function show(id){for(const s of SCREENS)$(s).classList.toggle('hidden',s!==id);const inGame=id===null||id==='pause';for(const h of['hud','hpbar','boostbar','speedo','comboTimer','stagebar'])$(h).classList.toggle('hidden',!inGame&&id!=='over');if(mode!=='stage')$('stagebar').classList.add('hidden');$('touch').classList.toggle('show',id===null);if(id!==null)$('count').textContent=''}
 function goMenu(){clearTimeout(shopTimer);stopBuzz();engineUpdate(false,0);state='menu';if(themeId!==selTheme)applyTheme(selTheme);reset();CURV=1;show('menu');refreshMenu()}
 function refreshMenu(){$('menuInfo').textContent=`🪙 ${wallet} coins · ${carById(selCar).name} · ${THEMES[selTheme].name}`;$('soundBtn').textContent=sound?'🔊 Sound: On':'🔇 Sound: Off';$('qualBtn').textContent='✨ Graphics: '+(quality==='high'?'High':'Low')}
@@ -902,10 +916,30 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>keys[e.code]=false);
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;bgPause()});
 function hold(id,on,off){return holdImpl(id,on,off)}
-function holdImpl(id,on,off){const b=$(id);b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('on');on()});for(const ev of['pointerup','pointercancel','pointerleave'])b.addEventListener(ev,()=>{b.classList.remove('on');off&&off()})}
+function holdImpl(id,on,off){const b=$(id);let ids=new Set();b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();try{b.setPointerCapture(e.pointerId)}catch(_){}ids.add(e.pointerId);b.classList.add('on');on()});
+  const up=e=>{e.stopPropagation();if(!ids.delete(e.pointerId))return;if(!ids.size){b.classList.remove('on');off&&off()}};for(const ev of['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,up);b.addEventListener('contextmenu',e=>e.preventDefault())}
 hold('tl',()=>steer(-1));hold('tr',()=>steer(1));hold('tb',()=>touchBoost=true,()=>touchBoost=false);
-let sx=null;addEventListener('touchstart',e=>{if(e.target.closest&&e.target.closest('.screen'))return;if(e.target.tagName!=='BUTTON')sx=e.touches[0].clientX},{passive:true});
-addEventListener('touchend',e=>{if(sx!==null){const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>40)steer(Math.sign(dx));sx=null}});
+// ---------- background touch steering (per-pointer; only on the 3D canvas; never near the buttons or HUD) ----------
+let ctrlMode=LS.get('controls','buttons'),btnSize=LS.get('btnsize','normal');const bgPtr=new Map();
+function bgAllowed(e){if(e.target!==renderer.domElement||state!=='play')return false;const z=$('touch').getBoundingClientRect(),hb=$('topstack')?$('topstack').getBoundingClientRect().bottom:60;
+  if(e.clientY<hb+12)return false;if($('touch').classList.contains('show')&&e.clientY>z.top-24)return false;return true}
+renderer.domElement.addEventListener('pointerdown',e=>{if(!bgAllowed(e))return;
+  if(ctrlMode==='tap'){e.preventDefault();steer(e.clientX<innerWidth/2?-1:1)}
+  else if(ctrlMode==='swipe')bgPtr.set(e.pointerId,{x:e.clientX,y:e.clientY,t:performance.now()})});
+addEventListener('pointerup',e=>{const s0=bgPtr.get(e.pointerId);bgPtr.delete(e.pointerId);if(!s0||ctrlMode!=='swipe')return;const dx=e.clientX-s0.x,dy=e.clientY-s0.y;
+  if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3)steer(Math.sign(dx))});
+addEventListener('pointercancel',e=>bgPtr.delete(e.pointerId));
+let tiltArm=0;addEventListener('deviceorientation',e=>{if(ctrlMode!=='tilt'||state!=='play'||e.gamma==null)return;const landscape=innerWidth>innerHeight;let g=landscape?(e.beta||0)*(screen.orientation&&screen.orientation.angle===270?-1:1):e.gamma;
+  if(tiltArm===0&&Math.abs(g)>16){tiltArm=Math.sign(g);steer(tiltArm)}else if(Math.abs(g)<8)tiltArm=0});
+function applyCtrl(){$('touch').classList.toggle('large',btnSize==='large')}
+const OPTS=[['controls','Controls',[['buttons','Buttons only','Background touches do nothing (recommended)'],['swipe','Buttons + swipe','Swipe left/right on the road to change lane'],['tap','Tap left/right side','Tap the left or right half of the road'],['tilt','Tilt','Tilt the phone to change lane (buttons still work)']]],
+ ['btnsize','Button size',[['normal','Normal',''],['large','Large','']]]];
+let optFrom='menu';
+function renderOpts(){$('optList').innerHTML=OPTS.map(([k,n,ch])=>{const cur=k==='controls'?ctrlMode:btnSize,d=ch.find(c=>c[0]===cur);return `<div class="optRow"><b>${n}</b><div class="chips">${ch.map(([v,l])=>`<button data-k="${k}" data-v="${v}" class="${v===cur?'on':''}">${l}</button>`).join('')}</div><small>${d&&d[2]||''}</small></div>`}).join('')+'<p style="font-size:12px;opacity:.7;margin-top:12px">The steering buttons cover the whole bottom-left and bottom-right of the screen, so a press slightly off the circle still counts.</p>';
+  $('optList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const k=b.dataset.k,v=b.dataset.v;if(k==='controls'){ctrlMode=v;LS.set('controls',v);if(v==='tilt'&&window.DeviceOrientationEvent&&DeviceOrientationEvent.requestPermission)DeviceOrientationEvent.requestPermission().catch(()=>{})}else{btnSize=v;LS.set('btnsize',v)}applyCtrl();beep(700,.05);renderOpts()})}
+function openOpts(from){optFrom=from;renderOpts();show('options')}
+$('optBtn').onclick=()=>{initAudio();beep(660,.06);openOpts('menu')};$('pOptBtn').onclick=()=>{beep(660,.06);openOpts('pause')};
+$('optBack').onclick=()=>{beep(440,.06);if(optFrom==='pause'&&state==='pause')show('pause');else{show('menu');refreshMenu()}};applyCtrl();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 const spawnAhead=()=>Math.max(200,(theme?theme.fog[2]:260)+15);
 const holeGeo=new THREE.CircleGeometry(.95,18),holeMat=new THREE.MeshStandardMaterial({color:0x0c0c0c,roughness:1}),holeRimGeo=new THREE.RingGeometry(.95,1.15,18),holeRimMat=new THREE.MeshStandardMaterial({color:0x5a5650,roughness:1});
@@ -1030,5 +1064,5 @@ function loop(){
 try{setPlayerCar(selCar);applyQuality();applyTheme(selTheme);reset();refreshMenu();show('menu');loop();
   {const sv=stageSave();if(sv.unlocked>=6&&!LS.get('marcSeen',false)){LS.set('marcSeen',true);setTimeout(()=>{if(state==='menu'){popup("🔧 MARC'S AUTOS IS OPEN!",'#ff2d75');openShop('menu')}},900)}}
 }catch(e){window.__bootErr&&window.__bootErr(e.stack||e)}
-window.__game={get mode(){return mode},set mode(m){mode=m},get stageIdx(){return stageIdx},set stageIdx(i){stageIdx=i},STAGES,starsFor,stageSave,setDist(d){player.position.z-=d-dist;dist=d},get dist(){return dist},get finishZ(){return finishZ},get stageT(){return stageT},get dmgTaken(){return dmgTaken},get CURV(){return CURV},get ac(){return AC&&AC.state},bgPause,get hp(){return hp},get knocks(){return knocks},classifyHit,makeTraffic,get traffic(){return traffic},get speed(){return speed},get px(){return player.position.x},get pz(){return player.position.z},curvX,RY,start,pause,resume,get state(){return state},get score(){return S},get theme(){return selTheme},get car(){return selCar},get themeId(){return themeId},openShop,closeShop,WS,checkout,renderShop,effCar,getU,setU,get wallet(){return wallet},set wallet(w){wallet=w;LS.set('wallet',w)},get eng(){return eng},ENGP,stageComplete,get nextArea(){return nextArea}};
+window.__game={get mode(){return mode},set mode(m){mode=m},get stageIdx(){return stageIdx},set stageIdx(i){stageIdx=i},STAGES,starsFor,stageSave,setDist(d){player.position.z-=d-dist;dist=d},get dist(){return dist},get finishZ(){return finishZ},get stageT(){return stageT},get dmgTaken(){return dmgTaken},get CURV(){return CURV},get ac(){return AC&&AC.state},bgPause,get hp(){return hp},get knocks(){return knocks},classifyHit,makeTraffic,get traffic(){return traffic},get speed(){return speed},get px(){return player.position.x},get pz(){return player.position.z},curvX,RY,start,pause,resume,get state(){return state},get score(){return S},get theme(){return selTheme},get car(){return selCar},get themeId(){return themeId},get lane(){return lane},get ctrlMode(){return ctrlMode},openShop,closeShop,WS,checkout,renderShop,effCar,getU,setU,get wallet(){return wallet},set wallet(w){wallet=w;LS.set('wallet',w)},get eng(){return eng},ENGP,stageComplete,get nextArea(){return nextArea}};
 </script></body></html>
