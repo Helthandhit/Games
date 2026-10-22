@@ -58,7 +58,11 @@ input.code{font-size:20px;padding:6px;width:160px;text-align:center;background:#
  padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
 .screen>*{flex-shrink:0;max-width:100%;box-sizing:border-box}.screen>:first-child{margin-top:auto}.screen>:last-child{margin-bottom:auto}
 .screen *{touch-action:pan-y}
-</style></head><body>
+</style><style>/* v1.10.1 fit */
+.screen{justify-content:safe center}
+@media (orientation:landscape) and (max-height:520px){#menu h1{font-size:40px;line-height:.95;margin:0 0 4px}#menu .sub{margin:2px 0 6px;font-size:13px}#menu .mbtn,#menu .btn{font-size:16px;padding:6px 16px;margin:3px;min-width:180px}#chal h2{margin:2px 0;font-size:22px}#chList{max-height:62vh}}
+</style>
+</head><body>
 <div id="hud" class="hidden"><div class="top">
 <span class="pill" id="hLvl">LV 1</span><span class="pill" id="hCoins">🪙 0</span>
 <span class="pill">XP <span class="statbar w"><i id="bXp"></i></span></span>

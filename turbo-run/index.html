@@ -162,7 +162,12 @@ kbd{background:#fff2;border-radius:5px;padding:1px 6px;border:1px solid #fff4}
 body.cockpit #speedo{display:none!important}body.cockpit #boostbar{opacity:.75}
 #touch .tz,#touch .tz:hover,#touch .tz:active,#touch .tz:focus,#touch .tz.on{background:transparent!important;border:0!important;outline:none!important;box-shadow:none!important;-webkit-appearance:none;appearance:none}
 #touch.dbg .tz,#touch.dbg .tz.on{outline:2px dashed #0ff!important;background:#00e5ff22!important}
-</style></head><body>
+</style><style>/* v1.10.1 fit */
+.screen{justify-content:safe center}
+@media (max-height:900px) and (orientation:portrait){#menu .mbtn{margin:6px auto;padding:9px}#menu .btn{margin-top:10px}}
+@media (orientation:landscape) and (max-height:520px){#menu h1{font-size:30px}#menu>p,#menu p{margin:2px 0;font-size:14px}#menu .menuBtns{flex-flow:row wrap;justify-content:center;gap:0 6px;max-width:820px}#menu .btn{margin:6px 0 4px;padding:7px 10px;font-size:18px;width:min(250px,30vw)}#menu .mbtn{width:min(190px,22.5vw);margin:3px 0;padding:6px 4px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+</style>
+</head><body>
 <div id="hud" class="hidden"><div>Score <span id="score">0</span> <span id="mult"></span></div><div><span id="dist">0</span> m · 🪙 <span id="coinsH">0</span></div><div>Best <span id="best">0</span></div><button id="pauseBtn">⏸</button></div>
 <div id="hpbar" class="hidden" style="position:fixed;top:52px;left:10px;width:min(180px,40vw);height:14px;background:#0008;border-radius:7px;overflow:hidden;z-index:2;pointer-events:none;border:1px solid #fff4"><div id="hpfill" style="height:100%;width:100%;background:linear-gradient(90deg,#ff1744,#ffeb3b,#76ff03);transition:width .15s"></div><span id="hplbl" style="position:absolute;left:6px;top:-1px;font:800 11px system-ui;color:#fff;text-shadow:0 1px 2px #000;white-space:nowrap">🔧 DAMAGE 0%</span></div><div id="stagebar" class="hidden"><div id="stagefill"></div><span id="stagelbl"></span><span class="flag">🏁</span></div><div id="count"></div><div id="comboTimer" class="hidden"><div id="comboFill"></div></div>
 <canvas id="speedo" class="hidden" width="300" height="192"></canvas>

@@ -48,7 +48,11 @@ input[type=range]{width:240px;accent-color:#ff6fa5}
  padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
 .screen>*{flex-shrink:0;max-width:100%;box-sizing:border-box}.screen>:first-child{margin-top:auto}.screen>:last-child{margin-bottom:auto}
 .screen *{touch-action:pan-y}
-</style></head><body>
+</style><style>/* v1.10.1 fit */
+.screen{justify-content:safe center}
+@media (orientation:landscape) and (max-height:520px){#menu .panel{padding:8px 16px}#menu .panel h1{font-size:34px;line-height:1;margin:0}#menu .panel h1 small{font-size:15px}#menu .panel p{margin:3px 0;font-size:13px}#menu .btn{padding:6px 12px;margin:3px;font-size:15px;min-width:150px}}
+</style>
+</head><body>
 <div id="top" class="hidden"><div class="pill" id="order"></div><div class="pill" id="coinsP">🪙 0</div><div class="pill" id="lvlP">Lv 1</div><div class="pill hidden" id="timerP">⏱ 0</div><div class="pill" id="pauseBtn">⏸</div></div>
 <div id="phase" class="hidden"><div id="phTitle"></div><div id="phHint"></div><div id="ctrl"></div></div>
 <div id="menu" class="screen"><div class="panel"><h1>Sprinkles<br><span style="font-size:.5em">and</span> Layers<small>~ a cake craft game ~</small></h1>
