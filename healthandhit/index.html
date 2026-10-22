@@ -26,12 +26,13 @@ a.mbtn{text-decoration:none;display:inline-block}
 .statbar i{display:block;height:100%;background:#e10600}
 .statbar.w i{background:#fff}
 #pauseBtn{pointer-events:auto;cursor:pointer;margin-left:auto;background:#e10600;border:0;color:#fff;font-size:18px;border-radius:6px;padding:4px 12px;font-family:inherit}
+#chList{max-width:520px;margin:6px auto;max-height:58vh;overflow:auto;text-align:left}.chRow{display:flex;align-items:center;gap:8px;background:#111;border:2px solid #333;border-radius:8px;padding:6px 9px;margin:4px 0;font-family:Arial,sans-serif;color:#fff;font-size:14px}.chRow.done{border-color:#e10600}.chRow b{font-family:Impact,Arial Black;font-size:16px;letter-spacing:.5px}.chRow small{color:#aaa;display:block}.chRow .r{margin-left:auto;white-space:nowrap}.chRow button{font:bold 13px Arial;background:#e10600;color:#fff;border:0;border-radius:6px;padding:6px 10px;cursor:pointer}
 #hub{position:fixed;left:0;right:0;bottom:0;z-index:6;background:linear-gradient(transparent,rgba(0,0,0,.92) 25%);padding:30px 10px 10px;font-family:Arial,sans-serif;text-align:center}
 #hub .ex{display:inline-block;margin:4px;padding:8px 12px;border:2px solid #e10600;background:#000;color:#fff;border-radius:6px;cursor:pointer;font-family:Impact,Arial Black;font-size:17px;min-width:120px}
 #hub .ex small{display:block;font-family:Arial;font-size:11px;color:#ccc}
 #hub .ex.locked{opacity:.35;cursor:not-allowed}
 #hub .ex:not(.locked):hover{background:#e10600}
-.pu{display:inline-block;margin:3px;padding:5px 9px;border:2px solid #fff;background:#111;color:#fff;border-radius:6px;cursor:pointer;font-size:13px;font-weight:bold;pointer-events:auto}
+.pu.cf{border-color:#e10600;background:#3a0000}.pu{display:inline-block;margin:3px;padding:5px 9px;border:2px solid #fff;background:#111;color:#fff;border-radius:6px;cursor:pointer;font-size:13px;font-weight:bold;pointer-events:auto}
 .pu:hover{background:#e10600}.pu.roid{border-color:#e10600;background:#300}
 #mg{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:10px;text-align:center;font-family:Arial,sans-serif}
 #mgTitle{font-family:Impact,Arial Black;font-size:28px;text-shadow:2px 2px 0 #e10600}
@@ -72,7 +73,7 @@ input.code{font-size:20px;padding:6px;width:160px;text-align:center;background:#
 <div id="hub" class="hidden">
 <div id="exList"></div>
 <div id="puList" style="margin-top:6px"></div>
-<div style="margin-top:6px"><button class="pu" id="restBtn">😴 Rest (+40 ⚡)</button></div>
+<div style="margin-top:6px"><button class="pu" id="restBtn">😴 Rest (+40 ⚡)</button> <button class="pu" id="chBtn">🏆 Challenges</button></div>
 </div>
 
 <div id="mg" class="hidden">
@@ -107,6 +108,7 @@ input.code{font-size:20px;padding:6px;width:160px;text-align:center;background:#
 <p>Earn XP + coins, grow STR / SIZE / STAMINA, manage ENERGY. Buy food & drinks between or during sets. Level up from <b>Fragile</b> to <b>Gym Legend</b>. Rumour has it there's a secret shortcut... (it's a cartoon — real steroids are seriously harmful).</p>
 <p>ESC / P = pause.</p></div><button class="btn" id="howBack">GOT IT</button></div>
 
+<div id="chal" class="screen hidden"><h2>🏆 GYM CHALLENGES</h2><div class="sub" id="chSub"></div><div id="chList"></div><button class="mbtn back" id="chClose">◀ Back</button></div>
 <div id="pause" class="screen hidden"><h1>PAUSED</h1><button class="btn" id="resumeBtn">▶ Resume</button><button class="mbtn" id="pSnd">Sound</button><button class="mbtn" id="quitBtn">Main Menu</button></div>
 
 <div id="result" class="screen hidden"><h2 id="rTitle">SET COMPLETE</h2><div class="sub" id="rBody"></div><button class="btn" id="rOk">CONTINUE</button><button class="mbtn shareBtn" data-ctx="set">📤 SHARE</button></div>
@@ -130,8 +132,8 @@ const KEY='healthandhit_save_v1';
 const def=()=>({gender:'m',level:1,xp:0,coins:30,str:5,size:5,sta:5,energy:100,natty:true,roidUnlocked:false,roid:0,sideFx:0,inv:{drink:1,chicken:1,shake:0,pre:0},sets:0,sound:true,gfx:'high',best:{}});
 let S;try{S=Object.assign(def(),JSON.parse(localStorage.getItem(KEY)||'{}'));}catch(e){S=def();}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
-const TITLES=['Fragile','Twig','Newbie','Gym Rat','Lifter','Swole-ish','Beast','Mass Monster','Titan','Gym Legend'];
-const title=()=>TITLES[Math.min(S.level,10)-1];
+const TITLES=['Fragile','Twig','Newbie','Gym Rat','Lifter','Swole-ish','Beast','Mass Monster','Titan','Gym Legend','Olympian','Iron Giant','Mythic','Immortal','Greatest Of All Time'];
+const title=()=>TITLES[Math.min(S.level,TITLES.length)-1];
 const xpNeed=()=>Math.round(80*Math.pow(S.level,1.35));
 const EX={
  bench:{name:'Bench Press',lv:1,icon:'🏋️'},curl:{name:'Bicep Curls',lv:1,icon:'💪'},
@@ -258,10 +260,10 @@ function fx(t){const d=document.createElement('div');d.textContent=t;d.className
 function hud(){$('hLvl').textContent=`LV ${S.level} · ${title().toUpperCase()}`;$('hCoins').textContent='🪙 '+S.coins;
  $('bXp').style.width=Math.min(100,S.xp/xpNeed()*100)+'%';$('bStr').style.width=Math.min(100,S.str)+'%';$('bSize').style.width=Math.min(100,S.size)+'%';$('bSta').style.width=Math.min(100,S.sta)+'%';$('bEn').style.width=S.energy+'%';
  $('natty').textContent=S.natty?'NATTY ✓':'NATTY';$('natty').className='badge'+(S.natty?'':' no');}
-function puButtons(el,inSet){el.innerHTML='';for(const k in PU){const b=document.createElement('button');b.className='pu';b.dataset.pu=k;const n=S.inv[k]||0;b.textContent=inSet?`${PU[k].n} ×${n}`:`${PU[k].n} ×${n} · buy 🪙${PU[k].c}`;b.title=PU[k].d;b.onclick=e=>{e.stopPropagation();if(n>0)usePU(k);else if(!inSet&&S.coins>=PU[k].c){S.coins-=PU[k].c;S.inv[k]=1;sfx.buy();usePU(k);}else{toast(inSet?'NONE LEFT':'NEED COINS');sfx.bad();}};el.appendChild(b);}
+function puButtons(el,inSet){el.innerHTML='';for(const k in PU){const b=document.createElement('button');b.className='pu';b.dataset.pu=k;const n=S.inv[k]||0;b.textContent=inSet?`${PU[k].n} ×${n}`:`${PU[k].n} ×${n} · buy 🪙${PU[k].c}`;b.title=PU[k].d;b.onclick=e=>{e.stopPropagation();if(n>0)usePU(k);else if(!inSet&&S.coins>=PU[k].c){if(b.dataset.cf!=='1'){b.dataset.cf='1';b.textContent=`Tap again to buy ${PU[k].n} · 🪙${PU[k].c}`;b.classList.add('cf');sfx.tap();setTimeout(()=>{if(b.isConnected&&b.dataset.cf==='1'){b.dataset.cf='';b.classList.remove('cf');b.textContent=`${PU[k].n} ×${n} · buy 🪙${PU[k].c}`;}},3000);return;}S.coins-=PU[k].c;S.inv[k]=1;sfx.buy();usePU(k);}else{toast(inSet?'NONE LEFT':'NEED COINS');sfx.bad();}};el.appendChild(b);}
  if(S.roidUnlocked){const b=document.createElement('button');b.className='pu roid';b.id='roidBtn';b.textContent=S.sideFx>=100?'💉 "Vitamins" (doctor says NO)':'💉 "Vitamins" (Steroids)';b.onclick=e=>{e.stopPropagation();useRoids();};el.appendChild(b);}}
 function hubUI(){const el=$('exList');el.innerHTML='';for(const k in EX){const e=EX[k];const b=document.createElement('button');const lk=S.level<e.lv;b.className='ex'+(lk?' locked':'');b.id='ex_'+k;b.innerHTML=`${e.icon} ${e.name}<small>${lk?'🔒 Level '+e.lv:(k==='hiit'?'Sprint target '+hiitTarget()+'m':weightFor(k)+' kg × '+repTarget(k))}</small>`;b.onclick=()=>{if(!lk)startEx(k);else{toast('LOCKED');sfx.bad();}};el.appendChild(b);}
- puButtons($('puList'),false);hud();}
+ puButtons($('puList'),false);hud();chBtnUI();chCheck();}
 function usePU(k){if(!(S.inv[k]>0))return;S.inv[k]--;sfx.buy();
  if(k==='drink'){zb.drink=ZBD.drink;S.energy=100;buffs.fast=20;toast('⚡ ENERGISED!');}
  if(k==='chicken'){zb.chicken=ZBD.chicken;S.size=Math.min(100,S.size+3);S.energy=Math.min(100,S.energy+30);toast('🍗 GAINS!');morph();}
@@ -314,7 +316,7 @@ function finish(ok){if(!mg)return;const m=mg;const k=m.k;const q=k==='hiit'?Math
  let mult=(buffs.shake?1.5:1)*(S.roid?2:1);
  const xp=Math.round((20+q*40+(k==='hiit'?0:m.w*.25))*mult*(ok?1:.5));const coins=Math.round(xp/3)+(ok?10:0);
  const gStr=k==='hiit'?0:q*(2.2)*mult,gSize=(k==='hiit'?.3:q*1.6)*mult,gSta=(k==='hiit'?q*4:q*.6)*mult;
- S.xp+=xp;S.coins+=coins;S.str=Math.min(100,S.str+gStr);S.size=Math.min(100,S.size+gSize);S.sta=Math.min(100,S.sta+gSta);S.sets++;buffs.shake=0;buffs.pre=0;
+ if(ok&&k!=='hiit'&&m.miss===0)S.perfect=(S.perfect||0)+1;if(k==='hiit')S.bestHiit=Math.max(S.bestHiit||0,Math.round(m.dist));S.xp+=xp;S.coins+=coins;S.str=Math.min(100,S.str+gStr);S.size=Math.min(100,S.size+gSize);S.sta=Math.min(100,S.sta+gSta);S.sets++;buffs.shake=0;buffs.pre=0;
  lastSet={ok,name:EX[k].name,desc:k==='hiit'?m.dist.toFixed(0)+' m sprint':m.reps+' reps @ '+m.w+' kg'};if(k!=='hiit')S.best[k]=Math.max(S.best[k]||0,ok?m.w:0);window.GHDaily?.report('hh',{type:'set',k,ok,reps:m.reps,w:m.w,dist:m.dist,level:S.level});
  let notes=[];
  if(S.roid>0){S.roid--;const se=['Roid rage: argued with a dumbbell','Acne breakout +3','Voice went up an octave','Shirt exploded','Can\'t scratch own back anymore','Cried at a protein ad'];notes.push('💉 Side effect: '+se[Math.random()*se.length|0]);S.sideFx=Math.min(100,S.sideFx+10);if(S.roid===0){S.energy=5;notes.push('💥 CRASH! The cycle ended – energy crashed to 5.');}}
@@ -378,6 +380,30 @@ const sndTxt=()=>{$('sndBtn').textContent='Sound: '+(S.sound?'ON':'OFF');$('pSnd
 $('sndBtn').onclick=$('pSnd').onclick=()=>{S.sound=!S.sound;save();sndTxt();sfx.tap();};
 $('gfxBtn').onclick=()=>{S.gfx=S.gfx==='high'?'low':'high';save();applyGfx();};
 $('rOk').onclick=afterResult;$('luOk').onclick=toHub;
+
+// ---------- CHALLENGES (v1.10) ----------
+const CH=[
+ ['sets10','Warm-Up Week','Complete 10 sets',()=>S.sets,10,30],
+ ['bench60','Bench Sixty','Bench press 60 kg',()=>S.best.bench||0,60,40],
+ ['curl20','Gun Show','Curl 20 kg',()=>S.best.curl||0,20,40],
+ ['squat80','Leg Day Hero','Squat 80 kg',()=>S.best.squat||0,80,50],
+ ['dead100','Century Pull','Deadlift 100 kg',()=>S.best.dead||0,100,60],
+ ['hiit150','Sprinter','Sprint 150 m in one HIIT set',()=>S.bestHiit||0,150,40],
+ ['perf5','Flawless Form','5 lifting sets with zero misses',()=>S.perfect||0,5,50],
+ ['lv5','Rising Star','Reach level 5',()=>S.level,5,50],
+ ['str50','Half Strength','Reach 50 strength',()=>Math.floor(S.str),50,60],
+ ['natty8','Natty Pride','Reach level 8 without "vitamins"',()=>S.natty?S.level:0,8,80],
+ ['sets50','Gym Regular','Complete 50 sets',()=>S.sets,50,80],
+ ['lv12','Iron Giant','Reach level 12',()=>S.level,12,150]];
+const chDone=c=>c[3]()>=c[4],chClaimable=()=>CH.filter(c=>chDone(c)&&!(S.chc||{})[c[0]]).length;
+function chBtnUI(){const b=$('chBtn');if(!b)return;const n=chClaimable(),d=Object.keys(S.chc||{}).length;b.textContent=`🏆 Challenges ${d}/${CH.length}`+(n?` · ${n} to claim!`:'');b.classList.toggle('cf',n>0);}
+function chUI(){S.chc=S.chc||{};const L=$('chList');L.innerHTML='';$('chSub').textContent=`${Object.keys(S.chc).length} of ${CH.length} claimed · earn bonus coins`;
+ for(const c of CH){const v=c[3](),dn=v>=c[4],cl=S.chc[c[0]];const r=document.createElement('div');r.className='chRow'+(dn?' done':'');
+  r.innerHTML=`<span>${cl?'✅':dn?'🏆':'⬜'}</span><span><b>${c[1]}</b><small>${c[2]} · ${Math.min(v,c[4])}/${c[4]}</small></span>`;const x=document.createElement('span');x.className='r';
+  if(cl)x.textContent='Claimed';else if(dn){const b=document.createElement('button');b.textContent=`Claim 🪙${c[5]}`;b.onclick=e=>{e.stopPropagation();S.chc[c[0]]=1;S.coins+=c[5];save();sfx.lvl();toast('+'+c[5]+' 🪙');chUI();hud();chBtnUI();};x.appendChild(b);}else x.textContent='🪙'+c[5];r.appendChild(x);L.appendChild(r);}}
+let chSeen=null;function chCheck(){const now=CH.filter(chDone).map(c=>c[0]);if(chSeen){const nw=now.filter(k=>!chSeen.includes(k)&&!(S.chc||{})[k]);if(nw.length){const c=CH.find(c=>c[0]===nw[0]);setTimeout(()=>{toast('🏆 CHALLENGE: '+c[1].toUpperCase());sfx.lvl();},400);}}chSeen=now;}
+$('chBtn').onclick=e=>{e.stopPropagation();show('hub',false);show('hud',false);show('chal');state='chal';chUI();};
+$('chClose').onclick=e=>{e.stopPropagation();show('chal',false);toHub();};
 $('restBtn').onclick=()=>{S.energy=Math.min(100,S.energy+40);S.sideFx=Math.max(0,S.sideFx-5);sfx.tap();toast('😴 RESTED');save();hud();};
 // ---------- LOOP ----------
 let lastT=performance.now();

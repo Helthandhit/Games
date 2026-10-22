@@ -43,25 +43,25 @@ header{display:flex;align-items:center;gap:12px;padding:6px 2px 14px}
  .grid{grid-template-columns:repeat(4,1fr);gap:10px}.card{aspect-ratio:auto;height:calc(100vh - 168px);min-height:170px}.tag:nth-child(n+3){display:none}.card .tx{flex-direction:column;align-items:flex-start;padding:10px}.card h2{font-size:18px}.card span{font-size:11px}.play{display:none}.foot{margin-top:8px}}
 @media (min-width:900px) and (min-height:600px){.grid{grid-template-columns:repeat(2,1fr)}}
 </style></head><body><div class="wrap">
-<header><div class="logo"><div class="mark">GH</div><div><h1>Game <em>Hub</em></h1><small>4 games · one app · offline</small></div></div><span class="ver" id="ver">v1.9.0</span><button class="ic nav" id="setBtn" aria-label="Settings and about">⚙</button></header>
+<header><div class="logo"><div class="mark">GH</div><div><h1>Game <em>Hub</em></h1><small>4 games · one app · offline</small></div></div><span class="ver" id="ver">v1.10.0</span><button class="ic nav" id="setBtn" aria-label="Settings and about">⚙</button></header>
 <div class="top"><div class="pan streak" id="streak"><span class="fl">🔥</span><div><b id="sCount">0</b><small id="sLabel">day streak</small><div class="hint" id="sHint"></div></div></div>
 <div class="pan dc"><h3>⚡ DAILY CHALLENGE</h3><p id="dText"></p><div class="row"><span class="st" id="dState"></span><a class="go nav" id="dGo" href="#">Play ▶</a><span class="gm" id="dGame"></span></div></div></div>
 <div class="grid" id="grid">
-<a class="card nav" data-g="paddock" href="turbo-run/"><img src="thumbs/paddock.jpg" alt=""><div class="tags"><span class="tag">Racing</span><span class="tag">20 stages</span></div><div class="tx"><div><h2>Paddock<em>Scan</em></h2><span>Weave through traffic, split roads and six cars from Marc's Autos</span></div><b class="play">▶</b></div></a>
-<a class="card nav" data-g="ff" href="frontline-fury/"><img src="thumbs/ff.jpg" alt=""><div class="tags"><span class="tag hot">New</span><span class="tag">Landscape</span></div><div class="tx"><div><h2>Frontline <em>Fury</em></h2><span>Twin-stick run and gun, vehicles and part-by-part bosses</span></div><b class="play">▶</b></div></a>
-<a class="card nav" data-g="hh" href="healthandhit/"><img src="thumbs/hh.jpg" alt=""><div class="tags"><span class="tag">Gym RPG</span></div><div class="tx"><div><h2>Health<em>And</em>HIT</h2><span>Lift, sprint and level up from fragile to gym legend</span></div><b class="play">▶</b></div></a>
-<a class="card nav" data-g="cake" href="cake/"><img src="thumbs/cake.jpg" alt=""><div class="tags"><span class="tag">Cake craft</span></div><div class="tx"><div><h2>Sprinkles <em>&amp;</em> Layers</h2><span>Bake, frost and sprinkle cakes for picky customers</span></div><b class="play">▶</b></div></a>
+<a class="card nav" data-g="paddock" href="turbo-run/"><img src="thumbs/paddock.jpg" alt=""><div class="tags"><span class="tag">Racing</span><span class="tag hot">25 stages</span></div><div class="tx"><div><h2>Paddock<em>Scan</em></h2><span>Weave through traffic, split roads and six cars from Marc's Autos</span></div><b class="play">▶</b></div></a>
+<a class="card nav" data-g="ff" href="frontline-fury/"><img src="thumbs/ff.jpg" alt=""><div class="tags"><span class="tag hot">6 missions</span><span class="tag">Landscape</span></div><div class="tx"><div><h2>Frontline <em>Fury</em></h2><span>Twin-stick run and gun, vehicles and part-by-part bosses</span></div><b class="play">▶</b></div></a>
+<a class="card nav" data-g="hh" href="healthandhit/"><img src="thumbs/hh.jpg" alt=""><div class="tags"><span class="tag">Gym RPG</span><span class="tag hot">Challenges</span></div><div class="tx"><div><h2>Health<em>And</em>HIT</h2><span>Lift, sprint and level up from fragile to gym legend</span></div><b class="play">▶</b></div></a>
+<a class="card nav" data-g="cake" href="cake/"><img src="thumbs/cake.jpg" alt=""><div class="tags"><span class="tag">Cake craft</span><span class="tag hot">New recipes</span></div><div class="tx"><div><h2>Sprinkles <em>&amp;</em> Layers</h2><span>Bake, frost and sprinkle cakes for picky customers</span></div><b class="play">▶</b></div></a>
 </div>
-<div class="foot">Made by <b>Health And HIT</b> · Controller ready: D-pad to move, A to play · <span id="ver2">v1.9.0</span></div>
+<div class="foot">Made by <b>Health And HIT</b> · Controller ready: D-pad to move, A to play · <span id="ver2">v1.10.0</span></div>
 </div>
-<div id="set"><div class="sheet"><h2>Settings &amp; About</h2><p>Game Hub <b id="ver3">v1.9.0</b>: PaddockScan, Frontline Fury, HealthAndHIT and Sprinkles &amp; Layers in one offline app. No ads, no accounts.</p>
+<div id="set"><div class="sheet"><h2>Settings &amp; About</h2><p>Game Hub <b id="ver3">v1.10.0</b>: PaddockScan, Frontline Fury, HealthAndHIT and Sprinkles &amp; Layers in one offline app. No ads, no accounts.</p>
 <h4>Your saves</h4><p id="saveInfo">Progress is saved on this device and backed up inside the app automatically.</p><button class="btn nav" id="bkBtn">Back up saves now</button><div class="ok2" id="bkMsg"></div>
 <h4>Controller</h4><ul><li>D-pad or left stick: move between games</li><li>A: play · B or Back: close / return to the hub</li><li>In a game, Back pauses; Back again returns here</li></ul>
 <h4>Screen</h4><p>Frontline Fury plays in landscape. The other games follow how you hold your phone, folded or unfolded.</p>
 <h4>About</h4><p>Feedback: healthandhit@gmail.com<br>Privacy: helthandhit.github.io/Games/privacy.html</p>
 <button class="btn red nav back" id="setClose">Close</button></div></div>
 <script src="daily.js"></script><script>
-const VER='1.9.0';
+const VER='1.10.0';
 function renderDaily(){const D=window.GHDaily;if(!D)return;const s=D.streak(),d=D.daily();
  sCount.textContent=s.count;sLabel.textContent=(s.count===1?'day':'days')+' streak';
  sHint.textContent=s.playedToday?'Played today ✔':(s.count?'Play today to keep it going!':'Play any game to start a streak');

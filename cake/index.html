@@ -83,13 +83,13 @@ const THREE=await import(URL.createObjectURL(new Blob([document.getElementById('
 const $=id=>document.getElementById(id);
 // ===== DATA =====
 const ING={flour:{n:'Flour',e:'🌾',c:'#f7f1e3'},sugar:{n:'Sugar',e:'🍬',c:'#ffffff'},eggs:{n:'Eggs',e:'🥚',c:'#ffd76a'},butter:{n:'Butter',e:'🧈',c:'#ffe69a'},milk:{n:'Milk',e:'🥛',c:'#fbfbff'},
- vanilla:{n:'Vanilla',e:'🌼',c:'#e9cfa0'},cocoa:{n:'Cocoa',e:'🍫',c:'#5b3320'},strawberries:{n:'Strawberry',e:'🍓',c:'#ff6d8f',lock:40},lemon:{n:'Lemon',e:'🍋',c:'#fff06a',lock:40},redcolour:{n:'Red Colour',e:'🔴',c:'#c4142e',lock:70}};
+ vanilla:{n:'Vanilla',e:'🌼',c:'#e9cfa0'},cocoa:{n:'Cocoa',e:'🍫',c:'#5b3320'},strawberries:{n:'Strawberry',e:'🍓',c:'#ff6d8f',lock:40},lemon:{n:'Lemon',e:'🍋',c:'#fff06a',lock:40},redcolour:{n:'Red Colour',e:'🔴',c:'#c4142e',lock:70},caramel:{n:'Caramel',e:'🍯',c:'#c98a3c',lock:50},blueberries:{n:'Blueberry',e:'🫐',c:'#5a5fd0',lock:60},mintleaf:{n:'Mint Leaf',e:'🌿',c:'#5fd39a',lock:60},orange:{n:'Orange',e:'🍊',c:'#ffa53a',lock:50}};
 const BASE={flour:3,sugar:2,eggs:2,butter:1,milk:1};
-const FLAV={vanilla:{n:'Vanilla',add:{vanilla:1}},chocolate:{n:'Chocolate',add:{cocoa:2}},strawberry:{n:'Strawberry',add:{strawberries:2},need:'strawberries'},lemon:{n:'Lemon',add:{lemon:1},need:'lemon'},redvelvet:{n:'Red Velvet',add:{cocoa:1,redcolour:1},need:'redcolour'}};
-const FROST={vanilla:{n:'Vanilla',c:'#fff4e2'},pink:{n:'Pink',c:'#ff9ec4'},chocolate:{n:'Chocolate',c:'#7a4a33'},mint:{n:'Mint',c:'#9eeccb',lock:30},lavender:{n:'Lavender',c:'#c9b6ff',lock:30},lemon:{n:'Lemon',c:'#fff19a',lock:30},sky:{n:'Sky Blue',c:'#a7d8ff',lock:30}};
+const FLAV={vanilla:{n:'Vanilla',add:{vanilla:1}},chocolate:{n:'Chocolate',add:{cocoa:2}},strawberry:{n:'Strawberry',add:{strawberries:2},need:'strawberries'},lemon:{n:'Lemon',add:{lemon:1},need:'lemon'},redvelvet:{n:'Red Velvet',add:{cocoa:1,redcolour:1},need:'redcolour'},caramel:{n:'Salted Caramel',add:{caramel:2},need:'caramel'},blueberry:{n:'Blueberry Burst',add:{blueberries:2,lemon:1},need:'blueberries'},mintchoc:{n:'Mint Choc Chip',add:{cocoa:1,mintleaf:1},need:'mintleaf'},jaffa:{n:'Choc Orange',add:{cocoa:1,orange:2},need:'orange'}};
+const FROST={vanilla:{n:'Vanilla',c:'#fff4e2'},pink:{n:'Pink',c:'#ff9ec4'},chocolate:{n:'Chocolate',c:'#7a4a33'},mint:{n:'Mint',c:'#9eeccb',lock:30},lavender:{n:'Lavender',c:'#c9b6ff',lock:30},lemon:{n:'Lemon',c:'#fff19a',lock:30},sky:{n:'Sky Blue',c:'#a7d8ff',lock:30},caramel:{n:'Caramel',c:'#e0a964',lock:40},berry:{n:'Berry',c:'#8f7ae6',lock:40},cherry:{n:'Cherry Red',c:'#ff4d5e',lock:50}};
 const TOP={sprinkles:{n:'Sprinkles',e:'🌈'},cherry:{n:'Cherry',e:'🍒'},strawberry:{n:'Strawberry',e:'🍓',lock:30},candle:{n:'Candle',e:'🕯️',lock:30},drip:{n:'Choc Drip',e:'🍫',lock:40},piping:{n:'Piping',e:'🧁',lock:40},topper:{n:'Topper',e:'🏷️',lock:50}};
 const TINS={round:{n:'Round',e:'⭕'},square:{n:'Square',e:'🟪',lock:40},heart:{n:'Heart',e:'💗',lock:60}};
-const CUST=[['🧒','Milo'],['👵','Granny Rose'],['🧑‍🚀','Astro Ava'],['🤴','Prince Pip'],['👩‍🍳','Chef Lulu'],['🐻','Mr Bear'],['🧙','Wizard Wim'],['👰','Bride Bea']];
+const CUST=[['🧒','Milo'],['👵','Granny Rose'],['🧑‍🚀','Astro Ava'],['🤴','Prince Pip'],['👩‍🍳','Chef Lulu'],['🐻','Mr Bear'],['🧙','Wizard Wim'],['👰','Bride Bea'],['🧛','Count Crumble'],['🤖','Robo Rex'],['🧜','Marina'],['🦸','Captain Crumb'],['👴','Grandpa Gus']];
 // ===== SAVE =====
 const KEY='cakecraft_save_v1';
 const def=()=>({coins:20,level:1,xp:0,served:0,best:0,sound:true,gfx:'high',own:{}});
@@ -155,7 +155,7 @@ const batter=mesh(new THREE.CircleGeometry(.2,40),M('#f7f1e3',.35),BOWL.x,BOWL.y
 const blobs=new THREE.Group();scene.add(blobs);
 const spoon=new THREE.Group();scene.add(spoon);mesh(new THREE.CylinderGeometry(.012,.012,.4,8),wood,0,.2,0,spoon);mesh(new THREE.SphereGeometry(.04,12,8),wood,0,0,0,spoon).scale.set(1,.4,1.4);spoon.visible=false;
 // jars on shelf
-const jars={};let jx=-1.08;for(const k in ING){const g=new THREE.Group();g.position.set(jx,1.57,-.36);scene.add(g);jx+=.24;
+const jars={};let jx=-1.08;for(const k in ING){const g=new THREE.Group();g.position.set(jx,1.57,-.36);scene.add(g);jx+=2.16/(Object.keys(ING).length-1);
  mesh(new THREE.CylinderGeometry(.07,.07,.2,20),new THREE.MeshPhysicalMaterial({color:'#ffffff',transparent:true,opacity:.35,roughness:.05}),0,.1,0,g).castShadow=false;
  mesh(new THREE.CylinderGeometry(.062,.062,.13,20),M(ING[k].c,.6),0,.07,0,g);mesh(new THREE.CylinderGeometry(.075,.075,.03,20),M('#ff9ec4',.4),0,.215,0,g);jars[k]=g;}
 // other props
@@ -232,7 +232,7 @@ let fallers=[];
 function addIng(k){R.added[k]=(R.added[k]||0)+1;R.last.push(k);ingUI();sfx.plop();const j=jars[k];j.userData.w=1;
  const b=mesh(new THREE.SphereGeometry(.045,12,10),M(ING[k].c,.5),j.position.x,j.position.y,j.position.z+.05,blobs);b.scale.set(1,.6,1);
  const n=blobs.children.length;const tgt=new THREE.Vector3(BOWL.x+Math.cos(n*2.4)*.1*Math.min(1,n/4),BOWL.y+.03+Math.min(.1,n*.006),BOWL.z+Math.sin(n*2.4)*.1*Math.min(1,n/4));fallers.push({b,from:b.position.clone(),to:tgt,t:0});}
-function batterColour(){const c=new THREE.Color(0,0,0);let w=0;for(const[k,n]of Object.entries(R.added)){if(!n)continue;const wt=n*(k==='cocoa'?7:k==='redcolour'?7:k==='strawberries'?1.6:k==='lemon'?1.2:1);c.add(new THREE.Color(ING[k].c).multiplyScalar(wt));w+=wt;}return w?c.multiplyScalar(1/w):new THREE.Color('#f7f1e3');}
+function batterColour(){const c=new THREE.Color(0,0,0);let w=0;for(const[k,n]of Object.entries(R.added)){if(!n)continue;const wt=n*(k==='cocoa'?7:k==='redcolour'?7:k==='strawberries'?1.6:k==='lemon'?1.2:k==='blueberries'?2.4:k==='caramel'?1.6:k==='mintleaf'?1.2:k==='orange'?1.3:1);c.add(new THREE.Color(ING[k].c).multiplyScalar(wt));w+=wt;}return w?c.multiplyScalar(1/w):new THREE.Color('#f7f1e3');}
 // ===== MIX =====
 let mixerHold=false,drag=null;
 function addMix(v){if(R.mix>=1.4)return;R.mix=Math.min(1.4,R.mix+v);}
@@ -315,7 +315,7 @@ function shopUI(){$('shopCoins').textContent='🪙 '+S.coins;const L=$('shopList
  const cats=[['ing',ING,'Ingredient'],['tin',TINS,'Tin'],['fr',FROST,'Frosting'],['top',TOP,'Decoration']];
  for(const[cat,obj,lab]of cats)for(const k in obj){const o=obj[k];if(!o.lock)continue;const own=S.own[cat+':'+k];const r=document.createElement('div');r.className='shopRow';
   r.innerHTML=`<span>${o.e||'🎨'} ${o.n} <small style="color:#aaa">${lab}</small></span>`;const b=document.createElement('button');b.className='btn sm '+(own?'mint':'');b.id='buy_'+cat+'_'+k;b.textContent=own?'Owned ✓':'🪙 '+o.lock;
-  b.onclick=()=>{if(own)return;if(S.coins<o.lock){toast('Need more coins');sfx.bad();return;}S.coins-=o.lock;S.own[cat+':'+k]=1;save();sfx.coin();shopUI();};r.appendChild(b);L.appendChild(r);}}
+  b.onclick=()=>{if(own)return;if(S.coins<o.lock){toast('Need more coins');sfx.bad();return;}if(b.dataset.cf!=='1'){b.dataset.cf='1';b.textContent='Tap to confirm 🪙'+o.lock;b.classList.add('butter');sfx.pop();setTimeout(()=>{if(b.isConnected&&b.dataset.cf==='1'){b.dataset.cf='';b.classList.remove('butter');b.textContent='🪙 '+o.lock;}},3000);return;}S.coins-=o.lock;S.own[cat+':'+k]=1;save();sfx.coin();shopUI();};r.appendChild(b);L.appendChild(r);}}
 // ===== MENU / UI WIRING =====
 function toMenu(){mode='menu';phase=null;paused=false;O=null;['top','phase','serve','pause','shop','how'].forEach(i=>show(i,false));show('menu');clearCake();setView('over');
  $('menuInfo').textContent=`🪙 ${S.coins} · Level ${S.level} · ${S.served} cakes served`;}
