@@ -1,6 +1,6 @@
 /* Game Hub shared streak + daily challenge helper (classic script, window.GHDaily). Keys: gh_streak, gh_daily */
 (function(){
-const G={paddock:{name:'PaddockScan',url:'turbo-run/'},hh:{name:'HealthAndHIT',url:'healthandhit/'},cake:{name:'Sprinkles and Layers',url:'cake/'}};
+const G={paddock:{name:'PaddockScan',url:'turbo-run/'},hh:{name:'HealthAndHIT',url:'healthandhit/'},cake:{name:'Sprinkles and Layers',url:'cake/'},ff:{name:'Frontline Fury',url:'frontline-fury/'}};
 // check(ev, prog) -> true when complete. prog is a per-day scratch object persisted for cumulative goals.
 const POOL=[
  {id:'ps_score',game:'paddock',text:'Score 1,500 in one PaddockScan run',check:e=>e.type==='run'&&e.score>=1500},
@@ -19,6 +19,9 @@ const POOL=[
  {id:'ck_4star',game:'cake',text:'Earn 4 stars or more on a customer order in Sprinkles and Layers',check:e=>e.type==='serve'&&e.order&&e.stars>=4},
  {id:'ck_serve3',game:'cake',text:'Serve 3 cakes in Sprinkles and Layers',check:(e,p)=>e.type==='serve'&&(p.n=(p.n||0)+1)>=3},
  {id:'ck_70',game:'cake',text:'Score 70 points or more on a cake in Sprinkles and Layers',check:e=>e.type==='serve'&&e.total>=70},
+ {id:'ff_clear',game:'ff',text:'Clear any mission in Frontline Fury',check:e=>e.type==='mission'},
+ {id:'ff_3star',game:'ff',text:'Earn 3 stars on a Frontline Fury mission',check:e=>e.type==='mission'&&e.stars>=3},
+ {id:'ff_kills',game:'ff',text:'Take down 40 enemies in one Frontline Fury mission',check:e=>e.type==='mission'&&e.kills>=40},
  {id:'ck_5star',game:'cake',text:'Make a 5-star cake in Sprinkles and Layers',check:e=>e.type==='serve'&&e.stars>=5}];
 const D={now:()=>new Date()};
 const key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
