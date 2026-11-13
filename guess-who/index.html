@@ -12,6 +12,7 @@ html,body{margin:0;height:100%}
 body{min-height:100%;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden;color:#14213d;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;background:#9d1024}
 header{flex:none;background:linear-gradient(#ff5340,#c8102e);color:#fff;text-align:center;padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));box-shadow:0 4px 0 #6e0a16}
 .toprow{display:flex;align-items:center;justify-content:space-between;gap:8px;max-width:980px;margin:0 auto 4px}
+.links{display:flex;gap:6px;flex:none}
 .hub{color:#fff;background:#ffffff22;border:2px solid #fff;text-decoration:none;font-weight:800;border-radius:999px;padding:6px 10px;min-height:36px;display:inline-flex;align-items:center}
 .stats{margin:0;font-weight:800;font-size:14px;background:#1d4e89;border-radius:999px;padding:6px 10px}
 h1{margin:0 auto;max-width:980px;font-size:clamp(20px,5.4vw,40px);line-height:1.05;letter-spacing:.2px;text-shadow:0 3px 0 #7a0c18}
@@ -103,7 +104,7 @@ select{flex:1;min-width:0;font-size:16px;border:3px solid #0c2f66;border-radius:
 <body>
 <header>
   <div class="toprow">
-    <a class="hub" href="../">← Games</a>
+    <span class="links"><a class="hub" href="../">← Games</a><a class="hub" href="../guess-who-cars/">Cars</a></span>
     <p class="stats" id="statsLine"><span id="roomPill" hidden></span><span>Questions <strong id="qCount">0</strong></span><span>Possible <strong id="leftCount">20</strong></span><span id="theirStat" hidden>Friend <strong id="theirCount">20</strong></span><span id="youStat" hidden>You: <strong id="youName"></strong></span></p>
   </div>
   <h1>Guess Who with Marc and George</h1>
@@ -150,6 +151,7 @@ select{flex:1;min-width:0;font-size:16px;border:3px solid #0c2f66;border-radius:
     <p>Guess the secret person. Ask a question and anyone who doesn’t fit flips down. Tap a card to flip it yourself.</p>
     <button type="button" class="again" id="soloBtn">Play the computer</button>
     <button type="button" class="guess" id="friendBtn">Play a friend</button>
+    <a class="linkish" href="../guess-who-cars/">Cars version</a>
   </div>
 </div>
 
@@ -402,6 +404,7 @@ function paintChrome(){
     const mine=state.myTurn && !state.pending && state.connected;
     turn.textContent=state.connected?(mine?'Your turn':(state.pending?'Waiting for the answer':"Friend's turn")):'Opponent disconnected';
     turn.className='turn'+(mine&&state.connected?'':' them');
+    setHint(!state.connected?'Opponent disconnected.':mine?'Your turn. Ask about your friend’s secret person, or make a guess.':state.pending?'Waiting for your friend’s phone to answer.':'Friend’s turn. This phone answers from your secret person.');
   }
   if(!multiLive && state.mode!=='multi') turn.hidden=true;
 }

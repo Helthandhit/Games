@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <rect width="640" height="400" fill="#c8102e"/>
+  <rect x="28" y="28" width="584" height="344" rx="18" fill="#1f62c4"/>
+  <g transform="translate(48,70)">
+    <rect width="160" height="150" rx="10" fill="#fff7ec" stroke="#0c2f66" stroke-width="4"/>
+    <path d="M18 110 L32 88 L70 70 L110 70 L140 110 Z" fill="#e10600" stroke="#111" stroke-width="3"/>
+    <circle cx="48" cy="112" r="12" fill="#111"/><circle cx="112" cy="112" r="12" fill="#111"/>
+    <text x="80" y="140" text-anchor="middle" fill="#163e86" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700">Golf</text>
+  </g>
+  <g transform="translate(230,70)">
+    <rect width="160" height="150" rx="10" fill="#fff7ec" stroke="#0c2f66" stroke-width="4"/>
+    <path d="M16 100 L28 72 L50 52 L130 52 L148 100 Z" fill="#1f6fe0" stroke="#111" stroke-width="3"/>
+    <path d="M120 48 h22 v4 h-8 l-10 6 z" fill="#111"/>
+    <circle cx="46" cy="104" r="12" fill="#111"/><circle cx="118" cy="104" r="12" fill="#111"/>
+    <text x="80" y="140" text-anchor="middle" fill="#163e86" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700">Fiesta</text>
+  </g>
+  <g transform="translate(412,70)">
+    <rect width="160" height="150" rx="10" fill="#163e86"/>
+    <text x="80" y="88" text-anchor="middle" fill="#fff" font-family="Trebuchet MS,sans-serif" font-size="54" font-weight="700">?</text>
+  </g>
+  <text x="320" y="280" text-anchor="middle" fill="#ffe14a" font-family="Trebuchet MS,sans-serif" font-size="36" font-weight="700">GUESS WHO</text>
+  <text x="320" y="322" text-anchor="middle" fill="#fff" font-family="Trebuchet MS,sans-serif" font-size="22" font-weight="700">Cars · Marc and George</text>
+</svg>
