@@ -110,7 +110,7 @@ h1{flex:1;margin:0;font-size:clamp(13px,3.5vw,18px);line-height:1.1;white-space:
 .statusline{flex:none;display:flex;align-items:center;gap:6px;min-height:22px;padding:1px 8px 3px;background:#9d1024;color:#fff;font-size:12px;font-weight:800}
 .statusline .turn{display:inline-block;margin:0;padding:1px 7px;font-size:11px;white-space:nowrap}
 .statusline .turn[hidden]{display:none}
-.statusline .counts{flex:none;font-size:11px;font-weight:800;white-space:nowrap}
+.statusline .counts{flex:1 1 auto;min-width:0;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .statusline .banner{flex:1;min-width:0;display:flex;align-items:baseline;gap:4px;margin:0;padding:0;min-height:0;border:0;border-radius:0;background:transparent;color:#fff}
 .statusline .banner b{display:none}
 .statusline .banner span{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -134,14 +134,28 @@ h1{flex:1;margin:0;font-size:clamp(13px,3.5vw,18px);line-height:1.1;white-space:
 .card.eliminated:not(.down) .plate{background:#163e86}
 .dock{padding:4px 6px max(4px,env(safe-area-inset-bottom));border-top-width:3px;box-shadow:none}
 .dock select{min-height:40px;padding:4px 8px}
-.dock .ask{min-height:40px;padding:0 12px;font-size:16px}
-.dock .guess{width:auto;margin:0;flex:none;min-height:40px;padding:0 10px;font-size:15px}
+.dock .ask,.dock .guess{min-height:40px;padding:0 10px;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dock .guess{width:auto;margin:0;flex:none}
 #infoModal .log{max-height:34vh;background:#fff;border:2px solid #0c2f66}
 #infoModal .hint{display:block;margin:0 0 8px;color:#14213d;font-size:14px}
 @media (min-width:700px){
   .board{grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:8px;max-width:980px;margin:0 auto}
   h1{font-size:22px}
 }
+#meChip{width:30px;height:30px;padding:0;border-radius:6px;overflow:hidden;flex:none;border:2px solid #fff;background:#fff;cursor:pointer}
+#meThumb,#meThumb svg,#meThumb img{width:30px;height:30px;display:block;object-fit:cover}
+.qsheet{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fffaf2;border-top:4px solid #c8102e;max-height:62dvh;overflow:auto;padding:8px 8px max(8px,env(safe-area-inset-bottom));border-radius:16px 16px 0 0;box-shadow:0 -8px 24px #0005}
+.qsheet[hidden]{display:none}
+.qsheet-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.qgroup{margin:8px 0 4px}
+.qgroup h3{margin:0 0 4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9d1024}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid #0c2f66;background:#fff;border-radius:999px;padding:8px 10px;font-weight:800;font-size:14px;color:#14213d}
+.chip.used{opacity:.38}
+.toast{position:fixed;left:8px;right:8px;top:46px;z-index:40;background:#14213d;color:#fff;border:2px solid #ffe14a;border-radius:12px;padding:8px 10px;font-weight:800;font-size:13px;text-align:center}
+.toast[hidden]{display:none}
+.namefield{display:block;font-weight:800;margin:8px 0}
+.namefield input{display:block;width:100%;box-sizing:border-box;font:inherit;font-weight:800;padding:8px;border:3px solid #0c2f66;border-radius:12px;margin-top:4px}
 </style>
 </head>
 <body>
@@ -149,28 +163,41 @@ h1{flex:1;margin:0;font-size:clamp(13px,3.5vw,18px);line-height:1.1;white-space:
   <div class="toprow">
     <a class="hub" href="../" aria-label="All games">←</a>
     <h1>Guess Who with Marc and George</h1>
+    <button type="button" id="meChip" hidden aria-label="Your secret person"><span id="meThumb"></span></button>
     <button type="button" class="hub" id="infoBtn" aria-label="Info and log">ⓘ</button>
   </div>
 </header>
 <div class="statusline">
   <span class="turn" id="turnTag" hidden>Your turn</span>
-  <span class="counts"><strong id="leftCount">20</strong> left<span id="theirStat" hidden> · Friend <strong id="theirCount">20</strong></span></span>
+  <span class="counts" id="countLine">20 left</span>
   <div class="banner wait" id="banner" role="status" aria-live="polite"><b id="bannerWord">Ready</b><span id="bannerDetail">Pick a question</span></div>
 </div>
+<div id="toast" class="toast" hidden></div>
 <div class="boardwrap"><div class="board" id="board"></div></div>
 <footer class="dock"><div class="dock-inner">
+  <div class="controls" id="playControls">
+    <button type="button" class="ask" id="askOpen">Ask</button>
+    <button type="button" class="guess" id="guess">Guess</button>
+    <button type="button" class="ask" id="soleGuess" hidden>Is it …?</button>
+    <button type="button" class="guess" id="flipForMe" hidden>Flip for me</button>
+    <button type="button" class="ask" id="doneTurn" hidden>Done</button>
+  </div>
+</div></footer>
+<div id="qSheet" class="qsheet" hidden>
+  <div class="qsheet-bar"><strong>Ask a question</strong><button type="button" class="linkish" id="qSheetClose" style="width:auto;min-height:36px;margin:0">Close</button></div>
   <div class="controls">
     <label class="sr" for="q" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Question</label>
     <select id="q"></select>
     <button type="button" class="ask" id="ask">Ask</button>
-    <button type="button" class="guess" id="guess">Guess</button>
   </div>
-</div></footer>
+  <div id="qGroups"></div>
+</div>
 
 <div class="modal" id="infoModal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
     <h2 id="infoTitle">Info</h2>
     <p class="hint" id="hint">Play the computer, or play a friend on their own phone.</p>
+    <button type="button" class="linkish" data-flipmode>Cards: auto-flip</button>
     <p id="roomPill" hidden></p>
     <p>Questions asked: <strong id="qCount">0</strong><span id="youStat" hidden> · You are <strong id="youName"></strong></span></p>
     <div id="netNote" class="netnote" hidden><span id="netText">Opponent disconnected</span><button type="button" id="rejoinBtn" hidden>Rejoin</button></div>
@@ -182,6 +209,13 @@ h1{flex:1;margin:0;font-size:clamp(13px,3.5vw,18px);line-height:1.1;white-space:
   </div>
 </div>
 
+<div class="modal" id="zoomModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="zoomName">
+    <div class="endface" id="zoomFace"></div>
+    <div class="endname" id="zoomName"></div>
+    <button type="button" class="linkish" id="zoomClose">Close</button>
+  </div>
+</div>
 <div class="modal" id="guessModal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="guessTitle">
     <h2 id="guessTitle">Make a guess</h2>
@@ -209,6 +243,7 @@ h1{flex:1;margin:0;font-size:clamp(13px,3.5vw,18px);line-height:1.1;white-space:
     <p>Guess the secret person. Ask a question and anyone who doesn’t fit flips down. Tap a card to flip it yourself.</p>
     <button type="button" class="again" id="soloBtn">Play the computer</button>
     <button type="button" class="guess" id="friendBtn">Play a friend</button>
+    <button type="button" class="linkish" data-flipmode>Cards: auto-flip</button>
     <a class="linkish" href="../guess-who-cars/">Cars version</a>
   </div>
 </div>
@@ -246,6 +281,7 @@ h1{flex:1;margin:0;font-size:clamp(13px,3.5vw,18px);line-height:1.1;white-space:
 <div class="modal" id="pickModal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
     <h2 id="pickTitle">Your secret person</h2>
+    <label class="namefield">Your name<input id="nameInput" maxlength="16" placeholder="Player 1" autocomplete="nickname"></label>
     <p id="pickHelp">Tap a face, or tap Surprise me. Only this phone answers questions about your secret person.</p>
     <div class="endface" id="chosenFace" hidden></div>
     <div class="endname" id="chosenName" hidden></div>
@@ -299,6 +335,8 @@ const QUESTIONS = [
   {id:'nose', text:'Have they got a big nose?', test:p=>p.bigNose},
   {id:'rosy', text:'Have they got rosy cheeks?', test:p=>p.rosy}
 ];
+const FLIP_KEY='gw-flip';
+const GROUPS=[['Hair',['blond','black','brown','ginger','grey','bald','long']],['Face',['woman','glasses','beard','moustache','blue','nose','rosy']],['Accessories',['hat','earrings']]];
 
 const HAIR = {black:'#1a1a1a', brown:'#7a3e16', blond:'#ffd34d', ginger:'#ff5a12', grey:'#d5d8e0'};
 const EYE = {brown:'#5c3310', blue:'#1f6fe0', green:'#1f8f3a', hazel:'#8a7420'};
@@ -403,7 +441,8 @@ const state = {
   over:false, noted:false, guessName:null,
   myTurn:true, pending:null, pendingGuess:null,
   connected:false, theyReady:false, ready:false,
-  theirLeft:20, log:[], leaving:false
+  theirLeft:20, log:[], leaving:false,
+  myName:'', theirName:'', flipMode:'auto', resolving:false, putTurn:0, lastQ:null, lastYes:false
 };
 
 let peer=null, conn=null, hostTries=0, beatTimer=null;
@@ -412,6 +451,14 @@ function $(id){return document.getElementById(id)}
 function person(name){return PEOPLE.find(p=>p.name===name)}
 function question(id){return QUESTIONS.find(q=>q.id===id)}
 function myLeft(){return PEOPLE.length - state.eliminated.size}
+function faceUpCount(){return PEOPLE.filter(p=>!state.down.has(p.name)).length}
+function myLabel(){if(state.mode!=='multi')return 'You';return state.myName||(state.role==='join'?'Player 2':'Player 1')}
+function theirLabel(){return state.theirName||(state.role==='join'?'Player 1':state.role==='host'?'Player 2':'Opponent')}
+function readName(){const el=$('nameInput');const v=el?el.value.trim().slice(0,16):'';state.myName=v||(state.role==='join'?'Player 2':'Player 1');if(el)el.placeholder=state.role==='join'?'Player 2':'Player 1';return state.myName}
+function sendLeft(){if(state.mode==='multi')send({t:'left', n:faceUpCount()})}
+function toast(text){const t=$('toast');if(!t)return;t.textContent=text;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>{t.hidden=true},3200)}
+function paintFlipBtn(){const label=state.flipMode==='manual'?'Cards: you flip':'Cards: auto-flip';document.querySelectorAll('[data-flipmode]').forEach(b=>{b.textContent=label})}
+function toggleFlip(){state.flipMode=state.flipMode==='manual'?'auto':'manual';try{localStorage.setItem(FLIP_KEY,state.flipMode)}catch(e){}paintFlipBtn()}
 function askedCount(){return state.clues.length}
 function qText(id){const q=question(id);return q?q.text:id}
 
@@ -422,7 +469,7 @@ function setBanner(kind, word, detail){
   $('bannerDetail').textContent=detail;
 }
 function showOnly(id){MODALS.forEach(k=>{$(k).hidden=k!==id})}
-function hideModals(){MODALS.forEach(k=>{$(k).hidden=true})}
+function hideModals(){MODALS.forEach(k=>{$(k).hidden=true}); if($('qSheet')) $('qSheet').hidden=true}
 function notePlay(){
   if(state.noted) return;
   state.noted=true;
@@ -444,30 +491,44 @@ function paintBoard(){
   });
   paintChrome();
 }
+function paintMe(){
+  const show=state.mode==='multi' && state.mine && (state.phase==='play' || state.phase==='over');
+  $('meChip').hidden=!show;
+  if(!show) return;
+  if($('meThumb').dataset.n!==state.mine.name){
+    $('meThumb').innerHTML=faceSVG(state.mine);
+    $('meThumb').dataset.n=state.mine.name;
+  }
+}
 function paintChrome(){
   $('qCount').textContent=String(askedCount());
-  $('leftCount').textContent=String(myLeft());
-  const multiLive=state.mode==='multi' && (state.phase==='play' || state.phase==='over' || state.phase==='pick');
-  $('theirStat').hidden=!(state.mode==='multi' && (state.phase==='play' || state.phase==='over'));
-  $('theirCount').textContent=String(state.theirLeft);
   const showYou=state.mode==='multi' && state.mine && (state.phase==='play' || state.phase==='over');
   $('youStat').hidden=!showYou;
   $('youName').textContent=state.mine?state.mine.name:'';
   $('roomPill').hidden=!(state.mode==='multi' && state.code);
   $('roomPill').textContent=state.code?('Room '+state.code):'';
+  const n=faceUpCount();
+  if(state.mode==='multi' && (state.phase==='play' || state.phase==='over')) $('countLine').textContent=myLabel()+' '+n+' · '+theirLabel()+' '+state.theirLeft;
+  else $('countLine').textContent=n+' left';
   const turn=$('turnTag');
   const showTurn=state.mode==='multi' && state.phase==='play' && !state.over;
   turn.hidden=!showTurn;
   if(showTurn){
-    const mine=state.myTurn && !state.pending && state.connected;
-    turn.textContent=state.connected?(mine?'Your turn':(state.pending?'Waiting for the answer':"Friend's turn")):'Opponent disconnected';
-    turn.className='turn'+(mine&&state.connected?'':' them');
-    setHint(!state.connected?'Opponent disconnected.':mine?'Your turn. Ask about your friend’s secret person, or make a guess.':state.pending?'Waiting for your friend’s phone to answer.':'Friend’s turn. This phone answers from your secret person.');
+    const mine=state.myTurn && !state.pending && state.connected && !state.resolving;
+    turn.textContent=!state.connected?'Opponent disconnected':state.resolving?'Flip them':state.pending?'Waiting':mine?'Your turn':"Friend's turn";
+    turn.className='turn'+((mine||state.resolving)&&state.connected?'':' them');
+    setHint(!state.connected?'Opponent disconnected.':state.resolving?'Flip the cards that do not fit, then tap Done.':mine?'Your turn. Ask about your friend’s secret person, or make a guess.':state.pending?'Waiting for your friend’s phone to answer.':'Friend’s turn. This phone answers from your secret person.');
   }
-  if(!multiLive && state.mode!=='multi') turn.hidden=true;
+  paintMe();
+  const resolving=!!state.resolving && !state.over;
+  $('askOpen').hidden=resolving;
+  $('flipForMe').hidden=!resolving;
+  $('doneTurn').hidden=!resolving;
+  if(!$('soleGuess').hidden) $('guess').hidden=true;
+  else $('guess').hidden=resolving;
 }
 function canAct(){
-  if(state.over || state.phase!=='play') return false;
+  if(state.over || state.phase!=='play' || state.resolving) return false;
   if(state.mode==='multi' && (!state.myTurn || !state.connected || state.pending)) return false;
   return true;
 }
@@ -479,13 +540,24 @@ function paintQuestions(){
     return `<option value="${q.id}"${used?' disabled':''}>${q.text}${used?' ✓':''}</option>`;
   }).join('');
   if(current && !state.clues.some(c=>c.id===current)) sel.value=current;
-  const locked=state.mode==='multi' && (!state.myTurn || !!state.pending || !state.connected || state.over || state.phase!=='play');
+  const locked=!canAct();
   sel.disabled=locked;
-  $('ask').disabled=!canAct() || !sel.value || state.clues.some(c=>c.id===sel.value);
-  $('guess').disabled=!canAct();
+  $('ask').disabled=locked || !sel.value || state.clues.some(c=>c.id===sel.value);
+  $('askOpen').disabled=locked;
+  $('guess').disabled=locked;
+  const box=$('qGroups');
+  if(box) box.innerHTML=GROUPS.map(([label,ids])=>{
+    const chips=ids.map(id=>{
+      const q=question(id); if(!q) return '';
+      const used=state.clues.some(c=>c.id===id);
+      return `<button type="button" class="chip${used?' used':''}" data-q="${id}"${used?' disabled':''}>${q.text}</button>`;
+    }).join('');
+    return `<div class="qgroup"><h3>${label}</h3><div class="chips">${chips}</div></div>`;
+  }).join('');
   paintChrome();
 }
-function applyClues(){
+function applyClues(doFlip){
+  let put=0;
   PEOPLE.forEach(p=>{
     const ok=state.clues.every(c=>{
       const q=question(c.id);
@@ -493,13 +565,73 @@ function applyClues(){
     });
     if(!ok){
       state.eliminated.add(p.name);
-      state.down.add(p.name);
+      if(doFlip && !state.down.has(p.name)){ state.down.add(p.name); put++; }
     }
   });
+  return put;
 }
 function applyClue(id, yes){
   if(!state.clues.some(c=>c.id===id)) state.clues.push({id, yes:!!yes});
-  applyClues();
+  return applyClues(state.flipMode!=='manual');
+}
+function soleLogical(){
+  const left=PEOPLE.filter(p=>!state.eliminated.has(p.name));
+  return left.length===1?left[0]:null;
+}
+function maybeAutoWin(){
+  if(state.flipMode==='manual' || state.over) return false;
+  const last=soleLogical();
+  if(!last) return false;
+  if(state.mode==='solo'){
+    if(!state.target || last.name!==state.target.name) return false;
+    showEnd('You got it!', state.target, 'Only '+last.name+' was left.');
+    return true;
+  }
+  send({t:'autowin', name:last.name});
+  showEnd('You got it!', last, 'Only '+last.name+' was left.');
+  return true;
+}
+function hideSole(){ $('soleGuess').hidden=true; }
+function promptSole(){
+  if(state.over || state.phase!=='play'){ hideSole(); return; }
+  const up=PEOPLE.filter(p=>!state.down.has(p.name));
+  if(up.length!==1){ hideSole(); return; }
+  state.guessName=up[0].name;
+  $('soleGuess').hidden=false;
+  $('soleGuess').textContent='Is it '+up[0].name+'?';
+  paintChrome();
+}
+function finishResolve(q, yes, put){
+  state.resolving=false;
+  state.putTurn=0;
+  if(state.mode==='multi'){
+    state.myTurn=false;
+    send({t:'turn', q:q?q.id:'', yes:!!yes, put:put||0, left:faceUpCount()});
+  }
+  hideSole();
+  paintQuestions();
+}
+function afterMyAnswer(q, yes){
+  state.lastQ=q;
+  state.lastYes=!!yes;
+  state.pending=null;
+  state.putTurn=0;
+  const first=!state.clues.some(c=>c.id===q.id);
+  const put=applyClue(q.id, yes);
+  if(first) addLog('You', q.text, !!yes);
+  sendLeft();
+  if(state.flipMode==='manual'){
+    state.resolving=true;
+    state.myTurn=true;
+    setBanner(yes?'yes':'no', yes?'YES':'NO', (yes?'YES':'NO')+' — '+q.text);
+    paintBoard();
+    paintQuestions();
+    return;
+  }
+  if(maybeAutoWin()){ paintBoard(); paintQuestions(); return; }
+  showClueBanner(yes, q);
+  finishResolve(q, yes, put);
+  paintBoard();
 }
 function showClueBanner(yes, q){
   let detail=(yes?'Yes — ':'No — ')+q.text.replace(/\?$/,'')+'.';
@@ -549,7 +681,10 @@ function resetBoard(){
   state.pending=null;
   state.pendingGuess=null;
   state.guessName=null;
+  state.resolving=false;
+  state.putTurn=0;
   state.theirLeft=20;
+  if($('soleGuess')) $('soleGuess').hidden=true;
   clearLog();
   paintBoard();
   paintQuestions();
@@ -599,6 +734,7 @@ function ask(){
   const id=$('q').value;
   const q=question(id);
   if(!q || !canAct() || state.clues.some(c=>c.id===id)) return;
+  $('qSheet').hidden=true;
   notePlay();
   if(state.mode==='multi'){
     state.pending=id;
@@ -614,11 +750,7 @@ function ask(){
     paintQuestions();
     return;
   }
-  const yes=!!q.test(state.target);
-  applyClue(id, yes);
-  showClueBanner(yes, q);
-  paintBoard();
-  paintQuestions();
+  afterMyAnswer(q, !!q.test(state.target));
 }
 function openGuess(){
   if(!canAct()) return;
@@ -642,6 +774,9 @@ function showEnd(title, who, blurb){
   state.over=true;
   state.phase='over';
   state.myTurn=false;
+  state.resolving=false;
+  $('qSheet').hidden=true;
+  hideSole();
   $('guessModal').hidden=true;
   $('pickModal').hidden=true;
   $('endTitle').textContent=title;
@@ -658,7 +793,7 @@ function finishGuess(){
   const name=state.guessName;
   notePlay();
   if(state.mode==='multi'){
-    if(!state.myTurn && !state.pendingGuess) return;
+    if(!state.myTurn && !state.resolving && !state.pendingGuess && $('soleGuess').hidden) return;
     if(!state.connected){ showNote('Opponent disconnected'); return; }
     state.pendingGuess=name;
     state.myTurn=false;
@@ -931,6 +1066,7 @@ function beginPick(){
   $('pickWait').hidden=true;
   $('chosenFace').hidden=true;
   $('chosenName').hidden=true;
+  if($('nameInput')) $('nameInput').placeholder=state.role==='join'?'Player 2':'Player 1';
   $('pickHelp').textContent='Tap a face, or tap Surprise me. Only this phone answers questions about your secret person.';
   showOnly('pickModal');
   setHint('Choose the person your friend has to guess. Then you will guess theirs.');
@@ -941,7 +1077,8 @@ function lockSecret(name){
   if(!p || state.ready || state.phase!=='pick') return;
   state.mine=p;
   state.ready=true;
-  send({t:'ready'});
+  readName();
+  send({t:'ready', name:state.myName});
   $('secretPicks').hidden=true;
   $('confirmSecret').hidden=true;
   $('randomSecret').hidden=true;
@@ -958,7 +1095,8 @@ function startRound(){
   if(state.role!=='host' || state.phase!=='pick') return;
   const start=Math.random()<0.5?'host':'join';
   state.phase='starting';
-  send({t:'go', start});
+  readName();
+  send({t:'go', start, name:state.myName});
   beginPlay(start==='host');
 }
 function beginPlay(iStart){
@@ -973,7 +1111,7 @@ function beginPlay(iStart){
   setBanner('wait', iStart?'Your turn':"Friend's turn", iStart?'Ask a question, or make a guess.':'Hang on — your friend is choosing a question.');
   paintBoard();
   paintQuestions();
-  send({t:'left', n:myLeft()});
+  sendLeft();
 }
 function onData(raw){
   const msg=raw && typeof raw==='object'?raw:null;
@@ -1021,12 +1159,15 @@ function onData(raw){
   }
   if(msg.t==='ready'){
     state.theyReady=true;
+    if(msg.name) state.theirName=msg.name;
     if(state.ready && state.role==='host' && state.phase==='pick') startRound();
     else if(state.ready) $('pickWait').textContent='Starting…';
+    paintChrome();
     return;
   }
   if(msg.t==='go'){
     if(!state.mine) return;
+    if(msg.name) state.theirName=msg.name;
     beginPlay(msg.start==='join');
     return;
   }
@@ -1039,33 +1180,29 @@ function onData(raw){
     send({t:'answer', q:q.id, yes});
     if(!already){
       addLog('Friend', q.text, yes);
-      state.myTurn=true;
-      state.pending=null;
-      setBanner(yes?'yes':'no', yes?'Yes':'No', 'Friend asked: '+q.text+' This phone answered '+(yes?'Yes':'No')+'. Your turn.');
+      setBanner(yes?'yes':'no', yes?'Yes':'No', 'Friend asked: '+q.text+' → '+(yes?'YES':'NO'));
       paintQuestions();
     }
     return;
   }
   if(msg.t==='answer'){
     const q=question(msg.q);
-    if(!q || state.phase!=='play') return;
+    if(!q || state.phase!=='play' || state.over) return;
     if(state.pending && msg.q!==state.pending) return;
     if(!state.pending && state.clues.some(c=>c.id===msg.q)) return;
-    const first=!state.clues.some(c=>c.id===msg.q);
-    state.pending=null;
-    applyClue(msg.q, !!msg.yes);
-    if(first) addLog('You', q.text, !!msg.yes);
-    state.myTurn=false;
-    const yes=!!msg.yes;
-    let detail=(yes?'Yes — ':'No — ')+q.text.replace(/\?$/,'')+'. Friend’s turn.';
-    if(myLeft()===1){
-      const last=PEOPLE.find(p=>!state.eliminated.has(p.name));
-      detail=(yes?'Yes. ':'No. ')+'Only '+last.name+' still fits. Friend’s turn, then you can guess.';
-    }
-    setBanner(yes?'yes':'no', yes?'Yes':'No', detail);
-    send({t:'left', n:myLeft()});
-    paintBoard();
+    afterMyAnswer(q, !!msg.yes);
+    return;
+  }
+  if(msg.t==='turn'){
+    if(typeof msg.left==='number') state.theirLeft=msg.left;
+    if(!state.over) state.myTurn=true;
+    const q=question(msg.q);
+    toast(theirLabel()+' asked “'+(q?q.text:msg.q)+'” → '+(msg.yes?'Yes':'No')+', put down '+(msg.put||0));
     paintQuestions();
+    return;
+  }
+  if(msg.t==='autowin'){
+    showEnd('They got you!', state.mine, (msg.name||'That card')+' was the last one left. That was your secret.');
     return;
   }
   if(msg.t==='left' && typeof msg.n==='number'){
@@ -1114,8 +1251,11 @@ $('board').addEventListener('click', e=>{
   if(state.mode==='multi' && state.phase!=='play') return;
   if(state.mode!=='solo' && state.mode!=='multi') return;
   const name=btn.dataset.name;
-  if(state.down.has(name)) state.down.delete(name); else state.down.add(name);
+  if(state.down.has(name)) state.down.delete(name);
+  else { state.down.add(name); if(state.resolving) state.putTurn=(state.putTurn||0)+1; }
+  sendLeft();
   paintBoard();
+  promptSole();
 });
 $('q').addEventListener('change', paintQuestions);
 $('ask').addEventListener('click', ask);
@@ -1166,6 +1306,31 @@ $('secretPicks').addEventListener('click', e=>{
 });
 $('confirmSecret').addEventListener('click', ()=>{ if(state.guessName) lockSecret(state.guessName); });
 $('randomSecret').addEventListener('click', ()=>lockSecret(pickAny(state.mine).name));
+$('askOpen').addEventListener('click', ()=>{ if(!canAct()) return; $('qSheet').hidden=false; });
+$('qSheetClose').addEventListener('click', ()=>{ $('qSheet').hidden=true; });
+$('qGroups').addEventListener('click', e=>{ const b=e.target.closest('[data-q]'); if(!b||b.disabled) return; $('q').value=b.dataset.q; ask(); });
+$('flipForMe').addEventListener('click', ()=>{
+  PEOPLE.forEach(p=>{ if(state.eliminated.has(p.name) && !state.down.has(p.name)){ state.down.add(p.name); state.putTurn=(state.putTurn||0)+1; } });
+  sendLeft(); paintBoard(); promptSole();
+});
+$('doneTurn').addEventListener('click', ()=>{
+  const q=state.lastQ, yes=!!state.lastYes, put=state.putTurn||0;
+  state.resolving=false; state.putTurn=0;
+  if(state.mode==='multi'){ state.myTurn=false; send({t:'turn', q:q?q.id:'', yes, put, left:faceUpCount()}); }
+  hideSole();
+  setBanner('wait','Ready','Ask another, or make a guess.');
+  paintQuestions();
+});
+$('soleGuess').addEventListener('click', ()=>{ if(state.guessName) finishGuess(); });
+$('meChip').addEventListener('click', ()=>{
+  if(!state.mine) return;
+  $('zoomFace').innerHTML=faceSVG(state.mine);
+  $('zoomName').textContent=state.mine.name+' · '+myLabel();
+  $('zoomModal').hidden=false;
+});
+$('zoomClose').addEventListener('click', ()=>{ $('zoomModal').hidden=true; });
+$('zoomModal').addEventListener('click', e=>{ if(e.target===$('zoomModal')) $('zoomModal').hidden=true; });
+document.querySelectorAll('[data-flipmode]').forEach(b=>b.addEventListener('click', toggleFlip));
 $('infoBtn').addEventListener('click', ()=>{ $('infoModal').hidden=false; });
 $('infoClose').addEventListener('click', ()=>{ $('infoModal').hidden=true; });
 $('infoModal').addEventListener('click', e=>{ if(e.target===$('infoModal')) $('infoModal').hidden=true; });
@@ -1173,9 +1338,13 @@ document.addEventListener('keydown', e=>{
   if(e.key==='Escape'){
     $('guessModal').hidden=true;
     $('infoModal').hidden=true;
+    $('qSheet').hidden=true;
+    $('zoomModal').hidden=true;
   }
 });
 
+try{ if(localStorage.getItem(FLIP_KEY)==='manual') state.flipMode='manual'; }catch(e){}
+paintFlipBtn();
 buildBoard();
 paintQuestions();
 const roomParam=new URLSearchParams(location.search).get('room');
