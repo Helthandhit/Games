@@ -125,7 +125,11 @@ h1{flex:1;margin:0;font-size:clamp(12px,3.2vw,18px);line-height:1.1;white-space:
 .card.down .flip{transform:rotateY(180deg)}
 .front,.back{position:absolute;inset:0;min-height:0;border-width:2px;border-radius:8px;overflow:hidden}
 .front{display:flex;flex-direction:column;background:#fffaf2}
-.front svg{flex:1 1 auto;min-height:0;width:100%;height:100%}
+.front img{flex:1 1 0;min-height:0;width:100%;height:100%;object-fit:cover;display:block}
+.pick img{width:78px;height:52px;object-fit:cover;border-radius:8px;flex:none;background:#111}
+.endface img{width:100%;height:150px;object-fit:cover;display:block}
+.credits{font-size:12px;font-weight:600;line-height:1.4;padding-left:18px;margin:0 0 8px;max-height:28vh;overflow:auto}
+.credits a{color:#1f4fa3}
 .plate{flex:none;padding:1px 2px 2px}
 .plate strong{font-size:clamp(8px,2.2vw,12px)}
 .plate small{font-size:clamp(7px,1.7vw,10px);letter-spacing:0;text-transform:none}
@@ -177,6 +181,9 @@ h1{flex:1;margin:0;font-size:clamp(12px,3.2vw,18px);line-height:1.1;white-space:
     <div id="netNote" class="netnote" hidden><span id="netText">Opponent disconnected</span><button type="button" id="rejoinBtn" hidden>Rejoin</button></div>
     <p style="margin-bottom:4px">Questions so far</p>
     <ol id="log" class="log"></ol>
+    <h2 style="font-size:16px;margin-top:14px">Photo credits</h2>
+    <p class="hint">Photos are from Wikimedia Commons and were resized for this game. The Vauxhall Corsa picture shows the Opel Corsa-e, sold in the UK as the Vauxhall Corsa Electric.</p>
+    <ul id="credits" class="credits"></ul>
     <a class="linkish" href="../guess-who/">People version</a>
     <a class="linkish" href="../">All games</a>
     <button type="button" class="linkish" id="infoClose">Close</button>
@@ -259,122 +266,87 @@ h1{flex:1;margin:0;font-size:clamp(12px,3.2vw,18px);line-height:1.1;white-space:
 
 <script src="../daily.js"></script>
 <script>
+const CC4 = "https://creativecommons.org/licenses/by-sa/4.0/";
+const CC3 = "https://creativecommons.org/licenses/by-sa/3.0/de/";
 const PEOPLE = [
-  {name:'VW Golf', colour:'white', body:'hatch', country:'German', premium:false, electric:false, spoiler:true, rails:false, doors:5, sunroof:false, maker:'VW'},
-  {name:'VW Polo', colour:'red', body:'hatch', country:'German', premium:false, electric:false, spoiler:false, rails:false, doors:3, sunroof:false, maker:'VW'},
-  {name:'Ford Fiesta', colour:'blue', body:'hatch', country:'American', premium:false, electric:false, spoiler:true, rails:false, doors:3, sunroof:false, maker:'Ford'},
-  {name:'Ford Focus', colour:'silver', body:'hatch', country:'American', premium:false, electric:false, spoiler:true, rails:false, doors:5, sunroof:false, maker:'Ford'},
-  {name:'Ford Mondeo', colour:'grey', body:'saloon', country:'American', premium:false, electric:false, spoiler:false, rails:false, doors:5, sunroof:true, maker:'Ford'},
-  {name:'BMW 3 Series', colour:'black', body:'saloon', country:'German', premium:true, electric:false, spoiler:false, rails:false, doors:5, sunroof:true, maker:'BMW'},
-  {name:'Mercedes A-Class', colour:'silver', body:'hatch', country:'German', premium:true, electric:false, spoiler:false, rails:false, doors:5, sunroof:true, maker:'Merc'},
-  {name:'Audi A3', colour:'red', body:'hatch', country:'German', premium:true, electric:false, spoiler:true, rails:false, doors:5, sunroof:true, maker:'Audi'},
-  {name:'Nissan Qashqai', colour:'white', body:'suv', country:'Japanese', premium:false, electric:false, spoiler:false, rails:true, doors:5, sunroof:true, maker:'Nissan'},
-  {name:'Toyota Corolla', colour:'blue', body:'saloon', country:'Japanese', premium:false, electric:false, spoiler:false, rails:false, doors:5, sunroof:false, maker:'Toyota'},
-  {name:'Kia Sportage', colour:'black', body:'suv', country:'Korean', premium:false, electric:false, spoiler:false, rails:true, doors:5, sunroof:false, maker:'Kia'},
-  {name:'Hyundai Tucson', colour:'grey', body:'suv', country:'Korean', premium:false, electric:false, spoiler:false, rails:true, doors:5, sunroof:true, maker:'Hyundai'},
-  {name:'Vauxhall Corsa', colour:'blue', body:'hatch', country:'British', premium:false, electric:false, spoiler:false, rails:false, doors:3, sunroof:false, maker:'Vaux'},
-  {name:'Mini Hatch', colour:'green', body:'hatch', country:'British', premium:true, electric:false, spoiler:false, rails:false, doors:3, sunroof:false, maker:'Mini'},
-  {name:'Range Rover Evoque', colour:'white', body:'suv', country:'British', premium:true, electric:false, spoiler:false, rails:false, doors:5, sunroof:true, maker:'RR'},
-  {name:'Land Rover Defender', colour:'green', body:'suv', country:'British', premium:true, electric:false, spoiler:false, rails:true, doors:5, sunroof:false, maker:'LR'},
-  {name:'Peugeot 208', colour:'yellow', body:'hatch', country:'French', premium:false, electric:false, spoiler:false, rails:false, doors:5, sunroof:false, maker:'Peug'},
-  {name:'Renault Clio', colour:'red', body:'hatch', country:'French', premium:false, electric:false, spoiler:true, rails:false, doors:5, sunroof:false, maker:'Ren'},
-  {name:'Skoda Octavia', colour:'silver', body:'estate', country:'Czech', premium:false, electric:false, spoiler:false, rails:true, doors:5, sunroof:true, maker:'Skoda'},
-  {name:'Tesla Model 3', colour:'black', body:'saloon', country:'American', premium:true, electric:true, spoiler:false, rails:false, doors:5, sunroof:true, maker:'Tesla'}
+  {name:"VW Golf", slug:"vw-golf", colour:"black", body:"hatch", country:"German", premium:false, electric:false, maker:"VW",
+    author:"Alexander Migl", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"Volkswagen Golf VIII IMG 2608.jpg"},
+  {name:"VW Polo", slug:"vw-polo", colour:"silver", body:"hatch", country:"German", premium:false, electric:false, maker:"VW",
+    author:"M 93", licence:"CC BY-SA 3.0 DE", licenceUrl:CC3, file:"VW Polo beats (VI) – f 03032019.jpg"},
+  {name:"Ford Fiesta", slug:"ford-fiesta", colour:"red", body:"hatch", country:"American", premium:false, electric:false, maker:"Ford",
+    author:"M 93", licence:"CC BY-SA 3.0 DE", licenceUrl:CC3, file:"Ford Fiesta ST-Line (VII, Facelift) – f 30012023.jpg"},
+  {name:"Ford Focus", slug:"ford-focus", colour:"blue", body:"hatch", country:"American", premium:false, electric:false, maker:"Ford",
+    author:"Vauxford", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"2018 Ford Focus ST-Line X 1.0.jpg"},
+  {name:"Ford Mondeo", slug:"ford-mondeo", colour:"white", body:"estate", country:"American", premium:false, electric:false, maker:"Ford",
+    author:"M 93", licence:"CC BY-SA 3.0 DE", licenceUrl:CC3, file:"Ford Mondeo Turnier 2.0 EcoBlue ST-Line (V, Facelift) – f 18042021.jpg"},
+  {name:"BMW 3 Series", slug:"bmw-3", colour:"grey", body:"saloon", country:"German", premium:true, electric:false, maker:"BMW",
+    author:"Alexander Migl", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"BMW G20 (2022) IMG 7316 (2).jpg"},
+  {name:"Mercedes A-Class", slug:"mercedes-a", colour:"white", body:"hatch", country:"German", premium:true, electric:false, maker:"Mercedes",
+    author:"Vauxford", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"2018 Mercedes-Benz A200 AMG Line Premium Automatic 1.3 Front.jpg"},
+  {name:"Audi A3", slug:"audi-a3", colour:"blue", body:"saloon", country:"German", premium:true, electric:false, maker:"Audi",
+    author:"Damian B Oh", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"Audi A3 40 TFSI S Line Premium 8Y Navarra Blue Metallic (1).jpg"},
+  {name:"Nissan Qashqai", slug:"nissan-qashqai", colour:"blue", body:"suv", country:"Japanese", premium:false, electric:false, maker:"Nissan",
+    author:"Nissangeniss", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"Nissan Qashqai 20231120.jpg"},
+  {name:"Toyota Corolla", slug:"toyota-corolla", colour:"white", body:"hatch", country:"Japanese", premium:false, electric:false, maker:"Toyota",
+    author:"Alexander Migl", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"Toyota Corolla Hybrid (E210) IMG 4338.jpg"},
+  {name:"Kia Sportage", slug:"kia-sportage", colour:"white", body:"suv", country:"Korean", premium:false, electric:false, maker:"Kia",
+    author:"LuvsMG481", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"2025 Kia Sportage S front only.jpg"},
+  {name:"Hyundai Tucson", slug:"hyundai-tucson", colour:"grey", body:"suv", country:"Korean", premium:false, electric:false, maker:"Hyundai",
+    author:"M 93", licence:"CC BY-SA 3.0 DE", licenceUrl:CC3, file:"Hyundai Tucson 1.6 T-GDI PHEV Prime (IV) – f 05072025.jpg"},
+  {name:"Vauxhall Corsa", slug:"vauxhall-corsa", colour:"orange", body:"hatch", country:"British", premium:false, electric:true, maker:"Vauxhall",
+    author:"Alexander Migl", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"Opel Corsa-e at IAA 2019 IMG 0738.jpg"},
+  {name:"Mini Hatch", slug:"mini-hatch", colour:"yellow", body:"hatch", country:"British", premium:true, electric:true, maker:"Mini",
+    author:"Alexander Migl", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"Mini Hatch (J01) Ditzingen Mobil IMG 9772 (cropped).jpg"},
+  {name:"Range Rover Evoque", slug:"range-rover-evoque", colour:"white", body:"suv", country:"British", premium:true, electric:false, maker:"Range Rover",
+    author:"Vauxford", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"2019 Land Rover Range Rover Evoque R-Dynamic 2.0.jpg"},
+  {name:"Land Rover Defender", slug:"land-rover-defender", colour:"red", body:"suv", country:"British", premium:true, electric:false, maker:"Land Rover",
+    author:"OSX", licence:"Public domain", licenceUrl:"", file:"2015 Land Rover Defender (L316 MY15) 90 3-door wagon (2015-10-24) 01.jpg"},
+  {name:"Peugeot 208", slug:"peugeot-208", colour:"yellow", body:"hatch", country:"French", premium:false, electric:false, maker:"Peugeot",
+    author:"M 93", licence:"CC BY-SA 3.0 DE", licenceUrl:CC3, file:"Peugeot 208 PureTech 130 EAT8 Allure GT-Line (II) – f 17102021.jpg"},
+  {name:"Renault Clio", slug:"renault-clio", colour:"silver", body:"hatch", country:"French", premium:false, electric:false, maker:"Renault",
+    author:"M 93", licence:"CC BY-SA 3.0 DE", licenceUrl:CC3, file:"Renault Clio (V, Facelift) – f 02092025.jpg"},
+  {name:"Skoda Octavia", slug:"skoda-octavia", colour:"blue", body:"estate", country:"Czech", premium:false, electric:false, maker:"Skoda",
+    author:"Alexander Migl", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"Škoda Octavia IV Combi Facelift IMG 9434.jpg"},
+  {name:"Tesla Model 3", slug:"tesla-model-3", colour:"red", body:"saloon", country:"American", premium:true, electric:true, maker:"Tesla",
+    author:"Alexander Migl", licence:"CC BY-SA 4.0", licenceUrl:CC4, file:"Tesla Model 3 (2023) Autofrühling Ulm IMG 9282.jpg"}
 ];
 
 const QUESTIONS = [
-  {id:'hatch', text:'Is it a hatchback?', test:p=>p.body==='hatch'},
-  {id:'suv', text:'Is it an SUV?', test:p=>p.body==='suv'},
-  {id:'saloon', text:'Is it a saloon?', test:p=>p.body==='saloon'},
-  {id:'red', text:'Is it red?', test:p=>p.colour==='red'},
-  {id:'blue', text:'Is it blue?', test:p=>p.colour==='blue'},
-  {id:'black', text:'Is it black?', test:p=>p.colour==='black'},
-  {id:'white', text:'Is it white?', test:p=>p.colour==='white'},
-  {id:'german', text:'Is it German?', test:p=>p.country==='German'},
-  {id:'british', text:'Is it British?', test:p=>p.country==='British'},
-  {id:'premium', text:'Is it a premium brand?', test:p=>p.premium},
-  {id:'electric', text:'Is it electric?', test:p=>p.electric},
-  {id:'rails', text:'Has it got roof rails?', test:p=>p.rails},
-  {id:'spoiler', text:'Has it got a spoiler?', test:p=>p.spoiler},
-  {id:'three', text:'Is it a 3-door?', test:p=>p.doors===3},
-  {id:'sunroof', text:'Has it got a sunroof?', test:p=>p.sunroof},
-  {id:'ford', text:'Is it a Ford?', test:p=>p.maker==='Ford'}
+  {id:"hatch", text:"Is it a hatchback?", test:p=>p.body==="hatch"},
+  {id:"suv", text:"Is it an SUV?", test:p=>p.body==="suv"},
+  {id:"saloon", text:"Is it a saloon?", test:p=>p.body==="saloon"},
+  {id:"estate", text:"Is it an estate?", test:p=>p.body==="estate"},
+  {id:"red", text:"Is it red?", test:p=>p.colour==="red"},
+  {id:"blue", text:"Is it blue?", test:p=>p.colour==="blue"},
+  {id:"white", text:"Is it white?", test:p=>p.colour==="white"},
+  {id:"yellow", text:"Is it yellow?", test:p=>p.colour==="yellow"},
+  {id:"silver", text:"Is it silver?", test:p=>p.colour==="silver"},
+  {id:"german", text:"Is it German?", test:p=>p.country==="German"},
+  {id:"british", text:"Is it British?", test:p=>p.country==="British"},
+  {id:"japanese", text:"Is it Japanese?", test:p=>p.country==="Japanese"},
+  {id:"ford", text:"Is it a Ford?", test:p=>p.maker==="Ford"},
+  {id:"vw", text:"Is it a Volkswagen?", test:p=>p.maker==="VW"},
+  {id:"premium", text:"Is it a premium brand?", test:p=>p.premium},
+  {id:"electric", text:"Is it electric?", test:p=>p.electric}
 ];
 
-const PAINT = {red:'#e10600', blue:'#1f6fe0', black:'#1c1c1c', white:'#f4f4f6', silver:'#cfd3da', grey:'#6e737b', yellow:'#f0c419', green:'#1f9a45'};
-
 function caption(p){
-  const body={hatch:'Hatch',suv:'SUV',saloon:'Saloon',estate:'Estate'}[p.body];
-  return body+' · '+p.doors+'-dr · '+p.country;
+  const body={hatch:"Hatch",suv:"SUV",saloon:"Saloon",estate:"Estate"}[p.body];
+  return body+" · "+p.country;
 }
-function flagMarkup(country){
-  if(country==='German') return '<rect width="34" height="7" fill="#000"/><rect y="7" width="34" height="7" fill="#dd0000"/><rect y="14" width="34" height="7" fill="#ffce00"/>';
-  if(country==='Japanese') return '<rect width="34" height="21" fill="#fff"/><circle cx="17" cy="10.5" r="6" fill="#bc002d"/>';
-  if(country==='British') return '<rect width="34" height="21" fill="#012169"/><rect x="14" width="6" height="21" fill="#fff"/><rect y="7.5" width="34" height="6" fill="#fff"/><rect x="15.5" width="3" height="21" fill="#c8102e"/><rect y="9" width="34" height="3" fill="#c8102e"/>';
-  if(country==='French') return '<rect width="12" height="21" fill="#0055a4"/><rect x="12" width="11" height="21" fill="#fff"/><rect x="23" width="11" height="21" fill="#ef4135"/>';
-  if(country==='American') return '<rect width="34" height="21" fill="#bf0a30"/><rect y="3" width="34" height="3" fill="#fff"/><rect y="9" width="34" height="3" fill="#fff"/><rect y="15" width="34" height="3" fill="#fff"/><rect width="15" height="11" fill="#002868"/>';
-  if(country==='Korean') return '<rect width="34" height="21" fill="#fff"/><circle cx="17" cy="10.5" r="5.5" fill="#cd2e3a"/><path d="M17 5 A5.5 5.5 0 0 0 17 16 A2.8 2.8 0 0 1 17 10.5 A2.8 2.8 0 0 0 17 5" fill="#0047a0"/>';
-  return '<rect width="34" height="10.5" fill="#fff"/><rect y="10.5" width="34" height="10.5" fill="#d7141a"/><path d="M0 0 L16 10.5 L0 21 Z" fill="#11457e"/>';
+function cardArt(p){
+  return `<img src="img/${p.slug}.jpg" alt="">`;
 }
-function faceSVG(p){
-  const paint = PAINT[p.colour];
-  const suv = p.body==='suv';
-  const parts = [];
-  const glass = '#b9e6ff';
-  parts.push(`<rect width="200" height="150" fill="#fff7ec"/>`);
-  parts.push(`<ellipse cx="100" cy="128" rx="78" ry="8" fill="#000" opacity=".12"/>`);
-  if(p.body==='hatch'){
-    parts.push(`<path d="M26 112 L40 90 L64 76 L90 52 L132 48 L164 80 L184 86 L188 112 Z" fill="${paint}" stroke="#111" stroke-width="3"/>`);
-    parts.push(`<path d="M94 56 L128 52 L150 78 L100 80 Z" fill="${glass}" stroke="#223" stroke-width="2"/>`);
-  }else if(p.body==='saloon'){
-    parts.push(`<path d="M22 112 L38 90 L62 76 L88 52 L126 50 L146 70 L186 74 L190 112 Z" fill="${paint}" stroke="#111" stroke-width="3"/>`);
-    parts.push(`<path d="M92 56 L122 54 L138 70 L98 74 Z" fill="${glass}" stroke="#223" stroke-width="2"/>`);
-  }else if(p.body==='estate'){
-    parts.push(`<path d="M22 112 L38 90 L60 74 L82 48 L170 48 L178 112 Z" fill="${paint}" stroke="#111" stroke-width="3"/>`);
-    parts.push(`<path d="M88 52 L150 52 L156 78 L94 80 Z" fill="${glass}" stroke="#223" stroke-width="2"/>`);
-  }else{
-    parts.push(`<path d="M24 104 L36 72 L56 62 L74 36 L156 34 L174 64 L184 70 L188 104 Z" fill="${paint}" stroke="#111" stroke-width="3"/>`);
-    parts.push(`<path d="M80 42 L148 40 L158 66 L88 70 Z" fill="${glass}" stroke="#223" stroke-width="2"/>`);
-  }
-  const yDoor = suv ? 46 : 58;
-  const yBot = suv ? 100 : 108;
-  const doors = p.doors===3 ? [118] : [100, 132];
-  doors.forEach(x=>{
-    parts.push(`<path d="M${x} ${yDoor} V${yBot}" stroke="#111" stroke-width="2.4" fill="none"/>`);
-  });
-  if(p.sunroof){
-    const box = p.body==='suv' ? [96,38,40,12] : p.body==='estate' ? [100,50,36,10] : p.body==='saloon' ? [96,52,28,10] : [100,50,30,10];
-    parts.push(`<rect x="${box[0]}" y="${box[1]}" width="${box[2]}" height="${box[3]}" rx="2" fill="#e9fbff" stroke="#111" stroke-width="2"/>`);
-  }
-  if(p.rails){
-    const y = suv ? 30 : p.body==='estate' ? 42 : 44;
-    const x2 = p.body==='estate' ? 162 : p.body==='suv' ? 150 : 128;
-    parts.push(`<path d="M78 ${y} H${x2} M78 ${y-5} H${x2}" stroke="#222" stroke-width="3" stroke-linecap="round"/>`);
-  }
-  if(p.spoiler){
-    if(p.body==='saloon') parts.push(`<path d="M150 66 h28 v5 h-22 z" fill="#111"/>`);
-    else if(p.body==='suv') parts.push(`<path d="M150 30 h30 v5 h-10 l-14 8 z" fill="#111"/>`);
-    else if(p.body==='estate') parts.push(`<path d="M156 42 h28 v5 h-8 l-12 8 z" fill="#111"/>`);
-    else parts.push(`<path d="M146 44 h32 v5 h-10 l-16 8 z" fill="#111"/>`);
-  }
-  const hub = p.premium ? '#e6b325' : '#d5d8e0';
-  [58, 150].forEach(cx=>{
-    parts.push(`<circle cx="${cx}" cy="116" r="16" fill="#111"/><circle cx="${cx}" cy="116" r="7" fill="${hub}" stroke="#111" stroke-width="2"/>`);
-  });
-  if(p.premium) parts.push(`<rect x="40" y="100" width="130" height="6" rx="2" fill="#e6b325"/>`);
-  if(p.electric){
-    parts.push(`<circle cx="168" cy="96" r="10" fill="#ffe14a" stroke="#111" stroke-width="2"/>`);
-    parts.push(`<path d="M170 88 l-4 8 h4 l-2 8 6-10 h-4 z" fill="#111"/>`);
-  }else{
-    parts.push(`<rect x="176" y="88" width="8" height="14" rx="1" fill="#222"/>`);
-  }
-  const badgeY = suv ? 78 : 88;
-  parts.push(`<rect x="78" y="${badgeY}" width="44" height="14" rx="3" fill="#fff" stroke="#111" stroke-width="1.5"/>`);
-  parts.push(`<text x="100" y="${badgeY+11}" text-anchor="middle" font-size="10" font-family="Trebuchet MS,sans-serif" font-weight="700" fill="#111">${p.maker}</text>`);
-  parts.push(`<g transform="translate(8,8)" stroke="#111" stroke-width="1">${flagMarkup(p.country)}</g>`);
-  return `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${parts.join('')}</svg>`;
+function renderCredits(){
+  $('credits').innerHTML=PEOPLE.map(p=>{
+    const src=commonsUrl(p.file);
+    const lic=p.licenceUrl?`<a href="${p.licenceUrl}">${p.licence}</a>`:p.licence;
+    return `<li><b>${p.name}.</b> ${p.author}, ${lic}, <a href="${src}">source</a>.</li>`;
+  }).join('');
 }
-
+function commonsUrl(file){
+  return "https://commons.wikimedia.org/wiki/File:"+encodeURIComponent(file).replace(/%20/g,"_");
+}
 
 const ICE = {iceServers:[
   {urls:'stun:stun.l.google.com:19302'},
@@ -524,7 +496,7 @@ function buildBoard(){
   $('board').innerHTML=PEOPLE.map(p=>`
     <button type="button" class="card" data-name="${p.name}">
       <span class="flip">
-        <span class="front">${faceSVG(p)}<span class="plate"><strong>${p.name}</strong><small>${caption(p)}</small></span></span>
+        <span class="front">${cardArt(p)}<span class="plate"><strong>${p.name}</strong><small>${caption(p)}</small></span></span>
         <span class="back" aria-hidden="true"></span>
       </span>
     </button>`).join('');
@@ -615,7 +587,7 @@ function openGuess(){
   const ordered=[...PEOPLE].sort((a,b)=>Number(state.eliminated.has(a.name))-Number(state.eliminated.has(b.name)));
   $('picks').innerHTML=ordered.map(p=>`
     <button type="button" class="pick${state.eliminated.has(p.name)?' out':''}" data-name="${p.name}">
-      ${faceSVG(p)}<span>${p.name}</span>
+      ${cardArt(p)}<span>${p.name}</span>
     </button>`).join('');
   $('confirm').disabled=true;
   $('confirm').textContent='Guess';
@@ -634,7 +606,7 @@ function showEnd(title, who, blurb){
   $('guessModal').hidden=true;
   $('pickModal').hidden=true;
   $('endTitle').textContent=title;
-  $('endFace').innerHTML=who?faceSVG(who):'';
+  $('endFace').innerHTML=who?cardArt(who):'';
   $('endName').textContent=who?who.name:'';
   $('endText').textContent=blurb+' You asked '+questionsLabel()+'.';
   $('again').textContent=state.mode==='multi'?'Rematch':'Play again';
@@ -913,7 +885,7 @@ function beginPick(){
   state.pendingGuess=null;
   resetBoard();
   $('secretPicks').hidden=false;
-  $('secretPicks').innerHTML=PEOPLE.map(p=>`<button type="button" class="pick" data-name="${p.name}">${faceSVG(p)}<span>${p.name}</span></button>`).join('');
+  $('secretPicks').innerHTML=PEOPLE.map(p=>`<button type="button" class="pick" data-name="${p.name}">${cardArt(p)}<span>${p.name}</span></button>`).join('');
   $('confirmSecret').disabled=true;
   $('confirmSecret').hidden=false;
   $('randomSecret').hidden=false;
@@ -935,7 +907,7 @@ function lockSecret(name){
   $('confirmSecret').hidden=true;
   $('randomSecret').hidden=true;
   $('chosenFace').hidden=false;
-  $('chosenFace').innerHTML=faceSVG(p);
+  $('chosenFace').innerHTML=cardArt(p);
   $('chosenName').hidden=false;
   $('chosenName').textContent=p.name;
   $('pickWait').hidden=false;
@@ -1166,6 +1138,7 @@ document.addEventListener('keydown', e=>{
 });
 
 buildBoard();
+renderCredits();
 paintQuestions();
 const roomParam=new URLSearchParams(location.search).get('room');
 if(roomParam && /^[A-Za-z0-9]{4}$/.test(roomParam.trim())) joinGame(roomParam.trim());
