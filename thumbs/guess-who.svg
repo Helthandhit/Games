@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <rect width="640" height="400" fill="#c8102e"/>
+  <rect x="28" y="28" width="584" height="344" rx="18" fill="#1f62c4"/>
+  <rect x="48" y="48" width="120" height="150" rx="10" fill="#fff7ec" stroke="#0c2f66" stroke-width="4"/>
+  <circle cx="108" cy="100" r="32" fill="#f3c7a0" stroke="#111" stroke-width="3"/>
+  <rect x="78" y="62" width="60" height="14" rx="3" fill="#241c24"/>
+  <path d="M86 68 Q108 48 130 68" fill="#d01228" stroke="#111" stroke-width="3"/>
+  <circle cx="96" cy="98" r="4" fill="#1f6fe0"/>
+  <circle cx="120" cy="98" r="4" fill="#1f6fe0"/>
+  <path d="M92 118 Q108 128 124 118" fill="none" stroke="#111" stroke-width="3"/>
+  <rect x="48" y="168" width="120" height="30" fill="#163e86"/>
+  <text x="108" y="189" text-anchor="middle" fill="#fff" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700">George</text>
+  <rect x="184" y="48" width="120" height="150" rx="10" fill="#fff7ec" stroke="#0c2f66" stroke-width="4"/>
+  <circle cx="244" cy="108" r="34" fill="#e8b892" stroke="#111" stroke-width="3"/>
+  <path d="M214 96 Q244 70 274 96" fill="#7a3e16"/>
+  <rect x="208" y="90" width="28" height="18" rx="4" fill="none" stroke="#111" stroke-width="3"/>
+  <rect x="252" y="90" width="28" height="18" rx="4" fill="none" stroke="#111" stroke-width="3"/>
+  <circle cx="222" cy="99" r="3" fill="#5c3310"/>
+  <circle cx="266" cy="99" r="3" fill="#5c3310"/>
+  <path d="M220 128 Q244 150 268 128" fill="#7a3e16"/>
+  <rect x="184" y="168" width="120" height="30" fill="#163e86"/>
+  <text x="244" y="189" text-anchor="middle" fill="#fff" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700">Marc</text>
+  <rect x="320" y="48" width="120" height="150" rx="10" fill="#fff7ec" stroke="#0c2f66" stroke-width="4"/>
+  <path d="M340 150 Q330 90 360 70 Q390 90 380 150 Z" fill="#ffd34d"/>
+  <circle cx="380" cy="112" r="30" fill="#f6d3b0" stroke="#111" stroke-width="3"/>
+  <circle cx="368" cy="108" r="4" fill="#1f8f3a"/>
+  <circle cx="392" cy="108" r="4" fill="#1f8f3a"/>
+  <path d="M366 124 Q380 132 394 124" fill="none" stroke="#c42348" stroke-width="3"/>
+  <circle cx="348" cy="120" r="5" fill="none" stroke="#e6b325" stroke-width="3"/>
+  <rect x="320" y="168" width="120" height="30" fill="#163e86"/>
+  <text x="380" y="189" text-anchor="middle" fill="#fff" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700">Nina</text>
+  <rect x="456" y="48" width="120" height="150" rx="10" fill="#163e86"/>
+  <text x="516" y="130" text-anchor="middle" fill="#fff" font-family="Trebuchet MS,sans-serif" font-size="54" font-weight="700">?</text>
+  <text x="320" y="250" text-anchor="middle" fill="#ffe14a" font-family="Trebuchet MS,sans-serif" font-size="42" font-weight="700">GUESS WHO</text>
+  <text x="320" y="300" text-anchor="middle" fill="#fff" font-family="Trebuchet MS,sans-serif" font-size="22" font-weight="700">with Marc and George</text>
+</svg>

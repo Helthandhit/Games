@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#c8102e">
+<title>Guess Who with Marc and George</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23c8102e'/%3E%3Ccircle cx='32' cy='28' r='14' fill='%23f6d3b0' stroke='%23000' stroke-width='3'/%3E%3Ccircle cx='26' cy='26' r='2' fill='%23000'/%3E%3Ccircle cx='38' cy='26' r='2' fill='%23000'/%3E%3Cpath d='M26 34 Q32 40 38 34' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{min-height:100%;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden;color:#14213d;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;background:#9d1024}
+header{flex:none;background:linear-gradient(#ff5340,#c8102e);color:#fff;text-align:center;padding:max(8px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));box-shadow:0 4px 0 #6e0a16}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:8px;max-width:980px;margin:0 auto 4px}
+.hub{color:#fff;background:#ffffff22;border:2px solid #fff;text-decoration:none;font-weight:800;border-radius:999px;padding:6px 10px;min-height:36px;display:inline-flex;align-items:center}
+.stats{margin:0;font-weight:800;font-size:14px;background:#1d4e89;border-radius:999px;padding:6px 10px}
+h1{margin:0 auto;max-width:980px;font-size:clamp(20px,5.4vw,40px);line-height:1.05;letter-spacing:.2px;text-shadow:0 3px 0 #7a0c18}
+.hint{margin:6px auto 0;max-width:720px;font-size:clamp(12px,3.2vw,15px);line-height:1.35;font-weight:700}
+.boardwrap{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;background:
+  linear-gradient(#1a4f9c,#2a6fd0);
+border-top:6px solid #ffd23a;border-bottom:6px solid #ffd23a;
+padding:8px max(8px,env(safe-area-inset-right)) 10px max(8px,env(safe-area-inset-left))}
+.board{width:min(980px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.card{appearance:none;border:0;padding:0;background:transparent;cursor:pointer;perspective:700px;text-align:left;font:inherit;color:inherit;min-width:0}
+.flip{display:grid;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.card.down .flip{transform:rotateY(180deg)}
+.front,.back{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;border:3px solid #0c2f66;overflow:hidden;min-height:100%}
+.back{transform:rotateY(180deg);background:repeating-linear-gradient(135deg,#163e86 0 8px,#2f6fe0 8px 16px);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;min-height:132px}
+.back b{font-size:clamp(26px,7vw,40px);line-height:1;text-shadow:0 2px 0 #0c2f66}
+.back span{font-size:11px;font-weight:800;background:#ffffff22;border-radius:999px;padding:2px 6px;margin-top:4px;max-width:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.front{background:#fffaf2}
+.front svg{display:block;width:100%;height:auto;background:#fff7ec}
+.plate{background:#163e86;color:#fff;text-align:center;padding:3px 4px 5px}
+.plate strong{display:block;font-size:clamp(11px,2.8vw,16px);line-height:1.1}
+.plate small{display:block;font-size:clamp(9px,2.2vw,12px);font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.card.eliminated:not(.down) .front{filter:grayscale(1) brightness(.86)}
+.card.eliminated:not(.down) .plate{background:#5c6570}
+.card:focus-visible{outline:3px solid #ffe14a;outline-offset:2px;border-radius:14px}
+.dock{flex:none;background:linear-gradient(#ffe57a,#f0b429);border-top:5px solid #c8102e;padding:8px max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));box-shadow:0 -6px 16px #0002}
+.dock-inner{width:min(980px,100%);margin:0 auto}
+.banner{display:flex;align-items:center;gap:10px;background:#fff8;border:3px solid #8a5a00;border-radius:14px;padding:6px 10px;min-height:52px;margin-bottom:8px}
+.banner b{flex:none;font-size:clamp(22px,6vw,34px);line-height:.9;min-width:4.2ch;text-align:center}
+.banner span{font-weight:800;font-size:clamp(13px,3.4vw,16px);line-height:1.25}
+.banner.wait b{color:#8a5a00}
+.banner.yes{background:#d9ffd8;border-color:#146c2e}
+.banner.yes b{color:#146c2e}
+.banner.no{background:#ffd5d2;border-color:#9d1024}
+.banner.no b{color:#9d1024}
+.controls{display:flex;gap:8px;align-items:stretch}
+select,button{font-family:inherit;font-weight:800}
+select{flex:1;min-width:0;font-size:16px;border:3px solid #0c2f66;border-radius:12px;padding:8px 10px;background:#fff;color:#14213d;min-height:48px}
+.ask,.guess,.again,.confirm{border:0;border-radius:12px;color:#fff;cursor:pointer;min-height:48px}
+.ask{background:#1f6fe0;box-shadow:0 4px 0 #0c3f86;padding:0 16px;font-size:18px}
+.guess{width:100%;margin-top:8px;background:#c8102e;box-shadow:0 4px 0 #6e0a16;font-size:18px}
+.ask:active,.guess:active,.again:active,.confirm:active{transform:translateY(2px);box-shadow:0 2px 0 #0006}
+.ask:disabled,.guess:disabled{opacity:.45;cursor:default;transform:none}
+.modal{position:fixed;inset:0;z-index:20;background:#061226cc;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.modal[hidden]{display:none}
+.sheet{background:#fffaf2;width:min(640px,100%);max-height:min(92dvh,860px);overflow:auto;border-radius:18px 18px 14px 14px;border:4px solid #0c2f66;padding:14px;box-shadow:0 16px 40px #0006}
+.sheet h2{margin:0 0 4px;font-size:clamp(22px,5vw,32px);color:#c8102e}
+.sheet p{margin:4px 0 10px;font-weight:700}
+.picks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pick{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:#fff;border:3px solid #0c2f66;border-radius:12px;padding:4px;cursor:pointer;font-weight:800;min-height:56px}
+.pick svg{width:48px;height:56px;flex:none;border-radius:8px;background:#fff7ec}
+.pick.out{opacity:.45;filter:grayscale(.8)}
+.pick.sel{background:#ffe27a;border-color:#c8102e}
+.confirm{width:100%;margin-top:8px;background:#146c2e;box-shadow:0 4px 0 #0c4520;font-size:18px}
+.linkish{width:100%;margin-top:6px;background:#fff;color:#0c2f66;border:3px solid #0c2f66;border-radius:12px;min-height:44px;font-weight:800;cursor:pointer}
+.endface{width:min(220px,60vw);margin:6px auto;background:#fff;border:4px solid #0c2f66;border-radius:16px;overflow:hidden}
+.endface svg{display:block;width:100%}
+.endname{text-align:center;font-size:28px;font-weight:900;margin:6px 0}
+.again{width:100%;background:#1f6fe0;box-shadow:0 4px 0 #0c3f86;font-size:18px;margin-top:8px}
+.turn{display:table;margin:6px auto 0;padding:4px 14px;border-radius:999px;font-weight:900;background:#ffe14a;color:#14213d}
+.turn.them{background:#163e86;color:#fff}
+.turn[hidden]{display:none}
+.stats{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:2px 8px;max-width:72%;text-align:right}
+.log{list-style:none;margin:0 0 8px;padding:6px 8px;max-height:72px;overflow:auto;background:#fff8;border:2px solid #8a5a00;border-radius:10px;font-size:12px;font-weight:800}
+.log[hidden]{display:none}
+.log li{padding:1px 0}
+.netnote{background:#3a0a12;color:#fff;border-radius:12px;padding:8px 10px;margin-bottom:8px;font-weight:800;display:flex;gap:8px;align-items:center;justify-content:space-between}
+.netnote[hidden]{display:none}
+.netnote button{background:#fff;color:#3a0a12;border:0;border-radius:10px;padding:8px 10px;font-weight:900;min-height:40px;cursor:pointer}
+.controls input,.linkfield{font-family:inherit;font-weight:800;font-size:16px;border:3px solid #0c2f66;border-radius:12px;padding:8px 10px;background:#fff;color:#14213d;min-height:48px}
+.controls input{flex:1;min-width:0;letter-spacing:.18em;text-transform:uppercase}
+.linkfield{width:100%;letter-spacing:0;font-size:13px;margin:6px 0}
+.bigcode{font-size:clamp(40px,12vw,64px);letter-spacing:.18em;font-weight:900;text-align:center;color:#c8102e;margin:4px 0}
+.err{color:#9d1024;font-weight:800;min-height:1.2em}
+.sheet .again,.sheet .guess,.sheet .confirm{width:100%}
+.rowbtns{display:flex;gap:8px}
+.rowbtns .ask,.rowbtns .guess{width:auto;flex:1;margin-top:0}
+@media (min-width:700px){
+  .board{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+  .picks{grid-template-columns:1fr 1fr 1fr}
+}
+@media (max-width:360px){
+  .picks{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .flip{transition:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="toprow">
+    <a class="hub" href="../">← Games</a>
+    <p class="stats" id="statsLine"><span id="roomPill" hidden></span><span>Questions <strong id="qCount">0</strong></span><span>Possible <strong id="leftCount">20</strong></span><span id="theirStat" hidden>Friend <strong id="theirCount">20</strong></span><span id="youStat" hidden>You: <strong id="youName"></strong></span></p>
+  </div>
+  <h1>Guess Who with Marc and George</h1>
+  <p class="turn" id="turnTag" hidden>Your turn</p>
+  <p class="hint">Play the computer, or play a friend on their own phone.</p>
+</header>
+<div class="boardwrap"><div class="board" id="board"></div></div>
+<footer class="dock"><div class="dock-inner">
+  <div id="netNote" class="netnote" hidden><span id="netText">Opponent disconnected</span><button type="button" id="rejoinBtn" hidden>Rejoin</button></div>
+  <ol id="log" class="log" hidden></ol>
+  <div class="banner wait" id="banner" role="status" aria-live="polite"><b id="bannerWord">Ready</b><span id="bannerDetail">Pick a question about the secret person.</span></div>
+  <div class="controls">
+    <label class="sr" for="q" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Question</label>
+    <select id="q"></select>
+    <button type="button" class="ask" id="ask">Ask</button>
+  </div>
+  <button type="button" class="guess" id="guess">Make a guess</button>
+</div></footer>
+
+<div class="modal" id="guessModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="guessTitle">
+    <h2 id="guessTitle">Make a guess</h2>
+    <p id="guessHelp">Tap who you think it is. Grey names have already been ruled out.</p>
+    <div class="picks" id="picks"></div>
+    <button type="button" class="confirm" id="confirm" disabled>Guess</button>
+    <button type="button" class="linkish" id="guessClose">Back to the board</button>
+  </div>
+</div>
+
+<div class="modal" id="endModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+    <h2 id="endTitle"></h2>
+    <div class="endface" id="endFace"></div>
+    <div class="endname" id="endName"></div>
+    <p id="endText" style="text-align:center"></p>
+    <button type="button" class="again" id="again">Play again</button>
+    <button type="button" class="linkish" id="menuBtn">Back to menu</button>
+  </div>
+</div>
+
+<div class="modal" id="homeModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="homeTitle">
+    <h2 id="homeTitle">How do you want to play?</h2>
+    <p>Guess the secret person. Ask a question and anyone who doesn’t fit flips down. Tap a card to flip it yourself.</p>
+    <button type="button" class="again" id="soloBtn">Play the computer</button>
+    <button type="button" class="guess" id="friendBtn">Play a friend</button>
+  </div>
+</div>
+
+<div class="modal" id="friendModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="friendTitle">
+    <h2 id="friendTitle">Play a friend</h2>
+    <p>Create a game and share the link, or type their room code. Each phone keeps its own secret person.</p>
+    <button type="button" class="again" id="createBtn">Create game</button>
+    <p style="text-align:center;margin:12px 0 6px">or join with a code</p>
+    <div class="controls">
+      <input id="codeInput" maxlength="4" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="CODE" aria-label="Room code">
+      <button type="button" class="ask" id="joinBtn">Join</button>
+    </div>
+    <p class="err" id="friendErr"></p>
+    <button type="button" class="linkish" id="friendBack">Back</button>
+  </div>
+</div>
+
+<div class="modal" id="roomModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="roomTitle">
+    <h2 id="roomTitle">Your room</h2>
+    <div class="bigcode" id="roomCode"></div>
+    <p id="roomHelp">Share this code or the link. The game starts when your friend joins.</p>
+    <input id="linkField" class="linkfield" readonly aria-label="Share link">
+    <div class="rowbtns" id="shareRow">
+      <button type="button" class="ask" id="copyBtn">Copy link</button>
+      <button type="button" class="guess" id="shareBtn">Share</button>
+    </div>
+    <p id="roomStatus"></p>
+    <button type="button" class="linkish" id="roomCancel">Cancel</button>
+  </div>
+</div>
+
+<div class="modal" id="pickModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+    <h2 id="pickTitle">Your secret person</h2>
+    <p id="pickHelp">Tap a face, or tap Surprise me. Only this phone answers questions about your secret person.</p>
+    <div class="endface" id="chosenFace" hidden></div>
+    <div class="endname" id="chosenName" hidden></div>
+    <div class="picks" id="secretPicks"></div>
+    <button type="button" class="again" id="randomSecret">Surprise me</button>
+    <button type="button" class="confirm" id="confirmSecret" disabled>Keep this secret</button>
+    <p id="pickWait" hidden>Waiting for your friend to choose…</p>
+  </div>
+</div>
+
+<script src="../daily.js"></script>
+<script>
+const PEOPLE = [
+  {name:'Marc', gender:'m', glasses:true, hat:false, beard:true, moustache:true, hair:'brown', longHair:false, eyes:'brown', earrings:false, bigNose:true, rosy:false, skin:'#e8b892'},
+  {name:'George', gender:'m', glasses:false, hat:true, beard:false, moustache:true, hair:'grey', longHair:false, eyes:'blue', earrings:false, bigNose:false, rosy:true, skin:'#f3c7a0'},
+  {name:'Nina', gender:'f', glasses:true, hat:false, beard:false, moustache:false, hair:'blond', longHair:true, eyes:'green', earrings:true, bigNose:false, rosy:true, skin:'#f6d3b0'},
+  {name:'Omar', gender:'m', glasses:false, hat:false, beard:true, moustache:false, hair:'black', longHair:true, eyes:'brown', earrings:false, bigNose:true, rosy:false, skin:'#8d5524'},
+  {name:'Lila', gender:'f', glasses:false, hat:true, beard:false, moustache:false, hair:'ginger', longHair:false, eyes:'blue', earrings:true, bigNose:false, rosy:false, skin:'#f6d3b0'},
+  {name:'Pete', gender:'m', glasses:true, hat:true, beard:false, moustache:false, hair:'bald', longHair:false, eyes:'blue', earrings:false, bigNose:true, rosy:true, skin:'#f3c7a0'},
+  {name:'Aisha', gender:'f', glasses:true, hat:false, beard:false, moustache:false, hair:'black', longHair:true, eyes:'brown', earrings:true, bigNose:true, rosy:false, skin:'#6b3a22'},
+  {name:'Hugo', gender:'m', glasses:false, hat:false, beard:true, moustache:true, hair:'blond', longHair:true, eyes:'green', earrings:false, bigNose:false, rosy:false, skin:'#e8b892'},
+  {name:'Freya', gender:'f', glasses:false, hat:false, beard:false, moustache:false, hair:'grey', longHair:false, eyes:'hazel', earrings:true, bigNose:false, rosy:true, skin:'#f6d3b0'},
+  {name:'Theo', gender:'m', glasses:true, hat:false, beard:false, moustache:false, hair:'ginger', longHair:false, eyes:'blue', earrings:true, bigNose:false, rosy:true, skin:'#f3c7a0'},
+  {name:'Maya', gender:'f', glasses:true, hat:true, beard:false, moustache:false, hair:'brown', longHair:false, eyes:'brown', earrings:false, bigNose:true, rosy:false, skin:'#c68642'},
+  {name:'Carl', gender:'m', glasses:false, hat:true, beard:true, moustache:false, hair:'black', longHair:false, eyes:'green', earrings:false, bigNose:true, rosy:false, skin:'#d4a574'},
+  {name:'Sophie', gender:'f', glasses:false, hat:false, beard:false, moustache:false, hair:'blond', longHair:true, eyes:'blue', earrings:true, bigNose:false, rosy:false, skin:'#f6d3b0'},
+  {name:'Ivan', gender:'m', glasses:true, hat:true, beard:false, moustache:true, hair:'grey', longHair:true, eyes:'brown', earrings:false, bigNose:false, rosy:false, skin:'#e8b892'},
+  {name:'Rosa', gender:'f', glasses:true, hat:false, beard:false, moustache:false, hair:'ginger', longHair:true, eyes:'hazel', earrings:true, bigNose:true, rosy:true, skin:'#e0a878'},
+  {name:'Derek', gender:'m', glasses:false, hat:false, beard:false, moustache:false, hair:'bald', longHair:false, eyes:'brown', earrings:false, bigNose:true, rosy:false, skin:'#d4a574'},
+  {name:'Hannah', gender:'f', glasses:false, hat:true, beard:false, moustache:false, hair:'black', longHair:false, eyes:'blue', earrings:false, bigNose:false, rosy:true, skin:'#f3c7a0'},
+  {name:'Elsie', gender:'f', glasses:true, hat:false, beard:false, moustache:false, hair:'blond', longHair:false, eyes:'green', earrings:false, bigNose:false, rosy:true, skin:'#f6d3b0'},
+  {name:'Priya', gender:'f', glasses:false, hat:false, beard:false, moustache:false, hair:'brown', longHair:true, eyes:'blue', earrings:true, bigNose:false, rosy:false, skin:'#c68642'},
+  {name:'Walt', gender:'m', glasses:false, hat:true, beard:false, moustache:false, hair:'bald', longHair:false, eyes:'hazel', earrings:false, bigNose:true, rosy:false, skin:'#e8b892'}
+];
+
+const QUESTIONS = [
+  {id:'glasses', text:'Has he/she got glasses?', test:p=>p.glasses},
+  {id:'hat', text:'Are they wearing a hat?', test:p=>p.hat},
+  {id:'beard', text:'Have they got a beard?', test:p=>p.beard},
+  {id:'moustache', text:'Have they got a moustache?', test:p=>p.moustache},
+  {id:'blond', text:'Is their hair blond?', test:p=>p.hair==='blond'},
+  {id:'black', text:'Is their hair black?', test:p=>p.hair==='black'},
+  {id:'brown', text:'Is their hair brown?', test:p=>p.hair==='brown'},
+  {id:'ginger', text:'Is their hair ginger?', test:p=>p.hair==='ginger'},
+  {id:'grey', text:'Is their hair grey?', test:p=>p.hair==='grey'},
+  {id:'bald', text:'Are they bald?', test:p=>p.hair==='bald'},
+  {id:'long', text:'Have they got long hair?', test:p=>p.longHair},
+  {id:'blue', text:'Are their eyes blue?', test:p=>p.eyes==='blue'},
+  {id:'earrings', text:'Are they wearing earrings?', test:p=>p.earrings},
+  {id:'woman', text:'Is it a woman?', test:p=>p.gender==='f'},
+  {id:'nose', text:'Have they got a big nose?', test:p=>p.bigNose},
+  {id:'rosy', text:'Have they got rosy cheeks?', test:p=>p.rosy}
+];
+
+const HAIR = {black:'#1a1a1a', brown:'#7a3e16', blond:'#ffd34d', ginger:'#ff5a12', grey:'#d5d8e0'};
+const EYE = {brown:'#5c3310', blue:'#1f6fe0', green:'#1f8f3a', hazel:'#8a7420'};
+
+function faceSVG(p){
+  const hair = p.hair==='bald' ? null : HAIR[p.hair];
+  const fur = hair || '#6b3a1e';
+  const eye = EYE[p.eyes];
+  const skin = p.skin;
+  const woman = p.gender==='f';
+  const lip = woman ? '#c42348' : '#a85a58';
+  const parts = [];
+  parts.push(`<rect width="200" height="214" fill="#fff7ec"/>`);
+  if(p.longHair && hair){
+    parts.push(`<path d="M34 118 C18 160 22 210 34 214 L58 214 C48 176 52 140 64 120 C78 148 100 156 122 148 C136 140 148 176 142 214 L166 214 C178 210 182 160 166 118 C150 78 130 58 100 54 C70 58 50 78 34 118 Z" fill="${hair}" stroke="#111" stroke-width="3"/>`);
+  }
+  parts.push(`<ellipse cx="44" cy="124" rx="13" ry="16" fill="${skin}" stroke="#111" stroke-width="3"/>`);
+  parts.push(`<ellipse cx="156" cy="124" rx="13" ry="16" fill="${skin}" stroke="#111" stroke-width="3"/>`);
+  if(woman){
+    parts.push(`<ellipse cx="100" cy="116" rx="56" ry="64" fill="${skin}" stroke="#111" stroke-width="3"/>`);
+  }else{
+    parts.push(`<path d="M48 112 C46 64 68 50 100 50 C132 50 154 64 152 112 C158 156 140 186 100 190 C60 186 42 156 48 112 Z" fill="${skin}" stroke="#111" stroke-width="3"/>`);
+  }
+  parts.push(`<path d="M70 188 L78 214 L122 214 L130 188 Q100 200 70 188 Z" fill="${skin}"/>`);
+  parts.push(`<path d="M46 214 Q46 176 100 168 Q154 176 154 214 Z" fill="${woman?'#ff4f78':'#1f6fe0'}" stroke="#111" stroke-width="3"/>`);
+  if(hair && !p.longHair){
+    parts.push(`<path d="M46 112 C42 62 66 46 100 44 C134 46 158 62 154 112 C138 92 122 86 100 86 C78 86 62 92 46 112 Z" fill="${hair}" stroke="#111" stroke-width="3"/>`);
+    parts.push(`<path d="M50 104 C44 126 50 146 62 150 L70 136 C62 124 60 112 64 100 Z" fill="${hair}"/>`);
+    parts.push(`<path d="M150 104 C156 126 150 146 138 150 L130 136 C138 124 140 112 136 100 Z" fill="${hair}"/>`);
+  }
+  if(hair && p.longHair){
+    parts.push(`<path d="M44 108 C40 58 66 42 100 40 C134 42 160 58 156 108 C140 84 120 76 100 76 C80 76 60 84 44 108 Z" fill="${hair}" stroke="#111" stroke-width="3"/>`);
+  }
+  if(!hair){
+    parts.push(`<ellipse cx="84" cy="78" rx="18" ry="8" fill="#fff" opacity=".45"/>`);
+  }
+  if(p.hat){
+    parts.push(`<path d="M58 86 C58 40 78 28 100 26 C122 28 142 40 142 86 Z" fill="#d01228" stroke="#111" stroke-width="3"/>`);
+    parts.push(`<rect x="36" y="78" width="128" height="16" rx="5" fill="#241c24" stroke="#111" stroke-width="3"/>`);
+    if(hair) parts.push(`<path d="M54 92 C70 108 130 108 146 92 L146 104 C128 118 72 118 54 104 Z" fill="${hair}" stroke="#111" stroke-width="2"/>`);
+  }
+  if(p.beard){
+    parts.push(`<path d="M60 146 C54 178 68 202 100 208 C132 202 146 178 140 146 C128 172 112 180 100 180 C88 180 72 172 60 146 Z" fill="${fur}" stroke="#111" stroke-width="2.5"/>`);
+    parts.push(`<ellipse cx="100" cy="168" rx="24" ry="16" fill="${skin}"/>`);
+  }
+  const eyeDraw = (cx)=>{
+    let s = '';
+    if(woman){
+      s += `<path d="M${cx-16} 104 Q${cx-8} 96 ${cx} 102" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>`;
+      s += `<path d="M${cx} 102 Q${cx+8} 96 ${cx+16} 104" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>`;
+    }else{
+      s += `<path d="M${cx-16} 100 Q${cx} 92 ${cx+16} 102" fill="none" stroke="#111" stroke-width="3.6" stroke-linecap="round"/>`;
+    }
+    s += `<ellipse cx="${cx}" cy="116" rx="15" ry="12" fill="#fff" stroke="#111" stroke-width="2.4"/>`;
+    s += `<circle cx="${cx}" cy="117" r="6.5" fill="${eye}"/>`;
+    s += `<circle cx="${cx}" cy="117" r="3" fill="#111"/>`;
+    s += `<circle cx="${cx+2.4}" cy="114.5" r="1.5" fill="#fff"/>`;
+    return s;
+  };
+  parts.push(eyeDraw(76));
+  parts.push(eyeDraw(124));
+  if(p.bigNose){
+    parts.push(`<path d="M96 118 C118 132 122 158 104 170 C90 176 80 162 90 154 C102 162 110 150 100 138 Z" fill="${skin}" stroke="#4a2818" stroke-width="3"/>`);
+  }else{
+    parts.push(`<path d="M100 122 C108 138 108 150 100 156" fill="none" stroke="#5a3424" stroke-width="3" stroke-linecap="round"/>`);
+  }
+  if(p.rosy){
+    parts.push(`<ellipse cx="62" cy="140" rx="14" ry="9" fill="#ff5d84" opacity=".8"/>`);
+    parts.push(`<ellipse cx="138" cy="140" rx="14" ry="9" fill="#ff5d84" opacity=".8"/>`);
+  }
+  parts.push(`<path d="M82 172 Q100 ${woman?188:184} 118 172" fill="none" stroke="${lip}" stroke-width="${woman?5:3.4}" stroke-linecap="round"/>`);
+  if(p.moustache){
+    parts.push(`<path d="M68 160 Q86 150 100 158 Q114 150 132 160 Q116 170 100 164 Q84 170 68 160 Z" fill="${fur}" stroke="#111" stroke-width="1.6"/>`);
+  }
+  if(p.glasses){
+    parts.push(`<rect x="58" y="104" width="36" height="26" rx="8" fill="none" stroke="#111" stroke-width="4"/>`);
+    parts.push(`<rect x="106" y="104" width="36" height="26" rx="8" fill="none" stroke="#111" stroke-width="4"/>`);
+    parts.push(`<path d="M94 116 H106 M58 116 H46 M142 116 H156" stroke="#111" stroke-width="3.5" fill="none"/>`);
+  }
+  if(p.earrings){
+    parts.push(`<circle cx="32" cy="140" r="8" fill="none" stroke="#e6b325" stroke-width="4"/>`);
+    parts.push(`<circle cx="168" cy="140" r="8" fill="none" stroke="#e6b325" stroke-width="4"/>`);
+    parts.push(`<circle cx="32" cy="140" r="3" fill="#ffe07a"/>`);
+    parts.push(`<circle cx="168" cy="140" r="3" fill="#ffe07a"/>`);
+  }
+  return `<svg viewBox="0 0 200 214" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${parts.join('')}</svg>`;
+}
+
+const ICE = {iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'},
+  {urls:'stun:stun2.l.google.com:19302'},
+  {urls:['turn:eu-0.turn.peerjs.com:3478','turn:us-0.turn.peerjs.com:3478'], username:'peerjs', credential:'peerjsp'}
+]};
+const ALPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const MODALS = ['homeModal','friendModal','roomModal','pickModal','guessModal','endModal'];
+
+const state = {
+  mode:null, phase:'home', role:null, code:'',
+  target:null, mine:null,
+  down:new Set(), eliminated:new Set(), clues:[], answered:new Set(),
+  over:false, noted:false, guessName:null,
+  myTurn:true, pending:null, pendingGuess:null,
+  connected:false, theyReady:false, ready:false,
+  theirLeft:20, log:[], leaving:false
+};
+
+let peer=null, conn=null, hostTries=0, beatTimer=null;
+
+function $(id){return document.getElementById(id)}
+function person(name){return PEOPLE.find(p=>p.name===name)}
+function question(id){return QUESTIONS.find(q=>q.id===id)}
+function myLeft(){return PEOPLE.length - state.eliminated.size}
+function askedCount(){return state.clues.length}
+function qText(id){const q=question(id);return q?q.text:id}
+
+function setHint(text){document.querySelector('.hint').textContent=text}
+function setBanner(kind, word, detail){
+  $('banner').className='banner '+kind;
+  $('bannerWord').textContent=word;
+  $('bannerDetail').textContent=detail;
+}
+function showOnly(id){MODALS.forEach(k=>{$(k).hidden=k!==id})}
+function hideModals(){MODALS.forEach(k=>{$(k).hidden=true})}
+function notePlay(){
+  if(state.noted) return;
+  state.noted=true;
+  try{ window.GHDaily && GHDaily.played && GHDaily.played(); }catch(e){}
+}
+function questionsLabel(){
+  const n=askedCount();
+  return n===1?'1 question':n+' questions';
+}
+
+function paintBoard(){
+  document.querySelectorAll('#board .card').forEach(btn=>{
+    const name=btn.dataset.name;
+    const faceDown=state.down.has(name);
+    btn.classList.toggle('down', faceDown);
+    btn.classList.toggle('eliminated', state.eliminated.has(name));
+    btn.setAttribute('aria-pressed', faceDown?'true':'false');
+    btn.setAttribute('aria-label', name+(faceDown?', face down. Tap to flip up.':', face up. Tap to flip down.'));
+  });
+  paintChrome();
+}
+function paintChrome(){
+  $('qCount').textContent=String(askedCount());
+  $('leftCount').textContent=String(myLeft());
+  const multiLive=state.mode==='multi' && (state.phase==='play' || state.phase==='over' || state.phase==='pick');
+  $('theirStat').hidden=!(state.mode==='multi' && (state.phase==='play' || state.phase==='over'));
+  $('theirCount').textContent=String(state.theirLeft);
+  const showYou=state.mode==='multi' && state.mine && (state.phase==='play' || state.phase==='over');
+  $('youStat').hidden=!showYou;
+  $('youName').textContent=state.mine?state.mine.name:'';
+  $('roomPill').hidden=!(state.mode==='multi' && state.code);
+  $('roomPill').textContent=state.code?('Room '+state.code):'';
+  const turn=$('turnTag');
+  const showTurn=state.mode==='multi' && state.phase==='play' && !state.over;
+  turn.hidden=!showTurn;
+  if(showTurn){
+    const mine=state.myTurn && !state.pending && state.connected;
+    turn.textContent=state.connected?(mine?'Your turn':(state.pending?'Waiting for the answer':"Friend's turn")):'Opponent disconnected';
+    turn.className='turn'+(mine&&state.connected?'':' them');
+  }
+  if(!multiLive && state.mode!=='multi') turn.hidden=true;
+}
+function canAct(){
+  if(state.over || state.phase!=='play') return false;
+  if(state.mode==='multi' && (!state.myTurn || !state.connected || state.pending)) return false;
+  return true;
+}
+function paintQuestions(){
+  const sel=$('q');
+  const current=sel.value;
+  sel.innerHTML='<option value="">Choose a question…</option>'+QUESTIONS.map(q=>{
+    const used=state.clues.some(c=>c.id===q.id);
+    return `<option value="${q.id}"${used?' disabled':''}>${q.text}${used?' ✓':''}</option>`;
+  }).join('');
+  if(current && !state.clues.some(c=>c.id===current)) sel.value=current;
+  const locked=state.mode==='multi' && (!state.myTurn || !!state.pending || !state.connected || state.over || state.phase!=='play');
+  sel.disabled=locked;
+  $('ask').disabled=!canAct() || !sel.value || state.clues.some(c=>c.id===sel.value);
+  $('guess').disabled=!canAct();
+  paintChrome();
+}
+function applyClues(){
+  PEOPLE.forEach(p=>{
+    const ok=state.clues.every(c=>{
+      const q=question(c.id);
+      return !!q.test(p)===c.yes;
+    });
+    if(!ok){
+      state.eliminated.add(p.name);
+      state.down.add(p.name);
+    }
+  });
+}
+function applyClue(id, yes){
+  if(!state.clues.some(c=>c.id===id)) state.clues.push({id, yes:!!yes});
+  applyClues();
+}
+function showClueBanner(yes, q){
+  let detail=(yes?'Yes — ':'No — ')+q.text.replace(/\?$/,'')+'.';
+  const left=myLeft();
+  if(left===1){
+    const last=PEOPLE.find(p=>!state.eliminated.has(p.name));
+    detail=(yes?'Yes. ':'No. ')+'Only '+last.name+' still fits. Make a guess!';
+  }
+  setBanner(yes?'yes':'no', yes?'Yes':'No', detail);
+}
+function clearLog(){
+  state.log=[];
+  const ol=$('log');
+  ol.innerHTML='';
+  ol.hidden=true;
+}
+function addLog(who, text, yes){
+  state.log.push({who, text, yes:!!yes});
+  const ol=$('log');
+  ol.hidden=false;
+  const li=document.createElement('li');
+  li.textContent=(who==='You'?'You asked: ':'Friend asked: ')+text+' — '+(yes?'Yes':'No');
+  ol.appendChild(li);
+  ol.scrollTop=ol.scrollHeight;
+}
+function showNote(text){
+  $('netText').textContent=text;
+  $('netNote').hidden=false;
+  $('rejoinBtn').hidden=state.role!=='join';
+}
+function hideNote(){$('netNote').hidden=true}
+
+function buildBoard(){
+  $('board').innerHTML=PEOPLE.map(p=>`
+    <button type="button" class="card" data-name="${p.name}">
+      <span class="flip">
+        <span class="front">${faceSVG(p)}<span class="plate"><strong>${p.name}</strong><small>${p.gender==='f'?'Woman':'Man'}</small></span></span>
+        <span class="back"><b>?</b><span>${p.name}</span></span>
+      </span>
+    </button>`).join('');
+}
+function resetBoard(){
+  state.down=new Set();
+  state.eliminated=new Set();
+  state.clues=[];
+  state.answered=new Set();
+  state.over=false;
+  state.pending=null;
+  state.pendingGuess=null;
+  state.guessName=null;
+  state.theirLeft=20;
+  clearLog();
+  paintBoard();
+  paintQuestions();
+}
+function pickAny(except){
+  let p;
+  do { p=PEOPLE[Math.floor(Math.random()*PEOPLE.length)]; }
+  while(PEOPLE.length>1 && except && p===except);
+  return p;
+}
+
+function newSolo(){
+  killPeer();
+  state.mode='solo';
+  state.phase='play';
+  state.role=null;
+  state.code='';
+  state.mine=null;
+  state.target=pickAny(state.target);
+  state.myTurn=true;
+  state.connected=false;
+  resetBoard();
+  hideNote();
+  hideModals();
+  setHint('One person is the secret. Ask a yes/no question and anyone who no longer fits flips down. Tap a card to flip it yourself.');
+  setBanner('wait','Ready','Pick a question about the secret person.');
+  $('again').textContent='Play again';
+}
+function goHome(){
+  killPeer();
+  state.mode=null;
+  state.phase='home';
+  state.role=null;
+  state.code='';
+  state.mine=null;
+  state.target=null;
+  state.over=false;
+  resetBoard();
+  hideNote();
+  setHint('Play the computer, or play a friend on their own phone.');
+  setBanner('wait','Ready','Choose Play the computer, or Play a friend.');
+  showOnly('homeModal');
+  try{ if(location.search) history.replaceState({},'', location.pathname); }catch(e){}
+}
+
+function ask(){
+  const id=$('q').value;
+  const q=question(id);
+  if(!q || !canAct() || state.clues.some(c=>c.id===id)) return;
+  notePlay();
+  if(state.mode==='multi'){
+    state.pending=id;
+    state.myTurn=false;
+    if(!send({t:'ask', q:id})){
+      state.pending=null;
+      state.myTurn=true;
+      showNote('Opponent disconnected');
+      paintQuestions();
+      return;
+    }
+    setBanner('wait','Asked','Waiting for your friend’s phone to answer…');
+    paintQuestions();
+    return;
+  }
+  const yes=!!q.test(state.target);
+  applyClue(id, yes);
+  showClueBanner(yes, q);
+  paintBoard();
+  paintQuestions();
+}
+function openGuess(){
+  if(!canAct()) return;
+  state.guessName=null;
+  const ordered=[...PEOPLE].sort((a,b)=>Number(state.eliminated.has(a.name))-Number(state.eliminated.has(b.name)));
+  $('picks').innerHTML=ordered.map(p=>`
+    <button type="button" class="pick${state.eliminated.has(p.name)?' out':''}" data-name="${p.name}">
+      ${faceSVG(p)}<span>${p.name}</span>
+    </button>`).join('');
+  $('confirm').disabled=true;
+  $('confirm').textContent='Guess';
+  $('guessModal').hidden=false;
+}
+function chooseGuess(name){
+  state.guessName=name;
+  document.querySelectorAll('#picks .pick').forEach(b=>b.classList.toggle('sel', b.dataset.name===name));
+  $('confirm').disabled=false;
+  $('confirm').textContent='Guess '+name;
+}
+function showEnd(title, who, blurb){
+  state.over=true;
+  state.phase='over';
+  state.myTurn=false;
+  $('guessModal').hidden=true;
+  $('pickModal').hidden=true;
+  $('endTitle').textContent=title;
+  $('endFace').innerHTML=who?faceSVG(who):'';
+  $('endName').textContent=who?who.name:'';
+  $('endText').textContent=blurb+' You asked '+questionsLabel()+'.';
+  $('again').textContent=state.mode==='multi'?'Rematch':'Play again';
+  $('endModal').hidden=false;
+  paintQuestions();
+  $('again').focus();
+}
+function finishGuess(){
+  if(!state.guessName || state.over) return;
+  const name=state.guessName;
+  notePlay();
+  if(state.mode==='multi'){
+    if(!state.myTurn && !state.pendingGuess) return;
+    if(!state.connected){ showNote('Opponent disconnected'); return; }
+    state.pendingGuess=name;
+    state.myTurn=false;
+    $('guessModal').hidden=true;
+    if(!send({t:'guess', name})){
+      state.myTurn=true;
+      state.pendingGuess=null;
+      showNote('Opponent disconnected');
+      paintQuestions();
+      return;
+    }
+    setBanner('wait','Guess','You guessed '+name+'. Waiting…');
+    paintQuestions();
+    return;
+  }
+  const won=name===state.target.name;
+  showEnd(won?'You got it!':'Not this time.', state.target,
+    won ? 'It was '+state.target.name+'.' : 'It was '+state.target.name+', not '+name+'.');
+}
+
+function makeCode(){
+  let s='';
+  for(let i=0;i<4;i++) s+=ALPH[Math.floor(Math.random()*ALPH.length)];
+  return s;
+}
+function peerIdFor(code){return 'gw-'+String(code||'').toLowerCase()}
+function roomUrl(code){
+  const u=new URL(location.href);
+  if(u.pathname.endsWith('/index.html')) u.pathname=u.pathname.slice(0,-'index.html'.length);
+  u.search='';
+  u.hash='';
+  u.searchParams.set('room', code);
+  return u.toString();
+}
+function loadPeerJS(){
+  if(window.Peer) return Promise.resolve();
+  const urls=[
+    'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js',
+    'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'
+  ];
+  return new Promise((resolve,reject)=>{
+    let i=0;
+    const next=()=>{
+      if(window.Peer) return resolve();
+      if(i>=urls.length) return reject(new Error('load'));
+      const s=document.createElement('script');
+      s.src=urls[i++];
+      s.onload=()=>window.Peer?resolve():next();
+      s.onerror=()=>next();
+      document.head.appendChild(s);
+    };
+    next();
+  });
+}
+function stopBeat(){ if(beatTimer){ clearInterval(beatTimer); beatTimer=null; } }
+function armBeat(){
+  state.lastPong=Date.now();
+  stopBeat();
+  beatTimer=setInterval(()=>{
+    if(state.mode!=='multi' || !conn) return;
+    if(state.connected && Date.now()-(state.lastPong||0)>8000){ onConnClose(conn); return; }
+    if(state.connected && conn.open) send({t:'ping'});
+  }, 2000);
+}
+function killPeer(){
+  stopBeat();
+  const c=conn, p=peer;
+  conn=null; peer=null; state.connected=false;
+  try{ c && c.close(); }catch(e){}
+  try{ p && p.destroy(); }catch(e){}
+}
+function send(msg){
+  if(conn && conn.open){
+    try{ conn.send(msg); return true; }catch(e){ return false; }
+  }
+  return false;
+}
+function peerErrorText(err){
+  const t=err && err.type;
+  if(t==='peer-unavailable') return 'That room isn’t open. Check the code, or ask your friend to create the game again.';
+  if(t==='network' || t==='server-error' || t==='socket-error' || t==='socket-closed' || t==='disconnected') return 'Couldn’t reach the connection service. Check your internet and try again.';
+  if(t==='browser-incompatible' || t==='webrtc') return 'This browser couldn’t open a live connection.';
+  if(t==='unavailable-id') return 'That room code is busy. Trying another…';
+  return 'Couldn’t connect. Try again.';
+}
+function wire(c){
+  conn=c;
+  c.on('data', onData);
+  c.on('close', ()=>onConnClose(c));
+  c.on('error', ()=>onConnClose(c));
+}
+function onConnClose(c){
+  if(c!==conn) return;
+  const was=state.connected;
+  state.connected=false;
+  if(!was){
+    if(state.phase==='room') $('roomStatus').textContent='Couldn’t stay connected. Check the code and try again.';
+    return;
+  }
+  const extra=state.role==='host' && state.code ? ' They can rejoin with code '+state.code+'.' : '';
+  const text='Opponent disconnected.'+extra;
+  showNote(text);
+  if(!$('pickModal').hidden){ $('pickWait').hidden=false; $('pickWait').textContent=text; }
+  if(!$('roomModal').hidden) $('roomStatus').textContent=text;
+  paintQuestions();
+  if(state.role==='join' && (state.rejoinTries||0)<2){
+    state.rejoinTries=(state.rejoinTries||0)+1;
+    setTimeout(()=>{ if(!state.connected && conn===c && state.mode==='multi') rejoin(); }, 1200);
+  }
+}
+function attachPeer(p){
+  peer=p;
+  p.on('disconnected', ()=>{
+    setTimeout(()=>{ try{ if(peer===p && !p.destroyed && p.disconnected) p.reconnect(); }catch(e){} }, 700);
+  });
+  p.on('error', err=>{
+    if(err && err.type==='unavailable-id' && state.role==='host' && hostTries<6){
+      hostTries++;
+      openHost();
+      return;
+    }
+    const text=peerErrorText(err);
+    if(!$('roomModal').hidden) $('roomStatus').textContent=text;
+    if(!$('friendModal').hidden) $('friendErr').textContent=text;
+    if(state.phase==='play' || state.phase==='over' || state.phase==='pick') showNote(text);
+    else setBanner('no','Oops', text);
+  });
+}
+function showRoom(code, hosting){
+  state.code=code;
+  state.phase='room';
+  $('roomCode').textContent=code;
+  $('roomTitle').textContent=hosting?'Your room':'Joining';
+  $('roomHelp').textContent=hosting
+    ? 'Share this code or the link. The game starts when your friend joins.'
+    : 'Connecting to room '+code+'…';
+  $('linkField').value=roomUrl(code);
+  $('shareRow').hidden=!hosting;
+  $('linkField').hidden=!hosting;
+  $('roomStatus').textContent=hosting?'Waiting for your friend…':'Joining…';
+  $('shareBtn').hidden=!navigator.share;
+  showOnly('roomModal');
+  paintChrome();
+}
+async function createGame(){
+  $('friendErr').textContent='';
+  $('createBtn').disabled=true;
+  try{ await loadPeerJS(); }
+  catch(e){
+    $('createBtn').disabled=false;
+    $('friendErr').textContent='Couldn’t load the live-play library. Check your internet and try again.';
+    return;
+  }
+  $('createBtn').disabled=false;
+  hostTries=0;
+  state.mode='multi';
+  state.role='host';
+  openHost();
+}
+function openHost(){
+  const code=makeCode();
+  killPeer();
+  state.mode='multi';
+  state.role='host';
+  state.mine=null;
+  state.ready=false;
+  state.theyReady=false;
+  state.connected=false;
+  showRoom(code, true);
+  $('roomStatus').textContent='Opening the room…';
+  const p=new Peer(peerIdFor(code), {config:ICE, debug:0, pingInterval:2000});
+  attachPeer(p);
+  p.on('open', ()=>{
+    state.code=code;
+    try{ sessionStorage.setItem('gw-room', code); }catch(e){}
+    showRoom(code, true);
+    $('roomStatus').textContent='Waiting for your friend…';
+  });
+  p.on('connection', c=>{
+    const old=conn;
+    wire(c);
+    if(old && old!==c){ try{ old.close(); }catch(e){} }
+    c.on('open', ()=>{ state.connected=true; state.rejoinTries=0; hideNote(); armBeat(); });
+  });
+}
+async function joinGame(raw, keep){
+  const code=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+  if(code.length!==4){
+    showOnly('friendModal');
+    $('friendErr').textContent='Enter the 4-letter room code.';
+    return;
+  }
+  $('friendErr').textContent='';
+  state.mode='multi';
+  state.role='join';
+  state.code=code;
+  if(!keep){
+    state.mine=null;
+    state.ready=false;
+    state.theyReady=false;
+    showRoom(code, false);
+  }
+  try{ await loadPeerJS(); }
+  catch(e){
+    $('roomStatus').textContent='Couldn’t load the live-play library. Check your internet and try again.';
+    return;
+  }
+  if(!keep) killPeer();
+  state.mode='multi';
+  state.role='join';
+  state.code=code;
+  if(keep && peer && !peer.destroyed){
+    connectToHost();
+    return;
+  }
+  if(keep) killPeer();
+  const p=new Peer(undefined, {config:ICE, debug:0, pingInterval:2000});
+  attachPeer(p);
+  p.on('open', ()=>connectToHost());
+}
+function connectToHost(){
+  if(!peer || peer.destroyed || !state.code) return;
+  if(!peer.open){
+    peer.once('open', ()=>connectToHost());
+    if(peer.disconnected){ try{ peer.reconnect(); }catch(e){} }
+    return;
+  }
+  const c=peer.connect(peerIdFor(state.code), {reliable:true, serialization:'json'});
+  wire(c);
+  c.on('open', ()=>{
+    state.connected=true;
+    state.rejoinTries=0;
+    hideNote();
+    armBeat();
+    $('roomStatus').textContent='Connected. Getting the board ready…';
+    send({t:'hello', fresh:!state.mine, left:myLeft()});
+  });
+}
+function rejoin(){
+  if(state.mode!=='multi') return;
+  if(state.role==='host'){
+    try{ if(peer && peer.disconnected) peer.reconnect(); }catch(e){}
+    showNote('Opponent disconnected. They can rejoin with code '+state.code+'.');
+    return;
+  }
+  showNote('Opponent disconnected. Rejoining…');
+  if(!peer || peer.destroyed){
+    joinGame(state.code, true);
+    return;
+  }
+  if(peer.disconnected){ try{ peer.reconnect(); }catch(e){} }
+  connectToHost();
+}
+
+function beginPick(){
+  state.phase='pick';
+  state.mine=null;
+  state.ready=false;
+  state.theyReady=false;
+  state.myTurn=false;
+  state.over=false;
+  state.pending=null;
+  state.pendingGuess=null;
+  resetBoard();
+  $('secretPicks').hidden=false;
+  $('secretPicks').innerHTML=PEOPLE.map(p=>`<button type="button" class="pick" data-name="${p.name}">${faceSVG(p)}<span>${p.name}</span></button>`).join('');
+  $('confirmSecret').disabled=true;
+  $('confirmSecret').hidden=false;
+  $('randomSecret').hidden=false;
+  $('pickWait').hidden=true;
+  $('chosenFace').hidden=true;
+  $('chosenName').hidden=true;
+  $('pickHelp').textContent='Tap a face, or tap Surprise me. Only this phone answers questions about your secret person.';
+  showOnly('pickModal');
+  setHint('Choose the person your friend has to guess. Then you will guess theirs.');
+  hideNote();
+}
+function lockSecret(name){
+  const p=person(name);
+  if(!p || state.ready || state.phase!=='pick') return;
+  state.mine=p;
+  state.ready=true;
+  send({t:'ready'});
+  $('secretPicks').hidden=true;
+  $('confirmSecret').hidden=true;
+  $('randomSecret').hidden=true;
+  $('chosenFace').hidden=false;
+  $('chosenFace').innerHTML=faceSVG(p);
+  $('chosenName').hidden=false;
+  $('chosenName').textContent=p.name;
+  $('pickWait').hidden=false;
+  $('pickWait').textContent=state.theyReady?'Starting…':'Waiting for your friend to choose…';
+  paintChrome();
+  if(state.theyReady && state.role==='host') startRound();
+}
+function startRound(){
+  if(state.role!=='host' || state.phase!=='pick') return;
+  const start=Math.random()<0.5?'host':'join';
+  state.phase='starting';
+  send({t:'go', start});
+  beginPlay(start==='host');
+}
+function beginPlay(iStart){
+  state.phase='play';
+  state.myTurn=!!iStart;
+  state.pending=null;
+  state.over=false;
+  hideModals();
+  setHint(iStart
+    ? 'Your turn. Ask a yes/no question about your friend’s secret person. Their phone answers for them.'
+    : 'Friend’s turn. When they ask, this phone answers from your secret person.');
+  setBanner('wait', iStart?'Your turn':"Friend's turn", iStart?'Ask a question, or make a guess.':'Hang on — your friend is choosing a question.');
+  paintBoard();
+  paintQuestions();
+  send({t:'left', n:myLeft()});
+}
+function onData(raw){
+  const msg=raw && typeof raw==='object'?raw:null;
+  if(!msg || typeof msg.t!=='string') return;
+  state.lastPong=Date.now();
+  if(msg.t==='ping'){ send({t:'pong'}); return; }
+  if(msg.t==='pong') return;
+  if(msg.t==='hello'){
+    state.connected=true;
+    hideNote();
+    if(msg.fresh || !state.mine){
+      if(state.phase==='play' || state.phase==='over' || (state.phase==='pick' && state.ready)){
+        send({t:'restart'});
+        beginPick();
+        $('pickHelp').textContent='Opponent rejoined. Choose a secret person again.';
+      }else{
+        send({t:'pick'});
+        beginPick();
+      }
+    }else{
+      send({t:'sync', myTurn:!!state.myTurn, left:myLeft(), phase:state.phase});
+      if(typeof msg.left==='number') state.theirLeft=msg.left;
+      if(state.pending) send({t:'ask', q:state.pending});
+      paintChrome();
+    }
+    return;
+  }
+  if(msg.t==='pick'){
+    if(state.phase!=='play' && state.phase!=='over') beginPick();
+    return;
+  }
+  if(msg.t==='restart'){
+    beginPick();
+    $('pickHelp').textContent='Opponent rejoined. Choose a secret person again.';
+    return;
+  }
+  if(msg.t==='sync'){
+    state.connected=true;
+    hideNote();
+    if(typeof msg.left==='number') state.theirLeft=msg.left;
+    if(typeof msg.myTurn==='boolean') state.myTurn=!msg.myTurn;
+    if(state.pending) send({t:'ask', q:state.pending});
+    paintQuestions();
+    return;
+  }
+  if(msg.t==='ready'){
+    state.theyReady=true;
+    if(state.ready && state.role==='host' && state.phase==='pick') startRound();
+    else if(state.ready) $('pickWait').textContent='Starting…';
+    return;
+  }
+  if(msg.t==='go'){
+    if(!state.mine) return;
+    beginPlay(msg.start==='join');
+    return;
+  }
+  if(msg.t==='ask'){
+    const q=question(msg.q);
+    if(!q || !state.mine || state.phase!=='play' || state.over) return;
+    const yes=!!q.test(state.mine);
+    const already=state.answered.has(q.id);
+    state.answered.add(q.id);
+    send({t:'answer', q:q.id, yes});
+    if(!already){
+      addLog('Friend', q.text, yes);
+      state.myTurn=true;
+      state.pending=null;
+      setBanner(yes?'yes':'no', yes?'Yes':'No', 'Friend asked: '+q.text+' This phone answered '+(yes?'Yes':'No')+'. Your turn.');
+      paintQuestions();
+    }
+    return;
+  }
+  if(msg.t==='answer'){
+    const q=question(msg.q);
+    if(!q || state.phase!=='play') return;
+    if(state.pending && msg.q!==state.pending) return;
+    if(!state.pending && state.clues.some(c=>c.id===msg.q)) return;
+    const first=!state.clues.some(c=>c.id===msg.q);
+    state.pending=null;
+    applyClue(msg.q, !!msg.yes);
+    if(first) addLog('You', q.text, !!msg.yes);
+    state.myTurn=false;
+    const yes=!!msg.yes;
+    let detail=(yes?'Yes — ':'No — ')+q.text.replace(/\?$/,'')+'. Friend’s turn.';
+    if(myLeft()===1){
+      const last=PEOPLE.find(p=>!state.eliminated.has(p.name));
+      detail=(yes?'Yes. ':'No. ')+'Only '+last.name+' still fits. Friend’s turn, then you can guess.';
+    }
+    setBanner(yes?'yes':'no', yes?'Yes':'No', detail);
+    send({t:'left', n:myLeft()});
+    paintBoard();
+    paintQuestions();
+    return;
+  }
+  if(msg.t==='left' && typeof msg.n==='number'){
+    state.theirLeft=msg.n;
+    paintChrome();
+    return;
+  }
+  if(msg.t==='guess'){
+    const who=person(msg.name);
+    if(!who || !state.mine || state.over) return;
+    const correct=who.name===state.mine.name;
+    send({t:'result', correct, secret:state.mine.name, guess:who.name});
+    showEnd(correct?'They got you!':'You win!', state.mine,
+      correct
+        ? 'They guessed '+who.name+'. That was your secret.'
+        : 'They guessed '+who.name+', but you are '+state.mine.name+'.');
+    return;
+  }
+  if(msg.t==='result'){
+    const who=person(msg.secret);
+    const correct=!!msg.correct;
+    showEnd(correct?'You got it!':'Not this time.', who,
+      correct
+        ? 'It was '+(who?who.name:msg.secret)+'.'
+        : 'It was '+(who?who.name:msg.secret)+', not '+(state.pendingGuess||msg.guess)+'.');
+    return;
+  }
+  if(msg.t==='rematch'){
+    if(state.phase==='pick' && !state.ready) return;
+    beginPick();
+  }
+}
+function rematchOrAgain(){
+  if(state.mode==='multi'){
+    if(!state.connected){ showNote('Opponent disconnected'); return; }
+    send({t:'rematch'});
+    beginPick();
+    return;
+  }
+  newSolo();
+}
+
+$('board').addEventListener('click', e=>{
+  const btn=e.target.closest('.card');
+  if(!btn || state.over) return;
+  if(state.mode==='multi' && state.phase!=='play') return;
+  if(state.mode!=='solo' && state.mode!=='multi') return;
+  const name=btn.dataset.name;
+  if(state.down.has(name)) state.down.delete(name); else state.down.add(name);
+  paintBoard();
+});
+$('q').addEventListener('change', paintQuestions);
+$('ask').addEventListener('click', ask);
+$('guess').addEventListener('click', openGuess);
+$('guessClose').addEventListener('click', ()=>{ $('guessModal').hidden=true; });
+$('picks').addEventListener('click', e=>{
+  const btn=e.target.closest('.pick');
+  if(btn) chooseGuess(btn.dataset.name);
+});
+$('confirm').addEventListener('click', finishGuess);
+$('again').addEventListener('click', rematchOrAgain);
+$('menuBtn').addEventListener('click', goHome);
+$('soloBtn').addEventListener('click', newSolo);
+$('friendBtn').addEventListener('click', ()=>{ $('friendErr').textContent=''; showOnly('friendModal'); });
+$('friendBack').addEventListener('click', goHome);
+$('createBtn').addEventListener('click', createGame);
+$('joinBtn').addEventListener('click', ()=>joinGame($('codeInput').value));
+$('codeInput').addEventListener('keydown', e=>{ if(e.key==='Enter') joinGame($('codeInput').value); });
+$('roomCancel').addEventListener('click', goHome);
+$('copyBtn').addEventListener('click', async ()=>{
+  const url=$('linkField').value;
+  try{
+    await navigator.clipboard.writeText(url);
+    $('copyBtn').textContent='Copied';
+    setTimeout(()=>{$('copyBtn').textContent='Copy link'}, 1600);
+  }catch(e){
+    $('linkField').focus();
+    $('linkField').select();
+    $('roomStatus').textContent='Select the link and copy it.';
+  }
+});
+$('shareBtn').addEventListener('click', async ()=>{
+  const url=$('linkField').value;
+  const code=state.code;
+  if(navigator.share){
+    try{ await navigator.share({title:'Guess Who with Marc and George', text:'Play Guess Who with me. Room code '+code, url}); }
+    catch(e){}
+  }
+});
+$('rejoinBtn').addEventListener('click', rejoin);
+$('secretPicks').addEventListener('click', e=>{
+  const btn=e.target.closest('.pick');
+  if(!btn || state.ready) return;
+  state.guessName=btn.dataset.name;
+  document.querySelectorAll('#secretPicks .pick').forEach(b=>b.classList.toggle('sel', b===btn));
+  $('confirmSecret').disabled=false;
+  $('confirmSecret').textContent='Keep '+btn.dataset.name+' secret';
+});
+$('confirmSecret').addEventListener('click', ()=>{ if(state.guessName) lockSecret(state.guessName); });
+$('randomSecret').addEventListener('click', ()=>lockSecret(pickAny(state.mine).name));
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    $('guessModal').hidden=true;
+  }
+});
+
+buildBoard();
+paintQuestions();
+const roomParam=new URLSearchParams(location.search).get('room');
+if(roomParam && /^[A-Za-z0-9]{4}$/.test(roomParam.trim())) joinGame(roomParam.trim());
+else goHome();
+</script>
+</body>
+</html>
