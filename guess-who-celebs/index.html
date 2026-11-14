@@ -161,6 +161,10 @@ h1{flex:1;margin:0;font-size:clamp(12px,3.2vw,18px);line-height:1.1;white-space:
 .toast[hidden]{display:none}
 .namefield{display:block;font-weight:800;margin:8px 0}
 .namefield input{display:block;width:100%;box-sizing:border-box;font:inherit;font-weight:800;padding:8px;border:3px solid #0c2f66;border-radius:12px;margin-top:4px}
+
+.decks{display:flex;gap:3px;width:100%;max-width:980px;margin:0 auto;padding:1px 0 2px}
+.decks button{flex:1;min-width:0;border:2px solid #ffffff66;border-radius:999px;background:#ffffff1f;color:#fff;font:inherit;font-weight:800;font-size:11px;line-height:1;padding:4px 2px;cursor:pointer;min-height:24px}
+.decks button[aria-current="page"]{background:#ffe14a;color:#14213d;border-color:#ffe14a}
 </style>
 </head>
 <body>
@@ -171,6 +175,12 @@ h1{flex:1;margin:0;font-size:clamp(12px,3.2vw,18px);line-height:1.1;white-space:
     <button type="button" id="meChip" hidden aria-label="Your secret celebrity"><span id="meThumb"></span></button>
     <button type="button" class="hub" id="infoBtn" aria-label="Info and log">ⓘ</button>
   </div>
+  <nav class="decks" aria-label="Deck">
+    <button type="button" data-deck="people">People</button>
+    <button type="button" data-deck="cars">Cars</button>
+    <button type="button" data-deck="celebs" aria-current="page">Celebs</button>
+    <button type="button" data-deck="cartoons">Cartoons</button>
+  </nav>
 </header>
 <div class="statusline">
   <span class="turn" id="turnTag" hidden>Your turn</span>
@@ -796,6 +806,7 @@ function rememberRoom(code){
 }
 function forgetRoom(){
   try{ sessionStorage.removeItem(ROOM_KEY); }catch(e){}
+  try{ sessionStorage.removeItem('gw-live'); }catch(e){}
 }
 function stopJoinRetry(){
   if(joinTimer){ clearTimeout(joinTimer); joinTimer=null; }
@@ -1092,7 +1103,10 @@ function rejoin(){
 }
 async function resumeHost(){
   let saved=null;
-  try{ saved=JSON.parse(sessionStorage.getItem(ROOM_KEY)||'null'); }catch(e){}
+  try{ saved=JSON.parse(sessionStorage.getItem('gw-live')||'null'); }catch(e){}
+  const liveOk=!!(saved && saved.role==='host' && /^[A-Za-z0-9]{4}$/.test(saved.code||'') && Date.now()-(saved.at||0)<15*60*1000);
+  if(saved && saved.role==='host'){ try{ sessionStorage.removeItem('gw-live'); }catch(e){} }
+  if(!liveOk){ try{ saved=JSON.parse(sessionStorage.getItem(ROOM_KEY)||'null'); }catch(e){ saved=null; } }
   if(!saved || !/^[A-Za-z0-9]{4}$/.test(saved.code||'') || Date.now()-(saved.at||0)>15*60*1000) return false;
   try{ await loadPeerJS(); }
   catch(e){ return false; }
@@ -1173,6 +1187,7 @@ function onData(raw){
   if(!msg || typeof msg.t!=='string') return;
   state.lastPong=Date.now();
   if(msg.t==='ping'){ send({t:'pong'}); return; }
+  if(msg.t==='deck'){ if(msg.deck) goDeck(msg.deck, true); return; }
   if(msg.t==='pong') return;
   if(msg.t==='hello'){
     state.connected=true;
@@ -1408,6 +1423,25 @@ paintQuestions();
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') reviveHost(); });
 window.addEventListener('pageshow', ()=>reviveHost());
 window.addEventListener('focus', ()=>reviveHost());
+
+const THIS_DECK='celebs';
+const DECK_HREF={people:'../guess-who/',cars:'../guess-who-cars/',celebs:'../guess-who-celebs/',cartoons:'../guess-who-cartoons/'};
+let decking=false;
+function goDeck(deck, remote){
+  if(decking || !deck || deck===THIS_DECK || !DECK_HREF[deck]) return;
+  const href=DECK_HREF[deck];
+  const inRoom=state.mode==='multi' && state.code;
+  if(!inRoom){ location.href=href; return; }
+  decking=true;
+  if(!remote) send({t:'deck', deck:deck});
+  if(state.role==='host'){
+    try{ sessionStorage.setItem('gw-live', JSON.stringify({code:state.code, role:'host', at:Date.now()})); }catch(e){}
+    setTimeout(()=>{ location.href=href; }, remote?40:280);
+  }else{
+    setTimeout(()=>{ location.href=href+'?room='+encodeURIComponent(state.code); }, remote?40:280);
+  }
+}
+document.querySelectorAll('.decks [data-deck]').forEach(b=>b.addEventListener('click', ()=>goDeck(b.dataset.deck)));
 const roomParam=new URLSearchParams(location.search).get('room');
 (async function boot(){
   if(roomParam && /^[A-Za-z0-9]{4}$/.test(roomParam.trim())){ joinGame(roomParam.trim()); return; }
