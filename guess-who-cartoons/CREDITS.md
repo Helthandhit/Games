@@ -1,3 +1,4 @@
 # Picture credits
 
-All 24 cartoon cards are original illustrations drawn for this game. They use each character’s familiar colours, outfit and silhouette, but they are not official studio artwork, and no copyrighted images are stored in the repo.
+Twenty-two cards use the JPEG pictures in `img/`, supplied for this game at 300×400. Mario and Luigi still use the original drawings in the page, because no replacement pictures were included for them.
+
