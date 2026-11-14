@@ -125,9 +125,10 @@ h1{flex:1;margin:0;font-size:clamp(12px,3.2vw,18px);line-height:1.1;white-space:
 .card.down .flip{transform:rotateY(180deg)}
 .front,.back{position:absolute;inset:0;min-height:0;border-width:2px;border-radius:8px;overflow:hidden}
 .front{display:flex;flex-direction:column;background:#fffaf2}
-.front svg{flex:1 1 0;min-height:0;width:100%;height:100%;display:block}
-.pick img{width:78px;height:52px;object-fit:cover;border-radius:8px;flex:none;background:#111}
-.endface img{width:100%;height:150px;object-fit:cover;display:block}
+.front svg,.front img{flex:1 1 0;min-height:0;width:100%;height:100%;display:block}
+.front img{object-fit:cover;object-position:center 18%}
+.pick img{width:48px;height:64px;object-fit:cover;object-position:center 18%;border-radius:8px;flex:none;background:#111}
+.endface img{width:100%;height:180px;object-fit:cover;object-position:center 18%;display:block}
 .credits{font-size:12px;font-weight:600;line-height:1.4;padding-left:18px;margin:0 0 8px;max-height:28vh;overflow:auto}
 .credits a{color:#1f4fa3}
 .plate{flex:none;padding:1px 2px 2px}
@@ -375,6 +376,7 @@ function eyePair(x, y, gap, r, p, col){
     <circle cx="${x+gap-r*0.25}" cy="${y-r*0.28}" r="${h*0.45}" fill="#fff"/>`;
 }
 function cardArt(p){
+  if(p.slug!=='mario' && p.slug!=='luigi') return `<img src="img/${p.slug}.jpg" alt="">`;
   const sky={
     spongebob:'#7fd4f5', patrick:'#9adfff', homer:'#b7e4ff', bart:'#b7e4ff', lisa:'#b7e4ff', marge:'#b7e4ff',
     peter:'#d5ecff', stewie:'#ffe4f2', shrek:'#d7efb0', donkey:'#f6e0c4', scooby:'#f8e7c4', shaggy:'#e4f6d4',
@@ -670,7 +672,7 @@ tom:()=>`
 };
 
 function renderCredits(){
-  $('credits').innerHTML='<li>All 24 pictures are original illustrations drawn for this game. They are not official artwork, and no studio images are used.</li>';
+  $('credits').innerHTML='<li>Twenty-two cards use the pictures supplied for this game. Mario and Luigi are still the original drawings.</li>';
 }
 function commonsUrl(file){
   return "https://commons.wikimedia.org/wiki/File:"+encodeURIComponent(file).replace(/%20/g,"_");
