@@ -1,0 +1,28 @@
+# Photo credits
+
+These portraits are stored in `img/` and shown in the game. Each one is freely licensed.
+
+- **Adele** — Marc E.. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Adele_2016.jpg)
+- **Alan Carr** — JaceMerlyn. [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Alan_Carr_at_BAFTA_2026_(cropped).jpg)
+- **Alan Sugar** — Damien Everett. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sir_Alan_Sugar_at_the_BAFTA's_crop.jpg)
+- **Ant McPartlin** — Ben Salter. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Anthony_McPartlin_(of_Ant_and_Dec).jpg)
+- **David Beckham** — Soccer Aid for Unicef. [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:David_Beckham_UNICEF_(cropped2).jpg)
+- **David Walliams** — Sriya Sarkar. [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:David_Walliams_at_the_2025_Jaipur_Literature_Festival_(cropped).jpg)
+- **Declan Donnelly** — Ben Salter. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Declan_Donnelly_(of_Ant_and_Dec).jpg)
+- **Ed Sheeran** — Number 10. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Ed_Sheeran_2022_(3x4_crop).jpg)
+- **Gordon Ramsay** — Dave Pullig. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Gordon_Ramsay_(cropped).jpg)
+- **Harry Kane** — Bryan Berlin. [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Harry_Kane_England_v_Ghana_23_June_2026-024_(cropped).jpg)
+- **Holly Willoughby** — Eric The Fish. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Holly_Willoughby_(cropped).jpg)
+- **Jamie Oliver** — Karl Gabor. [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Jamie_Oliver_(cropped).jpg)
+- **Jeremy Clarkson** — Petr Magera. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Jeremy_Clarkson,_Top_Gear_Live_2012_(4x5_cropped).jpg)
+- **Joanna Lumley** — Land Rover MENA. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Land_Rover_‘Defender_2,000,000’_Sells_for_Record_£400,000_at_Bonhams_Charity_Auction_(23776501966).jpg)
+- **Judi Dench** — Raph_PH. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Judi_Dench_2023.jpg)
+- **Keith Lemon** — Sean Reynolds from Liverpool, United Kingdom. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Keith_Lemon_(8464862242)_(cropped).jpg)
+- **Lewis Hamilton** — Picture by Lauren Hurley / No 10 Downing Street. [OGL 3](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Prime_Minister_Keir_Starmer_meets_Sir_Lewis_Hamilton_(54566928382)_(cropped).jpg)
+- **Paddy McGuinness** — Simon P Blackburn (talk). Public domain. [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Paddy_McGuinness.jpg)
+- **Peter Kay** — University of Salford Press Office. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Peter_Kay_comedy_masterclass_at_University_of_Salford_12_December_2012_(cropped).jpg)
+- **Phillip Schofield** — Number 10. [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Philip_Schofield_(2013)_(cropped).jpg)
+- **Ricky Gervais** — Raph_PH. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:GervaisPall230921_(15_of_17)_(51527411486)_(cropped_2).jpg)
+- **Rylan Clark** — ESC Discord. [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Rylan_Clark_2024_(cropped).jpg)
+- **Simon Cowell** — UKinUSA. [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Simon_Cowell_at_Greater_Together_LA_2026_(cropped)_2.jpg)
+- **Stormzy** — Raph_PH. [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/). [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:StormzyO2270322_(34_of_77)_(cropped).jpg)

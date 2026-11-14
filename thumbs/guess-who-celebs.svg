@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <rect width="640" height="400" fill="#c8102e"/>
+  <rect x="28" y="28" width="584" height="344" rx="18" fill="#1f62c4"/>
+  <g font-family="Trebuchet MS, sans-serif" font-weight="800" fill="#fff">
+    <rect x="48" y="52" width="128" height="150" rx="10" fill="#fff7ec"/>
+    <circle cx="112" cy="108" r="34" fill="#e7b48a"/>
+    <path d="M78 100 C78 62 146 62 146 100 C140 78 84 78 78 100Z" fill="#f2d27a"/>
+    <circle cx="100" cy="104" r="3" fill="#111"/><circle cx="124" cy="104" r="3" fill="#111"/>
+    <text x="112" y="186" text-anchor="middle" font-size="16" fill="#163e86">ADELE</text>
+    <rect x="196" y="52" width="128" height="150" rx="10" fill="#fff7ec"/>
+    <circle cx="260" cy="108" r="34" fill="#d7a07a"/>
+    <path d="M226 108 C226 68 294 68 294 108 C286 84 234 84 226 108Z" fill="#8d8f98"/>
+    <circle cx="248" cy="104" r="3" fill="#111"/><circle cx="272" cy="104" r="3" fill="#111"/>
+    <path d="M242 122 Q260 132 278 122" fill="none" stroke="#111" stroke-width="3"/>
+    <text x="260" y="186" text-anchor="middle" font-size="14" fill="#163e86">WALLIAMS</text>
+    <rect x="344" y="52" width="128" height="150" rx="10" fill="#fff7ec"/>
+    <circle cx="408" cy="108" r="34" fill="#8d5a3c"/>
+    <path d="M374 96 C374 60 442 60 442 96 L442 118 C400 100 374 112 374 96Z" fill="#1a1a1a"/>
+    <circle cx="396" cy="104" r="3" fill="#111"/><circle cx="420" cy="104" r="3" fill="#111"/>
+    <text x="408" y="186" text-anchor="middle" font-size="16" fill="#163e86">STORMZY</text>
+    <rect x="492" y="52" width="120" height="150" rx="10" fill="#fff7ec"/>
+    <circle cx="552" cy="108" r="34" fill="#f0c097"/>
+    <path d="M520 100 C524 58 584 58 586 102 C560 78 530 80 520 100Z" fill="#e36a2c"/>
+    <circle cx="540" cy="104" r="3" fill="#111"/><circle cx="564" cy="104" r="3" fill="#111"/>
+    <text x="552" y="186" text-anchor="middle" font-size="16" fill="#163e86">ED</text>
+  </g>
+  <text x="320" y="250" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="42" font-weight="900" fill="#ffe14a">CELEBS</text>
+  <text x="320" y="300" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="22" font-weight="700" fill="#fff">24 famous faces</text>
+</svg>
