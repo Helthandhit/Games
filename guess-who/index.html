@@ -204,6 +204,7 @@ h1{flex:1;margin:0;font-size:clamp(13px,3.5vw,18px);line-height:1.1;white-space:
     <p style="margin-bottom:4px">Questions so far</p>
     <ol id="log" class="log"></ol>
     <a class="linkish" href="../guess-who-cars/">Cars version</a>
+    <a class="linkish" href="../guess-who-celebs/">Celebs version</a>
     <a class="linkish" href="../">All games</a>
     <button type="button" class="linkish" id="infoClose">Close</button>
   </div>
@@ -245,6 +246,7 @@ h1{flex:1;margin:0;font-size:clamp(13px,3.5vw,18px);line-height:1.1;white-space:
     <button type="button" class="guess" id="friendBtn">Play a friend</button>
     <button type="button" class="linkish" data-flipmode>Cards: auto-flip</button>
     <a class="linkish" href="../guess-who-cars/">Cars version</a>
+    <a class="linkish" href="../guess-who-celebs/">Celebs version</a>
   </div>
 </div>
 
@@ -336,6 +338,7 @@ const QUESTIONS = [
   {id:'rosy', text:'Have they got rosy cheeks?', test:p=>p.rosy}
 ];
 const FLIP_KEY='gw-flip';
+const ROOM_KEY='gw-host';
 const GROUPS=[['Hair',['blond','black','brown','ginger','grey','bald','long']],['Face',['woman','glasses','beard','moustache','blue','nose','rosy']],['Accessories',['hat','earrings']]];
 
 const HAIR = {black:'#1a1a1a', brown:'#7a3e16', blond:'#ffd34d', ginger:'#ff5a12', grey:'#d5d8e0'};
@@ -445,7 +448,7 @@ const state = {
   myName:'', theirName:'', flipMode:'auto', resolving:false, putTurn:0, lastQ:null, lastYes:false
 };
 
-let peer=null, conn=null, hostTries=0, beatTimer=null;
+let peer=null, conn=null, hostTries=0, beatTimer=null, joinTimer=null, hostGen=0, joinTries=0, roomClaimed=false;
 
 function $(id){return document.getElementById(id)}
 function person(name){return PEOPLE.find(p=>p.name===name)}
@@ -697,6 +700,9 @@ function pickAny(except){
 }
 
 function newSolo(){
+  forgetRoom();
+  roomClaimed=false;
+  hostGen++;
   killPeer();
   state.mode='solo';
   state.phase='play';
@@ -714,6 +720,10 @@ function newSolo(){
   $('again').textContent='Play again';
 }
 function goHome(){
+  forgetRoom();
+  roomClaimed=false;
+  hostGen++;
+  stopJoinRetry();
   killPeer();
   state.mode=null;
   state.phase='home';
@@ -814,19 +824,35 @@ function finishGuess(){
     won ? 'It was '+state.target.name+'.' : 'It was '+state.target.name+', not '+name+'.');
 }
 
+const JOIN_WAITS=[700,1000,1400,2000,2800,4000];
 function makeCode(){
   let s='';
   for(let i=0;i<4;i++) s+=ALPH[Math.floor(Math.random()*ALPH.length)];
   return s;
 }
 function peerIdFor(code){return 'gw-'+String(code||'').toLowerCase()}
+function peerOptions(){
+  return {host:'0.peerjs.com', port:443, path:'/', secure:true, config:ICE, debug:0, pingInterval:2500};
+}
 function roomUrl(code){
   const u=new URL(location.href);
-  if(u.pathname.endsWith('/index.html')) u.pathname=u.pathname.slice(0,-'index.html'.length);
+  let path=u.pathname;
+  if(path.endsWith('/index.html')) path=path.slice(0,-'index.html'.length);
+  if(!path.endsWith('/')) path+='/';
+  u.pathname=path;
   u.search='';
   u.hash='';
   u.searchParams.set('room', code);
   return u.toString();
+}
+function rememberRoom(code){
+  try{ sessionStorage.setItem(ROOM_KEY, JSON.stringify({code:code, at:Date.now()})); }catch(e){}
+}
+function forgetRoom(){
+  try{ sessionStorage.removeItem(ROOM_KEY); }catch(e){}
+}
+function stopJoinRetry(){
+  if(joinTimer){ clearTimeout(joinTimer); joinTimer=null; }
 }
 function loadPeerJS(){
   if(window.Peer) return Promise.resolve();
@@ -890,7 +916,7 @@ function onConnClose(c){
   const was=state.connected;
   state.connected=false;
   if(!was){
-    if(state.phase==='room') $('roomStatus').textContent='Couldn’t stay connected. Check the code and try again.';
+    if(state.role==='join') scheduleJoinRetry();
     return;
   }
   const extra=state.role==='host' && state.code ? ' They can rejoin with code '+state.code+'.' : '';
@@ -899,20 +925,51 @@ function onConnClose(c){
   if(!$('pickModal').hidden){ $('pickWait').hidden=false; $('pickWait').textContent=text; }
   if(!$('roomModal').hidden) $('roomStatus').textContent=text;
   paintQuestions();
-  if(state.role==='join' && (state.rejoinTries||0)<2){
+  if(state.role==='join' && (state.rejoinTries||0)<4){
     state.rejoinTries=(state.rejoinTries||0)+1;
     setTimeout(()=>{ if(!state.connected && conn===c && state.mode==='multi') rejoin(); }, 1200);
   }
 }
+function scheduleJoinRetry(){
+  if(state.role!=='join' || state.connected || state.mode!=='multi' || joinTimer) return;
+  joinTries++;
+  if(joinTries>JOIN_WAITS.length){
+    const text=peerErrorText({type:'peer-unavailable'});
+    if(!$('roomModal').hidden) $('roomStatus').textContent=text;
+    if(!$('friendModal').hidden) $('friendErr').textContent=text;
+    return;
+  }
+  if(!$('roomModal').hidden) $('roomStatus').textContent='Still looking for room '+state.code+'…';
+  const wait=JOIN_WAITS[joinTries-1];
+  joinTimer=setTimeout(()=>{
+    joinTimer=null;
+    if(state.connected || state.role!=='join' || state.mode!=='multi') return;
+    connectToHost();
+  }, wait);
+}
 function attachPeer(p){
   peer=p;
+  const gen=hostGen;
   p.on('disconnected', ()=>{
-    setTimeout(()=>{ try{ if(peer===p && !p.destroyed && p.disconnected) p.reconnect(); }catch(e){} }, 700);
+    setTimeout(()=>{ try{ if(peer===p && !p.destroyed && p.disconnected) p.reconnect(); }catch(e){} }, 400);
   });
   p.on('error', err=>{
-    if(err && err.type==='unavailable-id' && state.role==='host' && hostTries<6){
+    if(peer!==p || gen!==hostGen) return;
+    if(err && err.type==='peer-unavailable' && state.role==='join' && !state.connected){
+      scheduleJoinRetry();
+      return;
+    }
+    if(err && err.type==='unavailable-id' && state.role==='host'){
       hostTries++;
-      openHost();
+      const again=state.code;
+      $('roomStatus').textContent=roomClaimed?'Reconnecting your room…':'Opening the room…';
+      if(!roomClaimed && hostTries>=5){
+        hostTries=0;
+        spawnHost(makeCode(), true);
+        return;
+      }
+      const delay=Math.min(450*hostTries, 2500);
+      setTimeout(()=>{ if(state.role==='host' && state.code===again && hostGen===gen) spawnHost(again, false); }, delay);
       return;
     }
     const text=peerErrorText(err);
@@ -925,15 +982,16 @@ function attachPeer(p){
 function showRoom(code, hosting){
   state.code=code;
   state.phase='room';
+  const live=!!(hosting && roomClaimed);
   $('roomCode').textContent=code;
-  $('roomTitle').textContent=hosting?'Your room':'Joining';
+  $('roomTitle').textContent=hosting?'Your room':'Joining '+code;
   $('roomHelp').textContent=hosting
-    ? 'Share this code or the link. The game starts when your friend joins.'
+    ? 'Keep this page open, then share the link. The game starts when your friend joins.'
     : 'Connecting to room '+code+'…';
   $('linkField').value=roomUrl(code);
-  $('shareRow').hidden=!hosting;
-  $('linkField').hidden=!hosting;
-  $('roomStatus').textContent=hosting?'Waiting for your friend…':'Joining…';
+  $('shareRow').hidden=!live;
+  $('linkField').hidden=!live;
+  $('roomStatus').textContent=hosting?(live?'Waiting for your friend…':'Opening the room…'):'Connecting to room '+code+'…';
   $('shareBtn').hidden=!navigator.share;
   showOnly('roomModal');
   paintChrome();
@@ -954,30 +1012,50 @@ async function createGame(){
   openHost();
 }
 function openHost(){
-  const code=makeCode();
+  spawnHost(makeCode(), true);
+}
+function spawnHost(code, fresh){
+  const gen=++hostGen;
   killPeer();
+  stopJoinRetry();
   state.mode='multi';
   state.role='host';
-  state.mine=null;
-  state.ready=false;
-  state.theyReady=false;
+  state.code=code;
   state.connected=false;
+  if(fresh){
+    roomClaimed=false;
+    hostTries=0;
+    state.mine=null;
+    state.ready=false;
+    state.theyReady=false;
+  }
   showRoom(code, true);
-  $('roomStatus').textContent='Opening the room…';
-  const p=new Peer(peerIdFor(code), {config:ICE, debug:0, pingInterval:2000});
+  const p=new Peer(peerIdFor(code), peerOptions());
   attachPeer(p);
   p.on('open', ()=>{
+    if(gen!==hostGen || peer!==p) return;
+    roomClaimed=true;
+    hostTries=0;
     state.code=code;
-    try{ sessionStorage.setItem('gw-room', code); }catch(e){}
+    rememberRoom(code);
     showRoom(code, true);
     $('roomStatus').textContent='Waiting for your friend…';
   });
   p.on('connection', c=>{
+    if(gen!==hostGen || peer!==p){ try{ c.close(); }catch(e){} return; }
     const old=conn;
     wire(c);
     if(old && old!==c){ try{ old.close(); }catch(e){} }
     c.on('open', ()=>{ state.connected=true; state.rejoinTries=0; hideNote(); armBeat(); });
   });
+}
+function reviveHost(){
+  if(state.mode!=='multi' || state.role!=='host' || !state.code) return;
+  if(peer && !peer.destroyed){
+    if(!peer.open || peer.disconnected){ try{ peer.reconnect(); }catch(e){} }
+    return;
+  }
+  spawnHost(state.code, false);
 }
 async function joinGame(raw, keep){
   const code=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
@@ -987,6 +1065,8 @@ async function joinGame(raw, keep){
     return;
   }
   $('friendErr').textContent='';
+  joinTries=0;
+  stopJoinRetry();
   state.mode='multi';
   state.role='join';
   state.code=code;
@@ -995,6 +1075,7 @@ async function joinGame(raw, keep){
     state.ready=false;
     state.theyReady=false;
     showRoom(code, false);
+    $('roomStatus').textContent='Connecting to room '+code+'…';
   }
   try{ await loadPeerJS(); }
   catch(e){
@@ -1010,21 +1091,35 @@ async function joinGame(raw, keep){
     return;
   }
   if(keep) killPeer();
-  const p=new Peer(undefined, {config:ICE, debug:0, pingInterval:2000});
+  const p=new Peer(undefined, peerOptions());
   attachPeer(p);
   p.on('open', ()=>connectToHost());
 }
 function connectToHost(){
-  if(!peer || peer.destroyed || !state.code) return;
+  if(state.role!=='join' || !state.code || state.connected) return;
+  if(!peer || peer.destroyed){
+    const p=new Peer(undefined, peerOptions());
+    attachPeer(p);
+    p.on('open', ()=>connectToHost());
+    return;
+  }
   if(!peer.open){
-    peer.once('open', ()=>connectToHost());
+    if(!peer._gwWait){
+      peer._gwWait=true;
+      peer.once('open', ()=>{ peer._gwWait=false; connectToHost(); });
+    }
     if(peer.disconnected){ try{ peer.reconnect(); }catch(e){} }
     return;
   }
+  const prev=conn;
   const c=peer.connect(peerIdFor(state.code), {reliable:true, serialization:'json'});
   wire(c);
+  if(prev && prev!==c){ try{ prev.close(); }catch(e){} }
   c.on('open', ()=>{
+    if(conn!==c) return;
     state.connected=true;
+    joinTries=0;
+    stopJoinRetry();
     state.rejoinTries=0;
     hideNote();
     armBeat();
@@ -1035,10 +1130,12 @@ function connectToHost(){
 function rejoin(){
   if(state.mode!=='multi') return;
   if(state.role==='host'){
-    try{ if(peer && peer.disconnected) peer.reconnect(); }catch(e){}
+    reviveHost();
     showNote('Opponent disconnected. They can rejoin with code '+state.code+'.');
     return;
   }
+  joinTries=0;
+  stopJoinRetry();
   showNote('Opponent disconnected. Rejoining…');
   if(!peer || peer.destroyed){
     joinGame(state.code, true);
@@ -1046,6 +1143,18 @@ function rejoin(){
   }
   if(peer.disconnected){ try{ peer.reconnect(); }catch(e){} }
   connectToHost();
+}
+async function resumeHost(){
+  let saved=null;
+  try{ saved=JSON.parse(sessionStorage.getItem(ROOM_KEY)||'null'); }catch(e){}
+  if(!saved || !/^[A-Za-z0-9]{4}$/.test(saved.code||'') || Date.now()-(saved.at||0)>15*60*1000) return false;
+  try{ await loadPeerJS(); }
+  catch(e){ return false; }
+  state.mode='multi';
+  state.role='host';
+  roomClaimed=true;
+  spawnHost(String(saved.code).toUpperCase(), false);
+  return true;
 }
 
 function beginPick(){
@@ -1276,6 +1385,7 @@ $('joinBtn').addEventListener('click', ()=>joinGame($('codeInput').value));
 $('codeInput').addEventListener('keydown', e=>{ if(e.key==='Enter') joinGame($('codeInput').value); });
 $('roomCancel').addEventListener('click', goHome);
 $('copyBtn').addEventListener('click', async ()=>{
+  reviveHost();
   const url=$('linkField').value;
   try{
     await navigator.clipboard.writeText(url);
@@ -1288,6 +1398,7 @@ $('copyBtn').addEventListener('click', async ()=>{
   }
 });
 $('shareBtn').addEventListener('click', async ()=>{
+  reviveHost();
   const url=$('linkField').value;
   const code=state.code;
   if(navigator.share){
@@ -1347,9 +1458,15 @@ try{ if(localStorage.getItem(FLIP_KEY)==='manual') state.flipMode='manual'; }cat
 paintFlipBtn();
 buildBoard();
 paintQuestions();
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') reviveHost(); });
+window.addEventListener('pageshow', ()=>reviveHost());
+window.addEventListener('focus', ()=>reviveHost());
 const roomParam=new URLSearchParams(location.search).get('room');
-if(roomParam && /^[A-Za-z0-9]{4}$/.test(roomParam.trim())) joinGame(roomParam.trim());
-else goHome();
+(async function boot(){
+  if(roomParam && /^[A-Za-z0-9]{4}$/.test(roomParam.trim())){ joinGame(roomParam.trim()); return; }
+  if(await resumeHost()) return;
+  goHome();
+})();
 </script>
 </body>
 </html>
